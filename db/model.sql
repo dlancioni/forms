@@ -85,6 +85,7 @@ create table tb_event_field (
     id int not null primary key,
     id_company int not null,
     id_field int not null,
+    id_event int not null,    
     name varchar(500) not null,
     code text not null
 );

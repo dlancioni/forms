@@ -59,11 +59,23 @@ insert into tb_field values (3, 1, 1, 'tex_1', 'Descrição', 3, 50, null, 0, 0,
 insert into tb_field values (4, 1, 1, 'dat_1', 'Data', 4, 0, 'yyyy-MM-dd', 0, 0, 0, 0);
 insert into tb_field values (5, 1, 1, 'dec_1', 'Valor', 2, 0, '0.000,00', 0, 0, 0, 0);
 
+
+drop table if exists tb_event;
+create table tb_event (
+    id int not null primary key,
+    name varchar(50) not null
+);
+insert into tb_event values (1, 'Click');
+insert into tb_event values (2, 'Ganhar foco');
+insert into tb_event values (3, 'Perder foco');
+
 drop table if exists tb_event_form;
 create table tb_event_form (
     id int not null primary key,
     id_company int not null,
     id_form int not null,
+    id_event int not null,
+    label varchar(500) not null,
     name varchar(500) not null,
     code text not null
 );

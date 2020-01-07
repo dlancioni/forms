@@ -1,0 +1,18 @@
+    <?php 
+    
+    class Table {
+
+        public $conn;
+        public $company_id;
+
+        function __construct($connection, $company_id) {
+            $this->conn = $connection;
+            $this->company_id = $company_id;
+        }
+      
+        function get_name() {
+          return $this->company_id;
+        }
+      }
+
+    ?>

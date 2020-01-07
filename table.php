@@ -6,17 +6,13 @@
 
     <!-- HEADER include -->
     <?php include "web/header.php";?>   
-
     <!-- PHP include -->
-    <?php include 'src/include/connection.php';?>    
-    <?php include "src/classes/transaction.php";?>
-    <?php
-        $table = new Table($conn, 1);
-    ?>
+    <?php include "src/header.php";?>   
+
 
     <!-- PAGE CONTENTS -->
     <div class="ui segment">
-        <?php echo $table->get_name();?>
+        <?php echo $transaction->getCompany();?>
     </div>
 
     <!-- Dynamic JS -->

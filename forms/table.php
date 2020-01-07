@@ -5,10 +5,11 @@
 <body>
 
     <!-- HEADER include -->
-    <?php include "php/include/header.php";?>
+    <?php include "web/header.php";?>   
 
     <!-- PHP include -->
-    <?php include "php/classes/transaction.class";?>
+    <?php include 'src/include/connection.php';?>    
+    <?php include "src/classes/transaction.class";?>
     <?php
         $table = new Table($conn, 1);
     ?>

@@ -1,12 +1,20 @@
+
+<!DOCTYPE html>
 <html>
- <head>
-  <title>Teste PHP</title>
- </head>
- <body>
+<script src="semantic-ui/js/semantic.min.js"></script>
+<link rel="stylesheet" type="text/css" href="semantic-ui/css/semantic.min.css">
 
- 
- <?php include 'include/connection.php';?>
+<head>
+    <title>Hello World!</title>
+</head>
 
+<body>
 
- </body>
+    <div class="ui segment">
+        <p> <?php include 'include/connection.php';?></p>
+    </div>
+</body>
+
 </html>
+
+

@@ -9,7 +9,7 @@
 
     <!-- PHP include -->
     <?php include 'src/include/connection.php';?>    
-    <?php include "src/classes/transaction.class";?>
+    <?php include "src/classes/transaction.php";?>
     <?php
         $table = new Table($conn, 1);
     ?>

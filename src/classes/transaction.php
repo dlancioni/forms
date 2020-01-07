@@ -1,16 +1,8 @@
 <?php    
-    class Transaction {
-      
-        public $connection;
-        public $company;
 
-        function __construct($conn, $cid) {
-            $this->connection = $conn;
-            $this->company = $cid;
-        }
+    include "base.php";
+
+    class Transaction extends Base {
       
-        function getCompany() {
-            return $this->company;
-        }
     }
 ?>

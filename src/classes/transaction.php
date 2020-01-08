@@ -5,8 +5,15 @@
      */
     include "base.php";
 
+    /*
+     * Developed by David Lancioni - 01/2020
+     * Create methods used to manipulate transactions
+     */    
     class Transaction extends Base {
 
+        /*
+         * Get transaction name
+         */
         function getName() {
 
             // General Declaration
@@ -20,7 +27,7 @@
 
             // Keep ther ecord
             if ($result->num_rows > 0) {
-                while($row = $result->fetch_assoc()) {
+                while ($row = $result->fetch_assoc()) {
                     $name = $row["name"];
                 }
             }

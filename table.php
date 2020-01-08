@@ -12,7 +12,7 @@
 
     <!-- PAGE CONTENTS -->
     <div class="ui segment">
-        <?php echo $transaction->getName();?>
+        <?php echo $form->getName();?>
     </div>
 
     <!-- Dynamic JS -->

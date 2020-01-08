@@ -9,10 +9,25 @@
      * Developed by David Lancioni - 01/2020
      * Create methods used to manipulate transactions
      */    
-    class Transaction extends Base {
+    class Form extends Base {
 
         /*
-         * Get transaction name
+         * GetList
+         */
+        function GetList() {
+
+            // Query form name            
+            $sql = "";
+            $sql .= " select * from tb_form "; 
+            $sql .= " where id_company = " . $this->getCompany();
+            $result = $this->getConnection()->query($sql);
+
+            // Return record
+            return $result;
+        }
+
+        /*
+         * Get form name
          */
         function getName() {
 
@@ -35,6 +50,5 @@
             // Return record
             return $name;
         }
-
     } // End of class
 ?>

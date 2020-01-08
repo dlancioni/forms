@@ -4,8 +4,8 @@
     include "include/connection.php";
     
     // Class dependencies
-    include "classes/transaction.php";
+    include "classes/form.php";
 
     // Class instances
-    $transaction = new Transaction($conn, 1);
+    $form = new Form($conn, 1);
 ?>

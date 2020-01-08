@@ -13,38 +13,38 @@
             $sql = " select" . PHP_EOL;
             
             // Field list
-            $sql .= " tb_field.id,"                                         . PHP_EOL;
-            $sql .= " tb_field.id_company,"                                 . PHP_EOL;
-            $sql .= " tb_field.id_form,"                                    . PHP_EOL;
-            $sql .= " tb_field.name,"                                       . PHP_EOL;
-            $sql .= " tb_field.label,"                                      . PHP_EOL;
-            $sql .= " tb_field.id_field_type,"                              . PHP_EOL;
-            $sql .= " tb_field_type.name_field_type,"                       . PHP_EOL;
-            $sql .= " tb_field.size,"                                       . PHP_EOL;
-            $sql .= " tb_field.mask,"                                       . PHP_EOL;
-            $sql .= " tb_field.is_pk,"                                      . PHP_EOL;
-            $sql .= " tb_field.id_fk,"                                      . PHP_EOL;
-            $sql .= " tb_field.is_nullable,"                                . PHP_EOL;
-            $sql .= " tb_field.is_unique"                                   . PHP_EOL;            
-            $sql .= " tb_form.table_name,"                                  . PHP_EOL . PHP_EOL;
+            $sql .= " tb_field.id,";
+            $sql .= " tb_field.id_company,";
+            $sql .= " tb_field.id_form,";
+            $sql .= " tb_field.name,";
+            $sql .= " tb_field.label,";
+            $sql .= " tb_field.id_field_type,";
+            $sql .= " tb_field_type.name field_type,";
+            $sql .= " tb_field.size,";
+            $sql .= " tb_field.mask,";
+            $sql .= " tb_field.is_pk,";
+            $sql .= " tb_field.id_fk,";
+            $sql .= " tb_field.is_nullable,";
+            $sql .= " tb_field.is_unique,";
+            $sql .= " tb_form.table_name";
            
             // From
-            $sql .= " from tb_field"                                        . PHP_EOL . PHP_EOL;
+            $sql .= " from tb_field";
             
             // Join tb_form
-            $sql .= " inner join tb_form on"                                . PHP_EOL;
-            $sql .= " tb_field.id_company = tb_form.id_company and"         . PHP_EOL;
-            $sql .= " tb_field.id_form = tb_form.id"                        . PHP_EOL . PHP_EOL;
+            $sql .= " inner join tb_form on";
+            $sql .= " tb_field.id_company = tb_form.id_company and";
+            $sql .= " tb_field.id_form = tb_form.id";
             
             // Join tb_field_type
-            $sql .= " inner join tb_field_type on"                          . PHP_EOL;
-            $sql .= " tb_field.id_field_type = tb_field_type.id"            . PHP_EOL . PHP_EOL;
+            $sql .= " inner join tb_field_type on";
+            $sql .= " tb_field.id_field_type = tb_field_type.id";
             
             // Condition
-            $sql .= " where tb_field.id_company = " . $this->getCompany()   . PHP_EOL . PHP_EOL;
+            $sql .= " where tb_field.id_company = " . $this->getCompany();
 
             if ($form != 0) {
-                $sql .= " and tb_field.id_form = " . $form                  . PHP_EOL;
+                $sql .= " and tb_field.id_form = " . $form;
             }
 
             // Execute query
@@ -60,20 +60,25 @@
         function PrepareStatementToQuery($form) {
 
             // General Declaration
-            $sql = "select" . PHP_EOL;
+            $table_name = "";
+            $sql = "select ";
 
             // Get the field list
             $resultset = $this->GetList($form);   
 
+            // Prepare query statement
             if ($resultset->num_rows > 0) {
-                
-                // Append field list
-                while ($row = $result->fetch_assoc()) {
-                    $sql .= $row["name"] . "," . PHP_EOL;
+                $table_name = $row["table_name"];                
+                while ($row = $resultset->fetch_assoc()) {
+                    $count ++;
+                    $sql .= $row["name"];
+                    if ($count < $resultset->num_rows) {
+                        $sql .=  ", ";
+                    }
                 }
 
                 // Append from
-                $sql .= " from "  . $row["table_name"];
+                $sql .= " from " . $table_name;
             }    
 
             // Return record

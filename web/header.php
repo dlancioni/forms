@@ -6,7 +6,6 @@
 
 <!-- Page Head -->
 <head>
-    <title>
-        Forms
-    </title>
+
+    <title>Forms</title>
 </head>

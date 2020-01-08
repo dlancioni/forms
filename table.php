@@ -5,16 +5,19 @@
 <body>
 
     <!-- HEADER include -->
-    <?php include "web/header.php";?>   
+    <?php include "web/header.php";?>
     <!-- PHP include -->
-    <?php include "src/header.php";?>   
+    <?php include "src/header.php";?>
 
 
     <!-- PAGE CONTENTS -->
     <div class="ui segment">
+
+        <!-- Form name -->    
         <?php echo $form->getName();?>
-        <br>
-        <?php echo $field->PrepareStatementToQuery(1);?>
+
+        <!-- Main grid -->
+        <?php include "table_grid.php";?>
 
     </div>
 

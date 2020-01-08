@@ -13,6 +13,9 @@
     <!-- PAGE CONTENTS -->
     <div class="ui segment">
         <?php echo $form->getName();?>
+        <br>
+        <?php echo $field->PrepareStatementToQuery(1);?>
+
     </div>
 
     <!-- Dynamic JS -->

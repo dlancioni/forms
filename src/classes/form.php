@@ -1,11 +1,6 @@
 <?php    
 
     /*
-     * Base class
-     */
-    include "base.php";
-
-    /*
      * Developed by David Lancioni - 01/2020
      * Create methods used to manipulate transactions
      */    

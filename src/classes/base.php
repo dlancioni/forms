@@ -1,16 +1,20 @@
 <?php    
     class Base {
-      
-        public $connection;
-        public $company;
 
-        function __construct($conn, $cid) {
-            $this->connection = $conn;
-            $this->company = $cid;
+        private $connection;
+        private $company;
+
+        function __construct($connection, $company) {
+            $this->connection = $connection;
+            $this->company = $company;
         }
-      
+
         function getCompany() {
             return $this->company;
+        }
+
+        function getConnection() {
+            return $this->connection;
         }
     }
 ?>

@@ -68,21 +68,27 @@
 
             // Prepare query statement
             if ($resultset->num_rows > 0) {
-                $table_name = $row["table_name"];                
+
+                // Prepare field list
                 while ($row = $resultset->fetch_assoc()) {
                     $count ++;
-                    $sql .= $row["name"];
+                    $sql .= $row["name"] . " " . $row["label"];
                     if ($count < $resultset->num_rows) {
                         $sql .=  ", ";
                     }
+                    $table_name = $row["table_name"];                    
                 }
 
                 // Append from
                 $sql .= " from " . $table_name;
             }    
 
+            // Execute query
+            $resultset = $this->getConnection()->query($sql);
+
             // Return record
-            return $sql;
+            return $resultset;
         }
+
     } // End of class
 ?>

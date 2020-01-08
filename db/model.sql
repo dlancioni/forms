@@ -48,7 +48,7 @@ create table tb_field (
     id_field_type int not null,
     size int not null,
     mask varchar(50),
-    pk int not null,
+    is_pk int not null,
     id_fk int not null,
     is_nullable int not null,
     is_unique int not null

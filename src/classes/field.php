@@ -47,6 +47,9 @@
                 $sql .= " and tb_field.id_form = " . $form;
             }
 
+            // Ordering    
+            $sql .= " order by tb_field.id;";
+
             // Execute query
             $resultset = $this->getConnection()->query($sql);
 

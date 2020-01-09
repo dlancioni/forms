@@ -1,8 +1,7 @@
+<!-- Meta -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- CSS include -->
-<link rel="stylesheet" type="text/css" href="../semantic-ui/css/semantic.min.css">
-
-<!-- JS include -->
-<script src="../semantic-ui/js/semantic.min.js"></script>
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 
 <!-- Page Head -->
 <head>

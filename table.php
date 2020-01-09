@@ -11,14 +11,22 @@
 
 
     <!-- PAGE CONTENTS -->
-    <div class="ui segment">
+    <div class="w3-container">
+    <div class="w3-row">
 
-        <!-- Form name -->    
-        <?php echo $form->getName();?>
+        <div class="w3-col l12">
+            <!-- Form name -->    
+            <h3>
+            <?php echo $form->getName();?>
+            </h3>
+            <hr>
+            <!-- Main grid -->
+            <?php include "table_grid.php";?>
+        </div>    
 
-        <!-- Main grid -->
-        <?php include "table_grid.php";?>
+        <button class="w3-button w3-black">Button Button</button>        
 
+    </div>
     </div>
 
     <!-- Dynamic JS -->

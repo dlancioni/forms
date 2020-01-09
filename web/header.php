@@ -7,3 +7,6 @@
 <head>
     <title>Forms</title>
 </head>
+
+<!-- Main container, close on footer -->
+<div class="w3-container">

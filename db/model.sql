@@ -53,8 +53,8 @@ create table tb_field (
     is_nullable int not null,
     is_unique int not null
 );
-insert into tb_field values (1, 1, 1, 'num_1', 'Id', 1, 0, null, 1, 0, 0, 0); -- Autogen when create form  
-insert into tb_field values (2, 1, 1, 'num_2', 'Código', 1, 0, null, 0, 0, 0, 0);
+insert into tb_field values (1, 1, 1, 'id', 'Id', 1, 0, null, 1, 0, 0, 0); -- Autogen when create form  
+insert into tb_field values (2, 1, 1, 'num_1', 'Código', 1, 0, null, 0, 0, 0, 0);
 insert into tb_field values (3, 1, 1, 'tex_1', 'Descrição', 3, 50, null, 0, 0, 0, 0);
 insert into tb_field values (4, 1, 1, 'dat_1', 'Data', 4, 0, 'yyyy-MM-dd', 0, 0, 0, 0);
 insert into tb_field values (5, 1, 1, 'dec_1', 'Valor', 2, 0, '0.000,00', 0, 0, 0, 0);
@@ -92,18 +92,15 @@ create table tb_event_field (
 
 drop table if exists tb_1;
 create table tb_1 (
-    num_1 int primary key auto_increment,
-    num_2 int,
+    id int primary key auto_increment,
+    num_1 int,
     tex_1 varchar(50),
     dat_1 datetime,
-    dec_1 decimal(10,4)
+    dec_1 decimal(10,2)
 );
 
-insert into tb_1 (num_2, tex_1, dat_1, dec_1) values (1, 'Descrição 1', '2020-01-01', 100.01);
-insert into tb_1 (num_2, tex_1, dat_1, dec_1) values (2, 'Descrição 2', '2020-01-02', 100.02);
-insert into tb_1 (num_2, tex_1, dat_1, dec_1) values (3, 'Descrição 3', '2020-01-03', 100.03);
-insert into tb_1 (num_2, tex_1, dat_1, dec_1) values (4, 'Descrição 4', '2020-01-04', 100.04);
-insert into tb_1 (num_2, tex_1, dat_1, dec_1) values (5, 'Descrição 5', '2020-01-05', 100.05);
-
-
-
+insert into tb_1 (num_1, tex_1, dat_1, dec_1) values (1, 'Descrição 1', '2020-01-01', 100.01);
+insert into tb_1 (num_1, tex_1, dat_1, dec_1) values (2, 'Descrição 2', '2020-01-02', 100.02);
+insert into tb_1 (num_1, tex_1, dat_1, dec_1) values (3, 'Descrição 3', '2020-01-03', 100.03);
+insert into tb_1 (num_1, tex_1, dat_1, dec_1) values (4, 'Descrição 4', '2020-01-04', 100.04);
+insert into tb_1 (num_1, tex_1, dat_1, dec_1) values (5, 'Descrição 5', '2020-01-05', 100.05);

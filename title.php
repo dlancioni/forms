@@ -2,4 +2,3 @@
 <h3>
 <?php echo $form->getName();?>
 </h3>
-<hr>

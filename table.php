@@ -52,7 +52,7 @@
     <!-- Footer WEB -->
     <?php include "web/footer.php";?>
     <!-- Footer PHP -->
-    <?php include "src/footer.php";?>
+    <?php include "web/footer.php";?>
 
 <!-- END HTML -->
 </form>

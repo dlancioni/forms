@@ -3,7 +3,7 @@
 <!-- BEGIN HTML -->
 <html>
 <body>
-<form name='Table'>
+<form id='Table'>
 
     <!-- Header WEB -->
     <?php include "web/header.php";?>
@@ -22,9 +22,8 @@
         <div class="w3-col l8">
             <!-- Title -->
             <?php include "title.php";?>
-
-
-            this is the form !!!
+            <!-- Fields -->
+            <?php include "form_field.php";?>
         </div>
 
         <div class="w3-col l2">
@@ -40,7 +39,7 @@
     <!-- Footer WEB -->
     <?php include "web/footer.php";?>
     <!-- Footer PHP -->
-    <?php include "src/footer.php";?>
+    <?php include "web/footer.php";?>
 
 <!-- END HTML -->
 </form>

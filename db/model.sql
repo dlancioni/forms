@@ -65,9 +65,9 @@ create table tb_event (
     id int not null primary key,
     name varchar(50) not null
 );
-insert into tb_event values (1, 'Click');
-insert into tb_event values (2, 'Ganhar foco');
-insert into tb_event values (3, 'Perder foco');
+insert into tb_event values (1, 'OnClick()');
+insert into tb_event values (2, 'OnFocus()');
+insert into tb_event values (3, 'OnBlur()');
 
 drop table if exists tb_event_form;
 create table tb_event_form (

@@ -3,7 +3,7 @@
 <!-- BEGIN HTML -->
 <html>
 <body>
-<form name='Table' method='Post' action='form.php'>
+<form name='Table'>
 
     <!-- Header WEB -->
     <?php include "web/header.php";?>
@@ -22,10 +22,9 @@
         <div class="w3-col l8">
             <!-- Title -->
             <?php include "title.php";?>
-            <!-- Grid -->
-            <?php include "table_grid.php";?>
-            <!-- Button -->
-            <?php include "table_button.php";?>
+
+
+            this is the form !!!
         </div>
 
         <div class="w3-col l2">
@@ -36,9 +35,6 @@
 
     <!-- Dynamic JS -->
     <script language="JavaScript">
-        function New(form) {
-            form.submit();	
-        }    
     </script>
 
     <!-- Footer WEB -->

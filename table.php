@@ -3,7 +3,7 @@
 <!-- BEGIN HTML -->
 <html>
 <body>
-<form name='Table' method='Post' action='form.php'>
+<form id='Table' method='Post' action='form.php'>
 
     <!-- Header WEB -->
     <?php include "web/header.php";?>
@@ -37,8 +37,16 @@
     <!-- Dynamic JS -->
     <script language="JavaScript">
         function New(form) {
-            form.submit();	
+
+            //form.submit();	
+            $('button').click(function() {
+                $( "#Table" ).submit();
+            });            
         }    
+
+
+
+
     </script>
 
     <!-- Footer WEB -->

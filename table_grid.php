@@ -9,7 +9,9 @@
             <tr>
                 <?php
                     foreach ($columns as $column) {
-                        echo "<th>$column->name</th>";
+                        if ($column->name != "Id") {                        
+                            echo "<th>$column->name</th>";
+                        }
                     }
                 ?>
             </tr>
@@ -20,9 +22,11 @@
             while ($row = $resultset->fetch_assoc()) {
                 echo "<tr>";
                 foreach ($columns as $column) {
-                    echo "<td>";
+                    if ($column->name != "Id") {
+                        echo "<td>";
                         echo $row[$column->name];
-                    echo "</td>";
+                        echo "</td>";
+                    }
                 }
                 echo "</tr>";
             }

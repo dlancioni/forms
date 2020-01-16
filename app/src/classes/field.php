@@ -60,7 +60,7 @@
         /*
          * Turn field list into a SQL query
          */
-        function PrepareStatementToQuery($form) {
+        function GetData($form) {
 
             // General Declaration
             $table_name = "";

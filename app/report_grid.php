@@ -1,6 +1,5 @@
 <?php 
-    $resultset = $field->PrepareStatementToQuery(1);  
-    $columns = $resultset->fetch_fields();    
+    $columns = $rs_data->fetch_fields();    
 ?>
 
 <div class="w3-responsive">
@@ -19,7 +18,7 @@
 
         <tbody>
             <?php
-            while ($row = $resultset->fetch_assoc()) {
+            while ($row = $rs_data->fetch_assoc()) {
                 echo "<tr>";
                 foreach ($columns as $column) {
                     if ($column->name != "Id") {

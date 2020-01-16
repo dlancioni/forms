@@ -32,11 +32,12 @@ create table tb_event (
     id_company int not null,
     id_form int not null,
     id_event int not null,
-    id_event_type int not null,    
+    id_event_for int not null,    
     id_function int not null,
     label varchar(500) not null
 );
 insert into tb_event values (1, 1, 1, 1, 1, 1, 'Novo');
+insert into tb_event values (2, 1, 1, 1, 2, 2, 'Voltar');
 
 /*
  * TB_FUNCTION
@@ -51,6 +52,18 @@ create table tb_function (
 insert into tb_function values (1, 'Novo', 'new()', 
 'function New() {
     $("#button").click(function() {
-        $("#Table").submit();
+        $("#Report").submit();
     });
 }');
+
+insert into tb_function values (2, 'Voltar', 'Back()', 
+'function Back() {
+    $("#button").click(function() {
+        $("#Form").submit();
+    });
+}');
+
+
+
+
+

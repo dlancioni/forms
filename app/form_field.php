@@ -1,7 +1,5 @@
 <?php 
-    $resultset = $field->GetList(1);  
-
-    while ($row = $resultset->fetch_assoc()) {
+    while ($row = $rs_field->fetch_assoc()) {
 
         if ($row["name"] != "id") {
             echo "<br>";

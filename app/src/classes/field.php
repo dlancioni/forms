@@ -96,7 +96,7 @@
         /*
          * Turn field list into a SQL query
          */
-        function GetQuery($form) {
+        function PrepareStatementForQuery($form, $id) {
 
             // General Declaration
             $table_name = "";
@@ -105,26 +105,123 @@
             // Get the field list
             $resultset = $this->GetList($form);   
 
-            // Prepare query statement
+            // Prepare field list
             if ($resultset->num_rows > 0) {
-
-                // Prepare field list
                 while ($row = $resultset->fetch_assoc()) {
                     $count ++;
+                    $table_name = $row["table_name"];                    
                     $sql .= $row["name"] . " " . $row["label"];
                     if ($count < $resultset->num_rows) {
                         $sql .=  ", ";
                     }
-                    $table_name = $row["table_name"];                    
                 }
+            }
 
-                // Append from
-                $sql .= " from " . $table_name;
-            }    
+            // Conditions
+            $sql .= " from " . $table_name;            
+            $sql .= " where " . $table_name . ".id_company = " . $this->getCompany();
+            if ($id != null) {
+                if ($id > 0) {
+                    $sql .= " and " . $table_name . ".id = " . $id;
+                }
+            }
+            $sql .= ";";
 
             // Return record
             return $sql;
         }
+
+        /*
+         * Turn field list into a SQL Insert
+         */
+        function PrepareStatementForInsert($form, $data) {
+
+            // General Declaration
+            $table_name = "";
+            $sql = "insert into tb_xyz (";
+
+            // Get the field list
+            $resultset = $this->GetList($form);
+
+            // Prepare the field list
+            if ($resultset->num_rows > 0) {
+                while ($row = $resultset->fetch_assoc()) {
+                    $count ++;
+                    $table_name = $row["table_name"];                    
+                    $sql .= $row["name"] . " " . $row["label"];
+                    if ($count < $resultset->num_rows) {
+                        $sql .=  ", ";
+                    }
+                }
+            }
+            
+            // Field values
+            $sql .= ") values (";
+            // End of statement
+            $sql .= ");";
+            // Return record
+            return $sql;
+        }
+
+        /*
+         * Turn field list into a SQL Update
+         */
+        function PrepareStatementForUpdate($form, $data) {
+
+            // General Declaration
+            $table_name = "";
+            $sql = "insert into tb_xyz (";
+
+            // Get the field list
+            $resultset = $this->GetList($form);
+
+            // Prepare the field list
+            if ($resultset->num_rows > 0) {
+                while ($row = $resultset->fetch_assoc()) {
+                    $count ++;
+                    $table_name = $row["table_name"];                    
+                    $sql .= $row["name"] . " " . $row["label"];
+                    if ($count < $resultset->num_rows) {
+                        $sql .=  ", ";
+                    }
+                }
+            }
+            
+            // Field values
+            $sql .= ") values (";
+            // End of statement
+            $sql .= ");";            
+            // Return record
+            return $sql;
+        }
+
+        /*
+         * Turn field list into a SQL Delete
+         */
+        function PrepareStatementForDelete($form, $id) {
+
+            // General Declaration
+            $table_name = "";
+
+            // Get the field list
+            $resultset = $this->GetList($form);
+
+            // Prepare the field list
+            if ($resultset->num_rows > 0) {
+                while ($row = $resultset->fetch_assoc()) {
+                    $table_name = $row["table_name"];
+                    break;
+                }
+            }
+            
+            // Field values
+            $sql .= " delete from " . $table_name;
+            $sql .= " where " . $table_name . ".id_company = " . $this->getCompany();
+            $sql .= " and " . $table_name . ".id = " . $id . ";";          
+
+            // Return record
+            return $sql;
+        }        
 
 
     } // End of class

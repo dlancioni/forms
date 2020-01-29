@@ -10,7 +10,7 @@
          */
         function GetList($form) {
 
-            $sql = " select" . PHP_EOL;
+            $sql = " select";
             
             // Field list
             $sql .= " tb_field.id,";
@@ -92,6 +92,40 @@
             // Return record
             return $resultset;
         }
+
+        /*
+         * Turn field list into a SQL query
+         */
+        function GetQuery($form) {
+
+            // General Declaration
+            $table_name = "";
+            $sql = "select ";
+
+            // Get the field list
+            $resultset = $this->GetList($form);   
+
+            // Prepare query statement
+            if ($resultset->num_rows > 0) {
+
+                // Prepare field list
+                while ($row = $resultset->fetch_assoc()) {
+                    $count ++;
+                    $sql .= $row["name"] . " " . $row["label"];
+                    if ($count < $resultset->num_rows) {
+                        $sql .=  ", ";
+                    }
+                    $table_name = $row["table_name"];                    
+                }
+
+                // Append from
+                $sql .= " from " . $table_name;
+            }    
+
+            // Return record
+            return $sql;
+        }
+
 
     } // End of class
 ?>

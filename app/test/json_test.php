@@ -6,7 +6,8 @@ $json =
     "id_system": 1,
     "id_user": 1,        
     "id_table": 1,    
-    "fields": [
+    "fields": 
+    [
         {"name": "id", "value": 1},
         {"name": "ds", "value": "Produto xyz"}
     ]
@@ -15,10 +16,8 @@ $json =
 $obj = json_decode($json);
 $items = $obj->{'fields'};
 
-foreach ($item as &$items) {
-    echo $item->name;
+foreach ($items as $item) {
+    echo $item->value;
 }
-
-
 
 ?>

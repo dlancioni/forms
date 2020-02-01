@@ -2,22 +2,35 @@
 
 $json = 
 '{
-    "id_company": 1,
-    "id_system": 1,
-    "id_user": 1,        
-    "id_table": 1,    
-    "fields": 
+    "Session": 
     [
-        {"name": "id", "value": 1},
-        {"name": "ds", "value": "Produto xyz"}
+        {
+            "System": 1, 
+            "Table": 1, 
+            "User": 1          
+        }
+    ],    
+    "Fields": 
+    [
+        {
+            "Name": "id", 
+            "Value": 1
+        },
+        {
+            "Name": "ds", 
+            "Value": "Produto xyz"
+        }
     ]
 }';
 
 $obj = json_decode($json);
-$items = $obj->{'fields'};
+$items = $obj->{'Fields'};
+
+//echo var_dump($obj);
+
 
 foreach ($items as $item) {
-    echo $item->value;
+    echo $item->Value;
 }
 
 ?>

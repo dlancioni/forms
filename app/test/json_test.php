@@ -23,8 +23,10 @@ $json =
     ]
 }';
 
-$obj = json_decode($json);
-$items = $obj->{'Fields'};
+//$obj = json_decode($json);
+//$items = $obj->{'Fields'};
+
+$items = json_decode($json)->{'Fields'};
 
 //echo var_dump($obj);
 

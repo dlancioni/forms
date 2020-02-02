@@ -134,31 +134,49 @@
         /*
          * Turn field list into a SQL Insert
          */
-        function PrepareStatementForInsert($form, $data) {
+        function PrepareStatementForInsert($table, $json) {
 
-            // General Declaration
-            $table_name = "";
-            $sql = "insert into tb_xyz (";
-
-            // Get the field list
-            $resultset = $this->GetList($form);
+            // Get the field info
+            $resultset = $this->GetList($table);
+            $items = json_decode($json)->{'Fields'};
 
             // Prepare the field list
+            $count ++;             
             if ($resultset->num_rows > 0) {
                 while ($row = $resultset->fetch_assoc()) {
-                    $count ++;
-                    $table_name = $row["table_name"];                    
-                    $sql .= $row["name"] . " " . $row["label"];
-                    if ($count < $resultset->num_rows) {
-                        $sql .=  ", ";
+                    if ($row["name"] != "id") {                    
+                        $count ++;                        
+                        $table_name = $row["table_name"];
+                        $field_name .= $row["name"];
+                        foreach ($items as $item) {
+                            if ($row["name"] == $item->Name) {
+
+                                switch ($row["id_field_type"]) {
+                                case 3: // Text
+                                case 4: // Date
+                                    $field_value .= "'" . $item->Value . "'";
+                                    break;
+                                default:
+                                    $field_value .= $item->Value;                                    
+                                }
+                            }
+                        }
+                        if ($count < $resultset->num_rows) {
+                            $field_name .=  ", ";
+                            $field_value .=  ", ";
+                        }                        
                     }
                 }
             }
-            
-            // Field values
+
+            // Create statement
+            $sql = "";
+            $sql .= "insert into " . $table_name . " (";
+            $sql .= $field_name;
             $sql .= ") values (";
-            // End of statement
+            $sql .= $field_value;            
             $sql .= ");";
+
             // Return record
             return $sql;
         }

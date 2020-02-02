@@ -8,13 +8,32 @@
 
     $json = 
     '{
-        "id_company": 1,
-        "id_system": 1,
-        "id_user": 1,        
-        "id_table": 1,    
-        "fields": [
-            {"name": "id", "value": 1}
-            {"name": "ds", "value": "Produto xyz"},
+        "Session": 
+        [
+            {
+                "System": 1, 
+                "Table": 1, 
+                "User": 1          
+            }
+        ],    
+        "Fields": 
+        [
+            {
+                "Name": "num_1", 
+                "Value": 1
+            },
+            {
+                "Name": "tex_1", 
+                "Value": "Produto xyz"
+            },
+            {
+                "Name": "dat_1", 
+                "Value": "2020-01-01"
+            },
+            {
+                "Name": "dec_1", 
+                "Value": "0.99"
+            }            
         ]
     }';
 
@@ -25,16 +44,16 @@
 
     // Testing insert
     echo "Testing PrepareStatementForInsert():" . "<br>";
-    echo $field->PrepareStatementForInsert(1, $data);
+    echo $field->PrepareStatementForInsert(1, $json);
     echo "<br><br>";
 
     // Testing update
-    echo "Testing PrepareStatementForUpdate():" . "<br>";
-    echo $field->PrepareStatementForUpdate(1, $data);
-    echo "<br><br>";
+    //echo "Testing PrepareStatementForUpdate():" . "<br>";
+    //echo $field->PrepareStatementForUpdate(1, $data);
+    //echo "<br><br>";
 
     // Testing delete
-    echo "Testing PrepareStatementForDelete():" . "<br>";
-    echo $field->PrepareStatementForDelete(1, 1);
-    echo "<br><br>";
+    //echo "Testing PrepareStatementForDelete():" . "<br>";
+    //echo $field->PrepareStatementForDelete(1, 1);
+    //echo "<br><br>";
 ?>

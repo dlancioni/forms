@@ -1,10 +1,12 @@
-<?php include "../src/include/connection.php";?>
-<?php include "../src/classes/base.php";?>
-<?php include "../src/classes/field.php";?>
+<?php include "../include/connection.php";?>
+<?php include "../classes/base.php";?>
+<?php include "../classes/crud.php";?>
+<?php include "../classes/system.php";?>
 
 <?php
     // Create instance
-    $field = new Field($conn, 1);
+    $crud = new Crud($conn, 1);
+    $id_system = 1;
 
     $json = 
     '{
@@ -43,21 +45,21 @@
 
     // Testing query
     echo "Testing PrepareStatementForQuery():" . "<br>";
-    echo $field->PrepareStatementForQuery(1, 0);
+    echo $crud->PrepareStatementForQuery($id_system, 0);
     echo "<br><br>";
 
     // Testing insert
     echo "Testing PrepareStatementForInsert():" . "<br>";
-    echo $field->PrepareStatementForInsert(1, $json);
+    echo $crud->PrepareStatementForInsert($id_system, $json);
     echo "<br><br>";
 
     // Testing update
     echo "Testing PrepareStatementForUpdate():" . "<br>";
-    echo $field->PrepareStatementForUpdate(1, $json);
+    echo $crud->PrepareStatementForUpdate($id_system, $json);
     echo "<br><br>";
 
     // Testing delete
-    //echo "Testing PrepareStatementForDelete():" . "<br>";
-    //echo $field->PrepareStatementForDelete(1, 1);
-    //echo "<br><br>";
+    echo "Testing PrepareStatementForDelete():" . "<br>";
+    echo $crud->PrepareStatementForDelete($id_system, 1);
+    echo "<br><br>";
 ?>

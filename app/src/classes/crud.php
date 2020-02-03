@@ -4,7 +4,7 @@
      * Developed by David Lancioni - 01/2020
      * Create methods used to manipulate fields
      */    
-    class Field extends Base {
+    class Crud extends Base {
         /*
          * Get fields for given transaction
          */

@@ -14,6 +14,10 @@ $json =
     [
         {
             "Name": "id", 
+            "Value": 999
+        },          
+        {
+            "Name": "id", 
             "Value": 1
         },
         {
@@ -23,16 +27,9 @@ $json =
     ]
 }';
 
-//$obj = json_decode($json);
-//$items = $obj->{'Fields'};
+$obj = json_decode($json)->{'Fields'}[0]->Value;
+echo $obj;
+//echo $obj[0]->Value;
 
-$items = json_decode($json)->{'Fields'};
-
-//echo var_dump($obj);
-
-
-foreach ($items as $item) {
-    echo $item->Value;
-}
 
 ?>

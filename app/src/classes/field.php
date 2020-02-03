@@ -212,10 +212,11 @@
                         }
 
                         $field_list .= $field_name . " = " . $field_value;
-
                         if ($count < $resultset->num_rows) {
                             $field_list .=  ", ";
                         }                        
+                    } else {
+                        $id = json_decode($json)->{'Fields'}[0]->Value;
                     }
                 }
             }
@@ -225,7 +226,7 @@
             $sql .= "update " . $table_name . " set ";
             $sql .= $field_list;
             $sql .= " where " . $table_name . ".id_company = " . $this->getCompany();
-            $sql .= " and " . $table_name . ".id = " . $this->getCompany();
+            $sql .= " and " . $table_name . ".id = " . $id;
 
             // Return record
             return $sql;

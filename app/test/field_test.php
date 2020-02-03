@@ -48,9 +48,9 @@
     echo "<br><br>";
 
     // Testing update
-    //echo "Testing PrepareStatementForUpdate():" . "<br>";
-    //echo $field->PrepareStatementForUpdate(1, $data);
-    //echo "<br><br>";
+    echo "Testing PrepareStatementForUpdate():" . "<br>";
+    echo $field->PrepareStatementForUpdate(1, $json);
+    echo "<br><br>";
 
     // Testing delete
     //echo "Testing PrepareStatementForDelete():" . "<br>";

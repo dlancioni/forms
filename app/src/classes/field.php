@@ -184,31 +184,49 @@
         /*
          * Turn field list into a SQL Update
          */
-        function PrepareStatementForUpdate($form, $data) {
+        function PrepareStatementForUpdate($table, $json) {
 
-            // General Declaration
-            $table_name = "";
-            $sql = "insert into tb_xyz (";
-
-            // Get the field list
-            $resultset = $this->GetList($form);
+            // Get the field info
+            $resultset = $this->GetList($table);
+            $items = json_decode($json)->{'Fields'};
 
             // Prepare the field list
+            $count ++;
             if ($resultset->num_rows > 0) {
                 while ($row = $resultset->fetch_assoc()) {
-                    $count ++;
-                    $table_name = $row["table_name"];                    
-                    $sql .= $row["name"] . " " . $row["label"];
-                    if ($count < $resultset->num_rows) {
-                        $sql .=  ", ";
+                    if ($row["name"] != "id") {                    
+                        $count ++;
+                        $table_name = $row["table_name"];
+                        $field_name = $row["name"];
+                        foreach ($items as $item) {
+                            if ($row["name"] == $item->Name) {
+                                switch ($row["id_field_type"]) {
+                                case 3: // Text
+                                case 4: // Date
+                                    $field_value = "'" . $item->Value . "'";
+                                    break;
+                                default:
+                                    $field_value = $item->Value;
+                                }
+                            }
+                        }
+
+                        $field_list .= $field_name . " = " . $field_value;
+
+                        if ($count < $resultset->num_rows) {
+                            $field_list .=  ", ";
+                        }                        
                     }
                 }
             }
-            
-            // Field values
-            $sql .= ") values (";
-            // End of statement
-            $sql .= ");";            
+
+            // Create statement
+            $sql = "";
+            $sql .= "update " . $table_name . " set ";
+            $sql .= $field_list;
+            $sql .= " where " . $table_name . ".id_company = " . $this->getCompany();
+            $sql .= " and " . $table_name . ".id = " . $this->getCompany();
+
             // Return record
             return $sql;
         }
@@ -216,7 +234,7 @@
         /*
          * Turn field list into a SQL Delete
          */
-        function PrepareStatementForDelete($form, $id) {
+        function PrepareStatementForDelete($table, $id) {
 
             // General Declaration
             $table_name = "";

@@ -1,17 +1,8 @@
+<?php include "../include/connection.php";?>
+
 <?php
-$servername = "sql208.unaux.com";
-$username = "unaux_25020096";
-$password = "bt7vzg1esoo";
-$dbname = "unaux_25020096_forms";
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-$sql = "SELECT id, name FROM tb_form";
+$sql = "select * from tb_field";
 $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
@@ -22,8 +13,6 @@ if ($result->num_rows > 0) {
 } else {
     echo "0 results ";
 }
-
-echo "Descrição";
 
 $conn->close();
 ?>

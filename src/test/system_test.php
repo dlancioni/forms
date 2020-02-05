@@ -5,8 +5,8 @@
 
 <?php
     // Create instance
-    $crud = new Crud($conn, 1);
-    $id_table = 1;
+    $system = new System($conn, 1);
+    $id_table = 9;
 
     $json = 
     '{
@@ -41,21 +41,25 @@
 
     // Testing query
     echo "Testing PrepareStatementForQuery():" . "<br>";
-    echo $crud->PrepareStatementForQuery($id_table, 0);
+    echo $system->PrepareStatementForQuery($id_table, 0);
+    echo $system->get_error();
     echo "<br><br>";
 
     // Testing insert
     echo "Testing PrepareStatementForInsert():" . "<br>";
-    echo $crud->PrepareStatementForInsert($id_table, $json);
+    echo $system->PrepareStatementForInsert($id_table, $json);
+    echo $system->get_error();    
     echo "<br><br>";
 
     // Testing update
     echo "Testing PrepareStatementForUpdate():" . "<br>";
-    echo $crud->PrepareStatementForUpdate($id_table, $json);
+    echo $system->PrepareStatementForUpdate($id_table, $json);
+    echo $system->get_error();    
     echo "<br><br>";
 
     // Testing delete
     echo "Testing PrepareStatementForDelete():" . "<br>";
-    echo $crud->PrepareStatementForDelete($id_table, 1);
+    echo $system->PrepareStatementForDelete($id_table, 1);
+    echo $system->get_error();    
     echo "<br><br>";
 ?>

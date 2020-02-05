@@ -8,8 +8,9 @@
         /*
          * Get fields for given transaction
          */
-        function GetList($form) {
+        private function GetList($form) {
 
+            $resultset = null;
             $sql = " select";
             
             // Field list
@@ -55,6 +56,9 @@
             // Execute query
             $resultset = $this->getConnection()->query($sql);
 
+            // Error handling
+            $this->set_error("Crud.GetList()", $this->getConnection()->error);
+
             // Return record
             return $resultset;
         }
@@ -62,14 +66,15 @@
         /*
          * Turn field list into a SQL query
          */
-        function GetData($form) {
+        private function GetData($id_table) {
 
             // General Declaration
+            $resultset = null;
             $table_name = "";
             $sql = "select ";
 
             // Get the field list
-            $resultset = $this->GetList($form);   
+            $resultset = $this->GetList($id_table);
 
             // Prepare query statement
             if ($resultset->num_rows > 0) {
@@ -77,7 +82,7 @@
                 // Prepare field list
                 while ($row = $resultset->fetch_assoc()) {
                     $count ++;
-                    $sql .= $row["name"] . " " . $row["label"];
+                    $sql .= $row["name"] . " " . "'" . $row["label"] . "'";
                     if ($count < $resultset->num_rows) {
                         $sql .=  ", ";
                     }
@@ -91,6 +96,9 @@
             // Execute query
             $resultset = $this->getConnection()->query($sql);
 
+            // Error handling            
+            $this->set_error("Crud.GetData()", $this->getConnection()->error);
+
             // Return record
             return $resultset;
         }
@@ -98,38 +106,40 @@
         /*
          * Turn field list into a SQL query
          */
-        function PrepareStatementForQuery($form, $id) {
+        public function PrepareStatementForQuery($form, $id) {
 
             // General Declaration
             $count = 0;
-            $table_name = "";
-            $sql = "select ";
+            $sql = "";
+            $table_name = "";            
 
             // Get the field list
-            $resultset = $this->GetList($form);   
+            $resultset = $this->GetList($form);
 
             // Prepare field list
-            if ($resultset->num_rows > 0) {
-                while ($row = $resultset->fetch_assoc()) {
-                    $count ++;
-                    $table_name = $row["table_name"];                    
-                    $sql .= $row["name"] . " " . $row["label"];
-                    if ($count < $resultset->num_rows) {
-                        $sql .=  ", ";
+            if ($resultset != null) {
+                $sql = "select ";                
+                if ($resultset->num_rows > 0) {
+                    while ($row = $resultset->fetch_assoc()) {
+                        $count ++;
+                        $table_name = $row["table_name"];                    
+                        $sql .= $row["name"] . " " . $row["label"];
+                        if ($count < $resultset->num_rows) {
+                            $sql .=  ", ";
+                        }
                     }
                 }
-            }
-
-            // Conditions
-            $sql .= " from " . $table_name;            
-            $sql .= " where " . $table_name . ".id_company = " . $this->getCompany();
-            $sql .= " and " . $table_name . ".id_system = " . $this->getCompany();
-            if ($id != null) {
-                if ($id > 0) {
-                    $sql .= " and " . $table_name . ".id = " . $id;
+                // Conditions
+                $sql .= " from " . $table_name;            
+                $sql .= " where " . $table_name . ".id_company = " . $this->getCompany();
+                $sql .= " and " . $table_name . ".id_system = " . $this->getCompany();
+                if ($id != null) {
+                    if ($id > 0) {
+                        $sql .= " and " . $table_name . ".id = " . $id;
+                    }
                 }
+                $sql .= ";";
             }
-            $sql .= ";";
 
             // Return record
             return $sql;
@@ -138,53 +148,57 @@
         /*
          * Turn field list into a SQL Insert
          */
-        function PrepareStatementForInsert($table, $json) {
+        public function PrepareStatementForInsert($table, $json) {
 
-            // Get the field info
+            // General declaration
             $count = 0;
+            $sql = "";            
             $field_name = "";
             $field_value = "";
-            $resultset = $this->GetList($table);
-            $items = json_decode($json)->{'Fields'};
 
-            // Prepare the field list
-            if ($resultset->num_rows > 0) {
-                while ($row = $resultset->fetch_assoc()) {
+            // Get the field list    
+            $resultset = $this->GetList($table);                
 
-                    if ($row["name"] != "id") {               
-                             
-                        $count ++;                        
-                        $table_name = $row["table_name"];
-                        $field_name .= $row["name"];
+            // Prepare the field list      
+            if ($resultset != null) {  
+                if ($resultset->num_rows > 0) {
+                    $items = json_decode($json)->{'Fields'};                           
+                    while ($row = $resultset->fetch_assoc()) {
 
-                        foreach ($items as $item) {
-                            if ($row["name"] == $item->Name) {
-                                switch ($row["id_field_type"]) {
-                                case 3: // Text
-                                case 4: // Date
-                                    $field_value .= "'" . $item->Value . "'";
-                                    break;
-                                default:
-                                    $field_value .= $item->Value;
+                        if ($row["name"] != "id") {               
+                                
+                            $count ++;                        
+                            $table_name = $row["table_name"];
+                            $field_name .= $row["name"];
+
+                            foreach ($items as $item) {
+                                if ($row["name"] == $item->Name) {
+                                    switch ($row["id_field_type"]) {
+                                    case 3: // Text
+                                    case 4: // Date
+                                        $field_value .= "'" . $item->Value . "'";
+                                        break;
+                                    default:
+                                        $field_value .= $item->Value;
+                                    }
                                 }
                             }
-                        }
 
-                        if ($count < $resultset->num_rows) {
-                            $field_name .=  ", ";
-                            $field_value .=  ", ";
-                        }                        
+                            if ($count < $resultset->num_rows) {
+                                $field_name .=  ", ";
+                                $field_value .=  ", ";
+                            }                        
+                        }
                     }
                 }
-            }
 
-            // Create statement
-            $sql = "";
-            $sql .= "insert into " . $table_name . " (";
-            $sql .= $field_name;
-            $sql .= ") values (";
-            $sql .= $field_value;            
-            $sql .= ");";
+                // Create statement
+                $sql .= "insert into " . $table_name . " (";
+                $sql .= $field_name;
+                $sql .= ") values (";
+                $sql .= $field_value;            
+                $sql .= ");";
+            }
 
             // Return record
             return $sql;
@@ -193,55 +207,59 @@
         /*
          * Turn field list into a SQL Update
          */
-        function PrepareStatementForUpdate($table, $json) {
+        public function PrepareStatementForUpdate($table, $json) {
 
-            // Get the field info
+            // General declaration
             $id = 0;
             $count = 0;
+            $sql = "";
             $field_list = "";
             $field_value = "";
+
+            // Get the field list
             $resultset = $this->GetList($table);
-            $items = json_decode($json)->{'Fields'};
 
             // Prepare the field list
-            if ($resultset->num_rows > 0) {
-                while ($row = $resultset->fetch_assoc()) {
-                    
-                    if ($row["name"] != "id") {                    
-                        $count ++;
-                        $table_name = $row["table_name"];
-                        $field_name = $row["name"];
+            if ($resultset != null) {            
+                if ($resultset->num_rows > 0) {
+                    $items = json_decode($json)->{'Fields'};                
+                    while ($row = $resultset->fetch_assoc()) {
+                        
+                        if ($row["name"] != "id") {                    
+                            $count ++;
+                            $table_name = $row["table_name"];
+                            $field_name = $row["name"];
 
-                        foreach ($items as $item) {
-                            if ($row["name"] == $item->Name) {
-                                switch ($row["id_field_type"]) {
-                                case 3: // Text
-                                case 4: // Date
-                                    $field_value = "'" . $item->Value . "'";
-                                    break;
-                                default:
-                                    $field_value = $item->Value;
+                            foreach ($items as $item) {
+                                if ($row["name"] == $item->Name) {
+                                    switch ($row["id_field_type"]) {
+                                    case 3: // Text
+                                    case 4: // Date
+                                        $field_value = "'" . $item->Value . "'";
+                                        break;
+                                    default:
+                                        $field_value = $item->Value;
+                                    }
                                 }
                             }
-                        }
 
-                        $field_list .= $field_name . " = " . $field_value;
-                        if ($count < $resultset->num_rows) {
-                            $field_list .=  ", ";
-                        }                        
-                    } else {
-                        $id = json_decode($json)->{'Fields'}[0]->Value;
+                            $field_list .= $field_name . " = " . $field_value;
+                            if ($count < $resultset->num_rows) {
+                                $field_list .=  ", ";
+                            }                        
+                        } else {
+                            $id = json_decode($json)->{'Fields'}[0]->Value;
+                        }
                     }
                 }
-            }
 
-            // Create statement
-            $sql = "";
-            $sql .= "update " . $table_name . " set ";
-            $sql .= $field_list;
-            $sql .= " where " . $table_name . ".id_company = " . $this->getCompany();
-            $sql .= " and " . $table_name . ".id_system = " . $this->getCompany();
-            $sql .= " and " . $table_name . ".id = " . $id;
+                // Create statement
+                $sql .= "update " . $table_name . " set ";
+                $sql .= $field_list;
+                $sql .= " where " . $table_name . ".id_company = " . $this->getCompany();
+                $sql .= " and " . $table_name . ".id_system = " . $this->getCompany();
+                $sql .= " and " . $table_name . ".id = " . $id;
+            }
 
             // Return record
             return $sql;
@@ -250,7 +268,7 @@
         /*
          * Turn field list into a SQL Delete
          */
-        function PrepareStatementForDelete($table, $id) {
+        public function PrepareStatementForDelete($table, $id) {
 
             // General Declaration      
             $sql = "";
@@ -260,18 +278,20 @@
             $resultset = $this->GetList($table);
 
             // Prepare the field list
-            if ($resultset->num_rows > 0) {
-                while ($row = $resultset->fetch_assoc()) {
-                    $table_name = $row["table_name"];
-                    break;
+            if ($resultset != null) {
+                if ($resultset->num_rows > 0) {
+                    while ($row = $resultset->fetch_assoc()) {
+                        $table_name = $row["table_name"];
+                        break;
+                    }
                 }
+
+                // Field values
+                $sql .= " delete from " . $table_name;
+                $sql .= " where " . $table_name . ".id_company = " . $this->getCompany();
+                $sql .= " and " . $table_name . ".id_system = " . $this->getCompany();
+                $sql .= " and " . $table_name . ".id = " . $id . ";";          
             }
-            
-            // Field values
-            $sql .= " delete from " . $table_name;
-            $sql .= " where " . $table_name . ".id_company = " . $this->getCompany();
-            $sql .= " and " . $table_name . ".id_system = " . $this->getCompany();
-            $sql .= " and " . $table_name . ".id = " . $id . ";";          
 
             // Return record
             return $sql;

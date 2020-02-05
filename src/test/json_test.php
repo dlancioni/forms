@@ -15,15 +15,23 @@ $json =
         {
             "Name": "id", 
             "Value": 999
-        },          
+        },            
         {
-            "Name": "id", 
+            "Name": "num_1", 
             "Value": 1
         },
         {
-            "Name": "ds", 
+            "Name": "tex_1", 
             "Value": "Produto xyz"
-        }
+        },
+        {
+            "Name": "dat_1", 
+            "Value": "2020-01-01"
+        },
+        {
+            "Name": "dec_1", 
+            "Value": "0.99"
+        }            
     ]
 }';
 

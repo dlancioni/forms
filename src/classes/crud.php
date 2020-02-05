@@ -15,26 +15,27 @@
             // Field list
             $sql .= " tb_field.id,";
             $sql .= " tb_field.id_company,";
-            $sql .= " tb_field.id_form,";
-            $sql .= " tb_field.name,";
+            $sql .= " tb_field.id_system,";
+            $sql .= " tb_field.id_table,";
             $sql .= " tb_field.label,";
+            $sql .= " tb_field.name,";
             $sql .= " tb_field.id_field_type,";
             $sql .= " tb_field_type.name field_type,";
             $sql .= " tb_field.size,";
             $sql .= " tb_field.mask,";
-            $sql .= " tb_field.is_pk,";
             $sql .= " tb_field.id_fk,";
-            $sql .= " tb_field.is_nullable,";
-            $sql .= " tb_field.is_unique,";
-            $sql .= " tb_form.table_name";
-           
+            $sql .= " tb_field.mandatory,";
+            $sql .= " tb_field.unique,";
+            $sql .= " tb_table.table_name";
+        
             // From
             $sql .= " from tb_field";
             
             // Join tb_form
-            $sql .= " inner join tb_form on";
-            $sql .= " tb_field.id_company = tb_form.id_company and";
-            $sql .= " tb_field.id_form = tb_form.id";
+            $sql .= " inner join tb_table on";
+            $sql .= " tb_field.id_company = tb_table.id_company and";
+            $sql .= " tb_field.id_system = tb_table.id_system and";            
+            $sql .= " tb_field.id_table = tb_table.id";
             
             // Join tb_field_type
             $sql .= " inner join tb_field_type on";
@@ -42,9 +43,10 @@
             
             // Condition
             $sql .= " where tb_field.id_company = " . $this->getCompany();
+            $sql .= " and tb_field.id_system = " . $this->getCompany();
 
             if ($form != 0) {
-                $sql .= " and tb_field.id_form = " . $form;
+                $sql .= " and tb_field.id_table = " . $form;
             }
 
             // Ordering    
@@ -99,6 +101,7 @@
         function PrepareStatementForQuery($form, $id) {
 
             // General Declaration
+            $count = 0;
             $table_name = "";
             $sql = "select ";
 
@@ -120,6 +123,7 @@
             // Conditions
             $sql .= " from " . $table_name;            
             $sql .= " where " . $table_name . ".id_company = " . $this->getCompany();
+            $sql .= " and " . $table_name . ".id_system = " . $this->getCompany();
             if ($id != null) {
                 if ($id > 0) {
                     $sql .= " and " . $table_name . ".id = " . $id;
@@ -137,30 +141,35 @@
         function PrepareStatementForInsert($table, $json) {
 
             // Get the field info
+            $count = 0;
+            $field_name = "";
+            $field_value = "";
             $resultset = $this->GetList($table);
             $items = json_decode($json)->{'Fields'};
 
             // Prepare the field list
-            $count ++;             
             if ($resultset->num_rows > 0) {
                 while ($row = $resultset->fetch_assoc()) {
-                    if ($row["name"] != "id") {                    
+
+                    if ($row["name"] != "id") {               
+                             
                         $count ++;                        
                         $table_name = $row["table_name"];
                         $field_name .= $row["name"];
+
                         foreach ($items as $item) {
                             if ($row["name"] == $item->Name) {
-
                                 switch ($row["id_field_type"]) {
                                 case 3: // Text
                                 case 4: // Date
                                     $field_value .= "'" . $item->Value . "'";
                                     break;
                                 default:
-                                    $field_value .= $item->Value;                                    
+                                    $field_value .= $item->Value;
                                 }
                             }
                         }
+
                         if ($count < $resultset->num_rows) {
                             $field_name .=  ", ";
                             $field_value .=  ", ";
@@ -187,17 +196,22 @@
         function PrepareStatementForUpdate($table, $json) {
 
             // Get the field info
+            $id = 0;
+            $count = 0;
+            $field_list = "";
+            $field_value = "";
             $resultset = $this->GetList($table);
             $items = json_decode($json)->{'Fields'};
 
             // Prepare the field list
-            $count ++;
             if ($resultset->num_rows > 0) {
                 while ($row = $resultset->fetch_assoc()) {
+                    
                     if ($row["name"] != "id") {                    
                         $count ++;
                         $table_name = $row["table_name"];
                         $field_name = $row["name"];
+
                         foreach ($items as $item) {
                             if ($row["name"] == $item->Name) {
                                 switch ($row["id_field_type"]) {
@@ -226,6 +240,7 @@
             $sql .= "update " . $table_name . " set ";
             $sql .= $field_list;
             $sql .= " where " . $table_name . ".id_company = " . $this->getCompany();
+            $sql .= " and " . $table_name . ".id_system = " . $this->getCompany();
             $sql .= " and " . $table_name . ".id = " . $id;
 
             // Return record
@@ -237,11 +252,12 @@
          */
         function PrepareStatementForDelete($table, $id) {
 
-            // General Declaration
+            // General Declaration      
+            $sql = "";
             $table_name = "";
 
             // Get the field list
-            $resultset = $this->GetList($form);
+            $resultset = $this->GetList($table);
 
             // Prepare the field list
             if ($resultset->num_rows > 0) {
@@ -254,6 +270,7 @@
             // Field values
             $sql .= " delete from " . $table_name;
             $sql .= " where " . $table_name . ".id_company = " . $this->getCompany();
+            $sql .= " and " . $table_name . ".id_system = " . $this->getCompany();
             $sql .= " and " . $table_name . ".id = " . $id . ";";          
 
             // Return record

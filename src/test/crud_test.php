@@ -6,7 +6,7 @@
 <?php
     // Create instance
     $crud = new Crud($conn, 1);
-    $id_system = 1;
+    $id_table = 1;
 
     $json = 
     '{
@@ -25,41 +25,37 @@
                 "Value": 999
             },            
             {
-                "Name": "num_1", 
-                "Value": 1
+                "Name": "name", 
+                "Value": "Produto 1"
             },
             {
-                "Name": "tex_1", 
-                "Value": "Produto xyz"
-            },
-            {
-                "Name": "dat_1", 
+                "Name": "expire_date", 
                 "Value": "2020-01-01"
             },
             {
-                "Name": "dec_1", 
+                "Name": "price", 
                 "Value": "0.99"
-            }            
+            }
         ]
     }';
 
     // Testing query
     echo "Testing PrepareStatementForQuery():" . "<br>";
-    echo $crud->PrepareStatementForQuery($id_system, 0);
+    echo $crud->PrepareStatementForQuery($id_table, 0);
     echo "<br><br>";
 
     // Testing insert
     echo "Testing PrepareStatementForInsert():" . "<br>";
-    echo $crud->PrepareStatementForInsert($id_system, $json);
+    echo $crud->PrepareStatementForInsert($id_table, $json);
     echo "<br><br>";
 
     // Testing update
     echo "Testing PrepareStatementForUpdate():" . "<br>";
-    echo $crud->PrepareStatementForUpdate($id_system, $json);
+    echo $crud->PrepareStatementForUpdate($id_table, $json);
     echo "<br><br>";
 
     // Testing delete
     echo "Testing PrepareStatementForDelete():" . "<br>";
-    echo $crud->PrepareStatementForDelete($id_system, 1);
+    echo $crud->PrepareStatementForDelete($id_table, 1);
     echo "<br><br>";
 ?>

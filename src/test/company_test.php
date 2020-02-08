@@ -41,7 +41,7 @@
 
     // Testing query
     echo "Testing PrepareStatementForQuery():" . "<br>";
-    echo $system->PrepareStatementForQuery($id_table, 0);
+    echo $system->PrepareStatementForQuery($id_table, 1);
     echo $system->get_error();
     echo "<br><br>";
 

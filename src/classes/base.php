@@ -4,6 +4,7 @@
         private $connection;
         private $company;
         private $error;
+        private $table;
 
         function __construct($connection, $company) {
             //$this->set_error("");
@@ -29,5 +30,14 @@
         function getConnection() {
             return $this->connection;
         }
+
+        // Current table
+        function set_table($table) {
+            $this->table = $table;
+        }
+        function get_table() {
+            return $this->table;
+        }
+
     }
 ?>

@@ -59,6 +59,13 @@
             // Error handling
             $this->set_error("Crud.GetList()", $this->getConnection()->error);
 
+            // Keep current table in memory
+            if ($this->get_error() == "") {
+                if ($resultset->num_rows > 0) {
+                    $this->set_table($resultset);
+                }
+            }
+
             // Return record
             return $resultset;
         }
@@ -106,7 +113,7 @@
         /*
          * Turn field list into a SQL query
          */
-        public function PrepareStatementForQuery($form, $id) {
+        public function PrepareStatementForQuery($id_table, $id) {
 
             // General Declaration
             $count = 0;
@@ -114,7 +121,7 @@
             $table_name = "";            
 
             // Get the field list
-            $resultset = $this->GetList($form);
+            $resultset = $this->GetList($id_table);
 
             // Prepare field list
             if ($resultset != null) {
@@ -130,15 +137,23 @@
                     }
                 }
                 // Conditions
-                $sql .= " from " . $table_name;            
-                $sql .= " where " . $table_name . ".id_company = " . $this->getCompany();
-                $sql .= " and " . $table_name . ".id_system = " . $this->getCompany();
-                if ($id != null) {
-                    if ($id > 0) {
-                        $sql .= " and " . $table_name . ".id = " . $id;
+                $sql .= " from " . $table_name;  
+                if ($this->get_error() == "tb_company") {
+                    $sql .= " where " . $table_name . ".id_company = " . $this->getCompany();
+                    $sql .= " and " . $table_name . ".id_system = " . $this->getCompany();
+                    if ($id != null) {
+                        if ($id > 0) {
+                            $sql .= " and " . $table_name . ".id = " . $id;
+                        }
                     }
+                    $sql .= ";";                    
+                } else {
+                    if ($id != null) {
+                        if ($id > 0) {
+                            $sql .= " where id = " . $id;
+                        }
+                    }                    
                 }
-                $sql .= ";";
             }
 
             // Return record

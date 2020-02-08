@@ -1,0 +1,11 @@
+id,id_company,id_system,name,url,table_name
+1,1,1,Company,,tb_company
+2,1,1,System,,tb_system
+3,1,1,Table,,tb_table
+4,1,1,Field,,tb_field
+5,1,1,"Field Type",,tb_field_type
+6,1,1,"Field Event",,tb_field_event
+7,1,1,"Report Action",,tb_report_action
+8,1,1,"Form Action",,tb_form_action
+9,1,1,Event,,tb_event
+10,1,1,Company,,tb_company

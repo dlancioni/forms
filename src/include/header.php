@@ -1,9 +1,10 @@
 <?php
     // Included as plain code
+    include "include/exception.php";
     include "include/connection.php";
     // Class dependencies
     include "classes/base.php";
-    include "classes/form.php";
+    include "classes/table.php";
     include "classes/field.php";
     include "classes/event.php";
     // Class instances

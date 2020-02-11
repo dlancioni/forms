@@ -170,6 +170,7 @@
             $sql = "";            
             $field_name = "";
             $field_value = "";
+            $tag = "";
 
             // Get the field list    
             $resultset = $this->GetList($table);                
@@ -177,32 +178,25 @@
             // Prepare the field list      
             if ($resultset != null) {  
                 if ($resultset->num_rows > 0) {
-                    $items = json_decode($json)->{'Fields'};                           
+                    $obj = json_decode($json);
                     while ($row = $resultset->fetch_assoc()) {
+                        $count ++;                        
+                        $table_name = $row["table_name"];
+                        $field_name .= $row["name"];
+                        $tag = $row["name"];
 
-                        if ($row["name"] != "id") {               
-                                
-                            $count ++;                        
-                            $table_name = $row["table_name"];
-                            $field_name .= $row["name"];
+                        switch ($row["id_type"]) {
+                            case 3: // Text
+                            case 4: // Date
+                                $field_value .= "'" . $obj->Fields->$tag . "'";
+                                break;
+                            default:
+                                $field_value .= $obj->Fields->$tag;
+                        }
 
-                            foreach ($items as $item) {
-                                if ($row["name"] == $item->Name) {
-                                    switch ($row["id_type"]) {
-                                    case 3: // Text
-                                    case 4: // Date
-                                        $field_value .= "'" . $item->Value . "'";
-                                        break;
-                                    default:
-                                        $field_value .= $item->Value;
-                                    }
-                                }
-                            }
-
-                            if ($count < $resultset->num_rows) {
-                                $field_name .=  ", ";
-                                $field_value .=  ", ";
-                            }                        
+                        if ($count < $resultset->num_rows) {
+                            $field_name .=  ", ";
+                            $field_value .=  ", ";
                         }
                     }
                 }
@@ -237,36 +231,31 @@
             // Prepare the field list
             if ($resultset != null) {            
                 if ($resultset->num_rows > 0) {
-                    $items = json_decode($json)->{'Fields'};                
+                    $obj = json_decode($json);
                     while ($row = $resultset->fetch_assoc()) {
                         
-                        if ($row["name"] != "id") {                    
-                            $count ++;
-                            $table_name = $row["table_name"];
-                            $field_name = $row["name"];
+                        $count ++;
+                        $table_name = $row["table_name"];
+                        $field_name = $row["name"];
+                        $tag = $row["name"];                            
 
-                            foreach ($items as $item) {
-                                if ($row["name"] == $item->Name) {
-                                    switch ($row["id_type"]) {
-                                    case 3: // Text
-                                    case 4: // Date
-                                        $field_value = "'" . $item->Value . "'";
-                                        break;
-                                    default:
-                                        $field_value = $item->Value;
-                                    }
-                                }
-                            }
+                        switch ($row["id_type"]) {
+                            case 3: // Text
+                            case 4: // Date
+                                $field_value = "'" . $obj->Fields->$tag . "'";
+                                break;
+                            default:
+                                $field_value = $obj->Fields->$tag;
+                        }
 
-                            $field_list .= $field_name . " = " . $field_value;
-                            if ($count < $resultset->num_rows) {
-                                $field_list .=  ", ";
-                            }                        
-                        } else {
-                            $id = json_decode($json)->{'Fields'}[0]->Value;
+                        $field_list .= $field_name . " = " . $field_value;
+                        if ($count < $resultset->num_rows) {
+                            $field_list .=  ", ";
                         }
                     }
                 }
+
+                $id = $obj->Fields->id;
 
                 // Create statement
                 $sql .= "update " . $table_name . " set ";

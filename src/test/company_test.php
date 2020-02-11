@@ -8,37 +8,7 @@
     $system = new System($conn, 1);
     $id_table = 1;
 
-    $json = 
-    '{
-        "Session": 
-        [
-            {
-                "Company": 1,                 
-                "System": 1, 
-                "Table": 1, 
-                "User": 1          
-            }
-        ],    
-        "Fields": 
-        [
-            {
-                "Name": "id", 
-                "Value": 999
-            },            
-            {
-                "Name": "name", 
-                "Value": "Produto 1"
-            },
-            {
-                "Name": "expire_date", 
-                "Value": "2020-01-01"
-            },
-            {
-                "Name": "price", 
-                "Value": "0.99"
-            }
-        ]
-    }';
+    $json = '{"Session": {"Company": 1, "System": 1, "Table": 1, "User": 1}, "Fields": {"id": 1, "name": "Taza Inc", "expire_date": "2020-01-01", "price": "0.99"}}';
 
     // Testing query
     echo "Testing PrepareStatementForQuery():" . "<br>";

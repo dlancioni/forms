@@ -1,43 +1,10 @@
 <?php
 
-$json = 
-'{
-    "Session": 
-    [
-        {
-            "System": 1, 
-            "Table": 1, 
-            "User": 1          
-        }
-    ],    
-    "Fields": 
-    [
-        {
-            "Name": "id", 
-            "Value": 999
-        },            
-        {
-            "Name": "num_1", 
-            "Value": 1
-        },
-        {
-            "Name": "tex_1", 
-            "Value": "Produto xyz"
-        },
-        {
-            "Name": "dat_1", 
-            "Value": "2020-01-01"
-        },
-        {
-            "Name": "dec_1", 
-            "Value": "0.99"
-        }            
-    ]
-}';
+$json = '{"Session": {"Company": 1, "System": 1, "Table": 1, "User": 1}, "Fields": {"id": 1, "name": "Taza Inc", "expire_date": "2020-01-01", "price": "0.99"}}';
+$obj = json_decode($json);
 
-$obj = json_decode($json)->{'Fields'}[0]->Value;
-echo $obj;
-//echo $obj[0]->Value;
-
+$date="expire_date";
+//echo var_dump($obj);
+echo $obj->Fields->$date;
 
 ?>

@@ -6,13 +6,14 @@
 <?php
     // Create instance
     $system = new System($conn, 1);
-    $id_table = 2;
+    $id_table = 1;
 
     $json = 
     '{
         "Session": 
         [
             {
+                "Company": 1,                 
                 "System": 1, 
                 "Table": 1, 
                 "User": 1          

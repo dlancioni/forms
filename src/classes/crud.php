@@ -20,7 +20,7 @@
             $sql .= " tb_field.id_table,";
             $sql .= " tb_field.label,";
             $sql .= " tb_field.name,";
-            $sql .= " tb_field.id_field_type,";
+            $sql .= " tb_field.id_type,";
             $sql .= " tb_field_type.name field_type,";
             $sql .= " tb_field.size,";
             $sql .= " tb_field.mask,";
@@ -40,7 +40,7 @@
             
             // Join tb_field_type
             $sql .= " inner join tb_field_type on";
-            $sql .= " tb_field.id_field_type = tb_field_type.id";
+            $sql .= " tb_field.id_type = tb_field_type.id";
             
             // Condition
             $sql .= " where tb_field.id_company = " . $this->getCompany();
@@ -130,7 +130,7 @@
                     while ($row = $resultset->fetch_assoc()) {
                         $count ++;
                         $table_name = $row["table_name"];                    
-                        $sql .= $row["name"] . " " . $row["label"];
+                        $sql .= $row["name"] . " " . "'" . $row["label"] . "'";
                         if ($count < $resultset->num_rows) {
                             $sql .=  ", ";
                         }
@@ -188,7 +188,7 @@
 
                             foreach ($items as $item) {
                                 if ($row["name"] == $item->Name) {
-                                    switch ($row["id_field_type"]) {
+                                    switch ($row["id_type"]) {
                                     case 3: // Text
                                     case 4: // Date
                                         $field_value .= "'" . $item->Value . "'";
@@ -247,7 +247,7 @@
 
                             foreach ($items as $item) {
                                 if ($row["name"] == $item->Name) {
-                                    switch ($row["id_field_type"]) {
+                                    switch ($row["id_type"]) {
                                     case 3: // Text
                                     case 4: // Date
                                         $field_value = "'" . $item->Value . "'";
@@ -271,9 +271,9 @@
                 // Create statement
                 $sql .= "update " . $table_name . " set ";
                 $sql .= $field_list;
-                $sql .= " where " . $table_name . ".id_company = " . $this->getCompany();
-                $sql .= " and " . $table_name . ".id_system = " . $this->getCompany();
-                $sql .= " and " . $table_name . ".id = " . $id;
+                $sql .= " where id_company = " . $this->getCompany();
+                $sql .= " and id_system = " . $this->getCompany();
+                $sql .= " and id = " . $id;
             }
 
             // Return record
@@ -303,9 +303,9 @@
 
                 // Field values
                 $sql .= " delete from " . $table_name;
-                $sql .= " where " . $table_name . ".id_company = " . $this->getCompany();
-                $sql .= " and " . $table_name . ".id_system = " . $this->getCompany();
-                $sql .= " and " . $table_name . ".id = " . $id . ";";          
+                $sql .= " where id_company = " . $this->getCompany();
+                $sql .= " and id_system = " . $this->getCompany();
+                $sql .= " and id = " . $id . ";";          
             }
 
             // Return record

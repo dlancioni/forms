@@ -1,3 +1,4 @@
+<?php include "../include/exception.php";?>
 <?php include "../include/connection.php";?>
 <?php include "../classes/base.php";?>
 <?php include "../classes/crud.php";?>

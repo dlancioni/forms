@@ -8,7 +8,7 @@
         /*
          * Get fields for given transaction
          */
-        private function GetList($form) {
+        private function GetList($id_table) {
 
             $resultset = null;
             $sql = " select";
@@ -48,8 +48,8 @@
                 $sql .= " where tb_field.id_company = " . $this->getCompany();
                 $sql .= " and tb_field.id_system = " . $this->getCompany();
 
-                if ($form != 0) {
-                    $sql .= " and tb_field.id_table = " . $form;
+                if ($id_table != 0) {
+                    $sql .= " and tb_field.id_table = " . $id_table;
                 }
 
                 // Ordering    
@@ -124,15 +124,22 @@
 
         /*
          * Turn field list into a SQL query
-         */
-        public function PrepareStatementForQuery($id_table, $id) {
+         */        
+        public function PrepareStatementForQuery($json) {
 
             // General Declaration
+            $id = 0;
+            $id_table = 0;
             $count = 0;
             $sql = "";
             $table_name = "";
             
             try {
+
+                // Get json info
+                $obj = json_decode($json);
+                $id = $obj->Fields->id;
+                $id_table = $obj->Session->id_table;
 
                 // Get the field list
                 $resultset = $this->GetList($id_table);
@@ -181,9 +188,11 @@
         /*
          * Turn field list into a SQL Insert
          */
-        public function PrepareStatementForInsert($table, $json) {
+        public function PrepareStatementForInsert($json) {
 
             // General declaration
+            $id = 0;
+            $id_table = 0;
             $count = 0;
             $sql = "";            
             $field_name = "";
@@ -192,13 +201,17 @@
 
             try {
 
+                // Get json info
+                $obj = json_decode($json);
+                $id = $obj->Fields->id;                
+                $id_table = $obj->Session->id_table;
+
                 // Get the field list    
-                $resultset = $this->GetList($table);                
+                $resultset = $this->GetList($id_table);                
 
                 // Prepare the field list      
                 if ($resultset != null) {  
                     if ($resultset->num_rows > 0) {
-                        $obj = json_decode($json);
                         while ($row = $resultset->fetch_assoc()) {
                             $count ++;                        
                             $table_name = $row["table_name"];
@@ -240,10 +253,11 @@
         /*
          * Turn field list into a SQL Update
          */
-        public function PrepareStatementForUpdate($table, $json) {
+        public function PrepareStatementForUpdate($json) {
 
             // General declaration
             $id = 0;
+            $id_table = 0;
             $count = 0;
             $sql = "";
             $field_list = "";
@@ -251,8 +265,12 @@
 
             try {
 
+                // Get json info
+                $obj = json_decode($json);
+                $id_table = $obj->Session->id_table;                
+
                 // Get the field list
-                $resultset = $this->GetList($table);
+                $resultset = $this->GetList($id_table);
 
                 // Prepare the field list
                 if ($resultset != null) {            
@@ -301,16 +319,23 @@
         /*
          * Turn field list into a SQL Delete
          */
-        public function PrepareStatementForDelete($table, $id) {
+        public function PrepareStatementForDelete($json) {
 
-            // General Declaration      
+            // General Declaration  
+            $id = 0;                
             $sql = "";
             $table_name = "";
+            $id_table = 0;
 
             try {
 
+                // Get json info
+                $obj = json_decode($json);
+                $id_table = $obj->Session->id_table;
+                $id = $obj->Fields->id;
+
                 // Get the field list
-                $resultset = $this->GetList($table);
+                $resultset = $this->GetList($id_table);
 
                 // Prepare the field list
                 if ($resultset != null) {

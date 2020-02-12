@@ -9,15 +9,13 @@
     $obj = new Company($conn, 1);
     $id_table = 1;
     $json = '{"Session": {"id_company": 1, "id_system": 1, "id_table": 1, "id_user": 1}, "Fields": {"id": 1, "name": "Taza Inc", "expire_date": "2020-01-01", "price": "0.99"}}';
-
-
+    
     echo "******************************** COMPANY ********************************<br><br>";
-
-
     // Testing query
     echo "Testing PrepareStatementForQuery():" . "<br>";
-    echo $obj->PrepareStatementForQuery($json);
-    echo $obj->get_error();
+    echo "SQL: " . $obj->PrepareStatementForQuery($json) . "<br>";
+    echo "Count: " . $obj->Query($json)->num_rows . "<br>";
+    echo "Error: " . $obj->get_error() . "<br>";
     echo "<br><br>";
 
     // Testing insert

@@ -4,7 +4,7 @@
 -- -----------------------------------------------------
 -- table tb_company
 -- -----------------------------------------------------
-drop table if exists tb_company;
+drop table if exists tb_company cascade;
 create table if not exists tb_company 
 (
   id serial,
@@ -17,7 +17,7 @@ create table if not exists tb_company
 -- -----------------------------------------------------
 -- table tb_system
 -- -----------------------------------------------------
-drop table if exists tb_system;
+drop table if exists tb_system cascade;
 create table if not exists tb_system 
 (
     id serial,
@@ -29,7 +29,7 @@ create table if not exists tb_system
 -- -----------------------------------------------------
 -- table tb_table
 -- -----------------------------------------------------
-drop table if exists tb_table;
+drop table if exists tb_table cascade;
 create table if not exists tb_table 
 (
     id serial,
@@ -40,22 +40,10 @@ create table if not exists tb_table
     table_name varchar(50) null
 );
 
-
--- -----------------------------------------------------
--- table tb_field_type
--- -----------------------------------------------------
-drop table if exists tb_field_type ;
-create table if not exists tb_field_type 
-(
-    id serial,
-    name varchar(50) not null
-);
-
-
 -- -----------------------------------------------------
 -- table tb_field
 -- -----------------------------------------------------
-drop table if exists tb_field;
+drop table if exists tb_field cascade;
 create table if not exists tb_field 
 (
     id serial,
@@ -72,3 +60,22 @@ create table if not exists tb_field
     id_fk int,
     domain varchar(50)
 );
+
+-- -----------------------------------------------------
+-- table tb_field
+-- -----------------------------------------------------
+drop table if exists tb_domain cascade;
+create table if not exists tb_domain
+(
+    id serial,
+    id_company int,
+    id_system  int,    
+    id_domain  int,
+    value varchar(50),
+    domain varchar(50)
+);
+
+
+
+
+

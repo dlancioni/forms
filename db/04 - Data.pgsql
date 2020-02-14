@@ -48,7 +48,7 @@ insert into tb_field (id_company, id_system, id_table, label, name, id_type, siz
 -- data for table tb_domain
 -- -----------------------------------------------------
 insert into tb_domain (id_company, id_system, id_domain, value, domain) values (1, 1, 1, 'Sim', 'tb_bool');
-insert into tb_domain (id_company, id_system, id_domain, value, domain) values (1, 1, 2, 'Não', 'tb_bool');
+insert into tb_domain (id_company, id_system, id_domain, value, domain) values (1, 1, 0, 'Não', 'tb_bool');
 insert into tb_domain (id_company, id_system, id_domain, value, domain) values (1, 1, 1, 'Inteiro', 'tb_field_type');
 insert into tb_domain (id_company, id_system, id_domain, value, domain) values (1, 1, 2, 'decimal', 'tb_field_type');
 insert into tb_domain (id_company, id_system, id_domain, value, domain) values (1, 1, 3, 'String', 'tb_field_type');

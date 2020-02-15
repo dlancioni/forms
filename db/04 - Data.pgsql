@@ -1,4 +1,13 @@
 -- -----------------------------------------------------
+-- delete data all tables
+-- -----------------------------------------------------
+delete from tb_domain;
+delete from tb_field;
+delete from tb_table;
+delete from tb_system;
+delete from tb_company;
+
+-- -----------------------------------------------------
 -- data for table tb_company
 -- -----------------------------------------------------
 insert into tb_company (name, expire_date, price) values ('lancioni it', '2021-01-01', 1200.0);
@@ -42,7 +51,7 @@ insert into tb_field (id_company, id_system, id_table, label, name, id_type, siz
 insert into tb_field (id_company, id_system, id_table, label, name, id_type, size, mask, id_mandatory, id_unique, id_fk, domain) values (1, 1, 4, 'Mandatory', 'id_mandatory', 5, 0, 'null', 0, 0, 5, 'tb_bool');
 insert into tb_field (id_company, id_system, id_table, label, name, id_type, size, mask, id_mandatory, id_unique, id_fk, domain) values (1, 1, 4, 'Unique', 'id_unique', 5, 0, 'null', 0, 0, 5, 'tb_bool');
 insert into tb_field (id_company, id_system, id_table, label, name, id_type, size, mask, id_mandatory, id_unique, id_fk, domain) values (1, 1, 4, 'Inner Table', 'id_fk', 1, 0, 'null', 0, 0, 4, null);
-insert into tb_field (id_company, id_system, id_table, label, name, id_type, size, mask, id_mandatory, id_unique, id_fk, domain) values (1, 1, 5, 'Domain', 'domain', 3, 50, 'null', 1, 1, 0, null);
+insert into tb_field (id_company, id_system, id_table, label, name, id_type, size, mask, id_mandatory, id_unique, id_fk, domain) values (1, 1, 4, 'Domain', 'domain', 3, 50, 'null', 1, 1, 0, null);
 
 -- -----------------------------------------------------
 -- data for table tb_domain

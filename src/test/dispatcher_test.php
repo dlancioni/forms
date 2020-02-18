@@ -2,11 +2,11 @@
 <?php include "../include/connection.php";?>
 <?php include "../classes/base.php";?>
 <?php include "../classes/crud.php";?>
-<?php include "../classes/company.php";?>
+<?php include "../classes/dispatcher.php";?>
 
 <?php
     // Create instance
-    $obj = new Company($conn, 1);
+    $obj = new Dispatcher($conn, 1);
     $id_table = 1;
     $json = '{"Session": {"id_company": 1, "id_system": 1, "id_table": 1, "id_user": 1}, "Fields": {"id": 1, "name": "Taza Inc", "expire_date": "2020-01-01", "price": "0.99"}}';
     
@@ -20,8 +20,9 @@
 
     // Testing insert
     echo "Testing PrepareStatementForInsert():" . "<br>";
-    echo $obj->PrepareStatementForInsert($json);
-    echo $obj->get_error();    
+    echo $obj->PrepareStatementForInsert($json) . "<br>";
+    echo "Id: " . $obj->Insert($json) . "<br>";
+    echo "Error: " . $obj->get_error() . "<br>";
     echo "<br><br>";
 
     // Testing update

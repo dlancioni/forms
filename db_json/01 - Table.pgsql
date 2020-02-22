@@ -35,14 +35,14 @@ insert into tb_table (data) values ('{"id_company":1,"id_system":1,"name":"event
 -- -----------------------------------------------------
 drop table if exists tb_field cascade;
 create table if not exists tb_field (id serial, data jsonb);
-insert into tb_field (data) values ('{"id_company":1, "id_system":1,"id_table":1,"label":"Name","name":"name","id_type":3,"size":50,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":0,"domain":""}');
-insert into tb_field (data) values ('{"id_company":1, "id_system":1,"id_table":1,"label":"Expire Date","name":"expire_date","id_type":4,"size":0,"mask":"dd/mm/yyyy","id_mandatory":1,"id_unique":0,"id_fk":0,"domain":""}');
-insert into tb_field (data) values ('{"id_company":1, "id_system":1,"id_table":1,"label":"Price","name":"price","id_type":2,"size":0,"mask":"1.000,00","id_mandatory":1,"id_unique":0,"id_fk":0,"domain":""}');
-insert into tb_field (data) values ('{"id_company":1, "id_system":1,"id_table":3,"label":"Company","name":"id_company","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":0,"id_fk":1,"domain":""}');
-insert into tb_field (data) values ('{"id_company":1, "id_system":1,"id_table":2,"label":"Name","name":"name","id_type":3,"size":50,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":0,"domain":""}');
-insert into tb_field (data) values ('{"id_company":1, "id_system":1,"id_table":3,"label":"System","name":"id_system","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":0,"id_fk":1,"domain":""}');
-insert into tb_field (data) values ('{"id_company":1, "id_system":1,"id_table":3,"label":"Name","name":"name","id_type":3,"size":50,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":0,"domain":""}');
-insert into tb_field (data) values ('{"id_company":1, "id_system":1,"id_table":3,"label":"Link","name":"url","id_type":3,"size":1000,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":0,"domain":""}');
+insert into tb_field (data) values ('{"id_company":1,"id_system":1,"id_table":1,"label":"Name","name":"name","id_type":3,"size":50,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":0,"domain":""}');
+insert into tb_field (data) values ('{"id_company":1,"id_system":1,"id_table":1,"label":"Expire Date","name":"expire_date","id_type":4,"size":0,"mask":"dd/mm/yyyy","id_mandatory":1,"id_unique":0,"id_fk":0,"domain":""}');
+insert into tb_field (data) values ('{"id_company":1,"id_system":1,"id_table":1,"label":"Price","name":"price","id_type":2,"size":0,"mask":"1.000,00","id_mandatory":1,"id_unique":0,"id_fk":0,"domain":""}');
+insert into tb_field (data) values ('{"id_company":1,"id_system":1,"id_table":2,"label":"Company","name":"id_company","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":0,"id_fk":1,"domain":""}');
+insert into tb_field (data) values ('{"id_company":1,"id_system":1,"id_table":2,"label":"Name","name":"name","id_type":3,"size":50,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":0,"domain":""}');
+insert into tb_field (data) values ('{"id_company":1,"id_system":1,"id_table":3,"label":"System","name":"id_system","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":0,"id_fk":2,"domain":""}');
+insert into tb_field (data) values ('{"id_company":1,"id_system":1,"id_table":3,"label":"Name","name":"name","id_type":3,"size":50,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":0,"domain":""}');
+insert into tb_field (data) values ('{"id_company":1,"id_system":1,"id_table":3,"label":"Link","name":"url","id_type":3,"size":1000,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":0,"domain":""}');
 insert into tb_field (data) values ('{"id_company":1,"id_system":1,"id_table":4,"label":"Table Name","name":"table_name","id_type":3,"size":50,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":0,"domain":""}');
 insert into tb_field (data) values ('{"id_company":1,"id_system":1,"id_table":4,"label":"Table","name":"id_table","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":0,"id_fk":1,"domain":""}');
 insert into tb_field (data) values ('{"id_company":1,"id_system":1,"id_table":4,"label":"Label","name":"label","id_type":3,"size":50,"mask":"","id_mandatory":1,"id_unique":0,"id_fk":0,"domain":""}');

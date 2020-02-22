@@ -2,7 +2,7 @@
 -- view vw_table
 -- -----------------------------------------------------
 
--- create or replace view vw_table  as
+create or replace view vw_table  as
 select
 tb_field.id id,
 tb_field.data->>'id_company' id_company,

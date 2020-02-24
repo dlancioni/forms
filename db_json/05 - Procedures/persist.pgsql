@@ -1,7 +1,7 @@
 /* 
-call persist('{"data": {"id": 0, "name": "System 1", "id_company": 1}, "session": {"action": "I", "id_table": 2, "id_system": 1, "id_company": 1}}'); 
-call persist('{"data": {"id": 4, "name": "System 2", "id_company": 1}, "session": {"action": "U", "id_table": 2, "id_system": 1, "id_company": 1}}'); 
-call persist('{"data": {"id": 4, "name": "System 2", "id_company": 1}, "session": {"action": "D", "id_table": 2, "id_system": 1, "id_company": 1}}'); 
+call persist('{"data": {"name": "System 1", "id_company": 1}, "session": {"action": "I", "id_table": 2, "id_system": 1, "id_company": 1}}'); 
+call persist('{"data": {"id": 5, "name": "System 2", "id_company": 1}, "session": {"action": "U", "id_table": 2, "id_system": 1, "id_company": 1}}'); 
+call persist('{"data": {"id": 5, "name": "System 2", "id_company": 1}, "session": {"action": "D", "id_table": 2, "id_system": 1, "id_company": 1}}'); 
 */
 drop procedure persist;
 CREATE OR REPLACE PROCEDURE system.persist(INOUT json jsonb)
@@ -36,8 +36,7 @@ begin
 	if (table_name = null or table_name = '') then
 	    raise exception 'Table name not found for table id %', id_table_;	
     end if;
-    raise notice '% %', 'table_name before loop: ', table_name;
-
+    
 	-- Valiadte the json and persist it
     for item in
 	select * from vw_table v
@@ -69,9 +68,16 @@ begin
 		end if;
     end loop;
 
-    -- Persist data
+    -- Persist data, on insert generate ID element
 	if (action = 'I') then
 		execute concat('insert into ', table_name, ' (data) values (', set_quote(json::text),')');
+		id := (select currval(concat('tb_system_', 'id_seq')));
+		sql = 'select data from ' || table_name || ' where id = ' || id;
+		for item in execute sql loop
+			json := jsonb_set(item.data, '{"data", "id"}', concat('"',id,'"')::jsonb);
+			execute 'update ' || table_name || ' set data = ' || set_quote(json::text) || ' where id = ' || id;
+		end loop;
+
     elsif (action = 'U') then
 		execute concat('update ', table_name, ' set data = ', set_quote(json::text), ' where id = ', id);
     elsif (action = 'D') then

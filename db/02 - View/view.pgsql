@@ -1,7 +1,7 @@
 -- -----------------------------------------------------
 -- view vw_table
 -- -----------------------------------------------------
-drop view vw_table;
+drop view if exists vw_table;
 create or replace view vw_table  as
 select
 tb_field.id id,

@@ -68,18 +68,14 @@ begin
 		end if;
     end loop;
 
-    -- Persist data, on insert generate ID element
+    -- Persist data, on insert generate id and stamp as new element
 	if (action = 'I') then
-		execute concat('insert into ', table_name, ' (data) values (', set_quote(json::text),')');
-		id := (select currval(concat('tb_system_', 'id_seq')));
-		sql = 'select data from ' || table_name || ' where id = ' || id;
-		for item in execute sql loop
-			json := jsonb_set(item.data, '{"data", "id"}', concat('"',id,'"')::jsonb);
-			execute 'update ' || table_name || ' set data = ' || set_quote(json::text) || ' where id = ' || id;
-		end loop;
-
+		execute concat('insert into ', table_name, ' (id) values (', 'default', ')');
+		id := (select currval(concat(table_name, '_id_seq')));
+		json := jsonb_set(json, '{"data", "id"}', dbqt(id::text)::jsonb);
+		execute concat('update ', table_name, ' set data = ', qt(json::text), ' where id = ', id);
     elsif (action = 'U') then
-		execute concat('update ', table_name, ' set data = ', set_quote(json::text), ' where id = ', id);
+		execute concat('update ', table_name, ' set data = ', qt(json::text), ' where id = ', id);
     elsif (action = 'D') then
 		execute concat('delete from ', table_name, ' where id = ', id);
 	end if;

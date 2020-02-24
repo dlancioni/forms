@@ -3,9 +3,9 @@ call persist('{"data": {"name": "System 1", "id_company": 1}, "session": {"actio
 call persist('{"data": {"id": 5, "name": "System 2", "id_company": 1}, "session": {"action": "U", "id_table": 2, "id_system": 1, "id_company": 1}}'); 
 call persist('{"data": {"id": 5, "name": "System 2", "id_company": 1}, "session": {"action": "D", "id_table": 2, "id_system": 1, "id_company": 1}}'); 
 */
-drop procedure persist;
-CREATE OR REPLACE PROCEDURE system.persist(INOUT json jsonb)
- LANGUAGE plpgsql
+drop procedure if exists persist;
+create or replace procedure system.persist(INOUT json jsonb)
+language plpgsql
 AS $procedure$
 declare
 	id int := 0;
@@ -70,7 +70,7 @@ begin
 
     -- Persist data, on insert generate id and stamp as new element
 	if (action = 'I') then
-		execute concat('insert into ', table_name, ' (id) values (', 'default', ')');
+		execute concat('insert into ', table_name, ' (id) values (default)');
 		id := (select currval(concat(table_name, '_id_seq')));
 		json := jsonb_set(json, '{"data", "id"}', dbqt(id::text)::jsonb);
 		execute concat('update ', table_name, ' set data = ', qt(json::text), ' where id = ', id);

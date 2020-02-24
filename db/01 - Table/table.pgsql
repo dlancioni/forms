@@ -1,12 +1,14 @@
--- ALTER ROLE qqbzxiqr IN DATABASE qqbzxiqr SET search_path TO system;
+-- -----------------------------------------------------
+-- Set default schema
+-- -----------------------------------------------------
+ALTER ROLE qqbzxiqr IN DATABASE qqbzxiqr SET search_path TO system;
 
 -- -----------------------------------------------------
 -- table tb_company
 -- -----------------------------------------------------
 drop table if exists tb_company cascade;
 create table if not exists tb_company (id serial, data jsonb);
-insert into tb_company (data) values ('{"session":{"id_company":1,"id_system":1,"id_table":1,"action":"I"},"data":{"name":"lancioni it","expire_date":"2021-01-01","price":1200}}');
-
+insert into tb_system (data) values ('{"session":{"id_company":1,"id_system":1,"id_table":1,"action":"I"},"data":{"name":"lancioni it","expire_date":"2021-01-01","price":1200}}');
 -- -----------------------------------------------------
 -- table tb_system
 -- -----------------------------------------------------

@@ -64,7 +64,7 @@ begin
         sql = sql || ' from ' || item1.table_name;
         sql = sql || ' where (data->' || qt('session') || '->>' || qt('id_company') || ')::int = ' || id_company;
         sql = sql || ' and (data->' || qt('session') || '->>' || qt('id_system') || ')::int = ' || id_system;
-        sql = sql || ' and (data->' || qt('data') || '->>' || qt(item1.field_name) || ')::int = ' || id;
+        sql = sql || ' and (data->' || qt('field') || '->>' || qt(item1.field_name) || ')::int = ' || id;
         for item2 in execute sql loop
             return true;    	    
         end loop;
@@ -93,7 +93,7 @@ begin
     sql = sql || ' select * from ' || table_name;
     sql = sql || ' where (data->' || qt('session') || '->>' || qt('id_company') || ')::int = ' || id_company;
     sql = sql || ' and (data->' || qt('session') || '->>' || qt('id_system') || ')::int = ' || id_system;
-    sql = sql || ' and data->' || qt('data') || '->>' || qt(field_name) || ' = ' || qt(field_value);
+    sql = sql || ' and data->' || qt('field') || '->>' || qt(field_name) || ' = ' || qt(field_value);
     for item in execute sql loop
         return false;    
     end loop;

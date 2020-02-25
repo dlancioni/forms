@@ -11,7 +11,7 @@ as $function$
 begin
     return btrim(trim(text), value);
 end;
-$function$
+$function$;
 
 /*
 author: david lancioni
@@ -33,7 +33,7 @@ begin
 
     return value;
 end;
-$function$
+$function$;
 
 /*
 author: david lancioni
@@ -72,7 +72,7 @@ begin
 
     return false;
 end;
-$function$
+$function$;
 
 /*
 author: david lancioni
@@ -99,7 +99,7 @@ begin
     end loop;
     return true;
 end;
-$function$
+$function$;
 
 /*
 author: david lancioni
@@ -114,7 +114,7 @@ as $function$
 begin
     return '''' || value || '''';    
 end;
-$function$
+$function$;
 
 /*
 author: david lancioni
@@ -129,7 +129,7 @@ as $function$
 begin
     raise notice '%', value;
 end;
-$function$
+$function$;
 
 /*
 author: david lancioni
@@ -139,19 +139,18 @@ select * from tb_system
 */
 drop function if exists table_json;
 create or replace function table_json(id_company int, id_system int, id_table int, action char(1))
-returns text
+returns jsonb
 language plpgsql
 as $function$
 declare
-    sql varchar;
-    item record;
-    json jsonb;
-    session text;
-    record text;
+    sql text := '';
+    session text := '';
+    record text := '';
+    item record;   
 begin
 
     -- Create session
-    session = concat(session, 'session:', '{');
+    session = concat(session, dbqt('session'), ':', '{');
     session = concat(session, dbqt('id_company'), ':', id_company, ',');
     session = concat(session, dbqt('id_system'), ':', id_system, ',');
     session = concat(session, dbqt('id_table'), ':', id_table, ',');
@@ -159,30 +158,18 @@ begin
     session = concat(session, '}');
 
     -- Create record
-    record = concat(record, 'record:', '{');
-    sql = '';
-    sql = sql || ' select ';
-    sql = sql || ' field_name,';
-    sql = sql || ' id_type';
-    sql = sql || ' from vw_table';
-    sql = sql || ' where id_company = ' || id_company;
-    sql = sql || ' and id_system = ' || id_system;
-    sql = sql || ' and id_table = ' || id_table;
-
+    record = concat(record, dbqt('record'), ':', '{');
+    sql := concat(sql, ' select field_name from vw_table');
+    sql := concat(sql, ' where id_company = ', id_company);
+    sql := concat(sql, ' and id_system = ', id_system);
+    sql := concat(sql, ' and id_table = ', id_table);
     for item in execute sql loop        
-        record = concat(record, dbqt(item.field_name), ':');        
-        if (item.id_type = 1 or item.id_type = 2) then
-            record = concat(record, '0', ',');
-        else
-            record = concat(record, dbqt(''), ',');
-        end if;
+        record = concat(record, dbqt(item.field_name), ':', dbqt(''), ',');        
     end loop;
-    record = concat(record, '}');
+    record := concat(crop(record, ','), '}');
 
     -- Create final JSONB
-    json = concat('{', session, ',', record, '}');
+    return concat('{', session, ',', record, '}');
 
-    -- Return empty json
-    return json;
 end;
-$function$
+$function$;

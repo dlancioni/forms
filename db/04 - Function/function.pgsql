@@ -86,14 +86,14 @@ returns boolean
 language plpgsql
 as $function$
 declare
-    sql varchar;
+    sql varchar := '';
     item record;    
 begin
-    sql = '';
-    sql = sql || ' select * from ' || table_name;
-    sql = sql || ' where (data->' || qt('session') || '->>' || qt('id_company') || ')::int = ' || id_company;
-    sql = sql || ' and (data->' || qt('session') || '->>' || qt('id_system') || ')::int = ' || id_system;
-    sql = sql || ' and data->' || qt('field') || '->>' || qt(field_name) || ' = ' || qt(field_value);
+
+    sql = concat(sql, ' select * from ', table_name);
+    sql = concat(sql, ' where (data->', qt('session'), '->>', qt('id_company'), ')::int = ', id_company);
+    sql = concat(sql, ' and (data->', qt('session'), '->>', qt('id_system'), ')::int = ', id_system);
+    sql = concat(sql, ' and data->', qt('field'), '->>', qt(field_name), ' = ', qt(field_value));
     for item in execute sql loop
         return false;    
     end loop;
@@ -145,7 +145,7 @@ as $function$
 declare
     sql text := '';
     session text := '';
-    record text := '';
+    field text := '';
     item record;   
 begin
 
@@ -158,18 +158,18 @@ begin
     session = concat(session, '}');
 
     -- Create record
-    record = concat(record, dbqt('record'), ':', '{');
+    field = concat(field, dbqt('field'), ':', '{');
     sql := concat(sql, ' select field_name from vw_table');
     sql := concat(sql, ' where id_company = ', id_company);
     sql := concat(sql, ' and id_system = ', id_system);
     sql := concat(sql, ' and id_table = ', id_table);
     for item in execute sql loop        
-        record = concat(record, dbqt(item.field_name), ':', dbqt(''), ',');        
+        field = concat(field, dbqt(item.field_name), ':', dbqt(''), ',');        
     end loop;
-    record := concat(crop(record, ','), '}');
+    field := concat(crop(field, ','), '}');
 
     -- Create final JSONB
-    return concat('{', session, ',', record, '}');
+    return concat('{', session, ',', field, '}');
 
 end;
 $function$;

@@ -17,14 +17,21 @@ $function$
 author: david lancioni
 target: set value between double quote
 select dbqt('david');
+select dbqt('');
 */
 drop function if exists dbqt;
-create or replace function dbqt(value character varying)
+create or replace function dbqt(value text)
 returns character varying
 language plpgsql
 as $function$
 begin
-    return '"' || value || '"';
+    if (value != '') then
+        value = concat('"', value, '"');
+    else
+        value = concat('"', '"');    
+    end if;
+
+    return value;
 end;
 $function$
 
@@ -51,7 +58,6 @@ begin
     sql = sql || ' where id_company = ' || id_company;
     sql = sql || ' and id_system = ' || id_system;
     sql = sql || ' and id_fk = ' || id_table;
-    raise notice '%', sql;
     for item1 in execute sql loop
         sql = '';
         sql = sql || ' select id';
@@ -59,7 +65,6 @@ begin
         sql = sql || ' where (data->' || qt('session') || '->>' || qt('id_company') || ')::int = ' || id_company;
         sql = sql || ' and (data->' || qt('session') || '->>' || qt('id_system') || ')::int = ' || id_system;
         sql = sql || ' and (data->' || qt('data') || '->>' || qt(item1.field_name) || ')::int = ' || id;
-        raise notice '%', sql;        
         for item2 in execute sql loop
             return true;    	    
         end loop;
@@ -123,5 +128,61 @@ language plpgsql
 as $function$
 begin
     raise notice '%', value;
+end;
+$function$
+
+/*
+author: david lancioni
+target: check if the record is unique at the table
+select table_json(1,1,1,'I')
+select * from tb_system
+*/
+drop function if exists table_json;
+create or replace function table_json(id_company int, id_system int, id_table int, action char(1))
+returns text
+language plpgsql
+as $function$
+declare
+    sql varchar;
+    item record;
+    json jsonb;
+    session text;
+    record text;
+begin
+
+    -- Create session
+    session = concat(session, 'session:', '{');
+    session = concat(session, dbqt('id_company'), ':', id_company, ',');
+    session = concat(session, dbqt('id_system'), ':', id_system, ',');
+    session = concat(session, dbqt('id_table'), ':', id_table, ',');
+    session = concat(session, dbqt('action'), ':', dbqt(action));
+    session = concat(session, '}');
+
+    -- Create record
+    record = concat(record, 'record:', '{');
+    sql = '';
+    sql = sql || ' select ';
+    sql = sql || ' field_name,';
+    sql = sql || ' id_type';
+    sql = sql || ' from vw_table';
+    sql = sql || ' where id_company = ' || id_company;
+    sql = sql || ' and id_system = ' || id_system;
+    sql = sql || ' and id_table = ' || id_table;
+
+    for item in execute sql loop        
+        record = concat(record, dbqt(item.field_name), ':');        
+        if (item.id_type = 1 or item.id_type = 2) then
+            record = concat(record, '0', ',');
+        else
+            record = concat(record, dbqt(''), ',');
+        end if;
+    end loop;
+    record = concat(record, '}');
+
+    -- Create final JSONB
+    json = concat('{', session, ',', record, '}');
+
+    -- Return empty json
+    return json;
 end;
 $function$

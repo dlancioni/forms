@@ -1,10 +1,10 @@
 /* 
-call persist('{"field": {"name": "reports", "id_company": 1}, "session": {"action": "I", "id_table": 2, "id_system": 1, "id_company": 1}}'); 
+call persist('{"field": {"name": "reports1", "id_company": 1}, "session": {"action": "I", "id_table": 2, "id_system": 1, "id_company": 1}}'); 
 call persist('{"field": {"id": 5, "name": "System 2", "id_company": 1}, "session": {"action": "U", "id_table": 2, "id_system": 1, "id_company": 1}}'); 
 call persist('{"field": {"id": 5, "name": "System 2", "id_company": 1}, "session": {"action": "D", "id_table": 2, "id_system": 1, "id_company": 1}}'); 
 */
 drop procedure if exists persist;
-create or replace procedure system.persist(INOUT json jsonb)
+create or replace procedure persist(INOUT json jsonb)
 language plpgsql
 AS $$
 declare
@@ -34,16 +34,20 @@ begin
 	end if;
 
 	-- Must figure out table name
-    select (data->'field'->>'table_name')::text into table_name from tb_table
+    select (data->'field'->>'table_name')::text 
+	into table_name 
+	from tb_table
 	where (data->'field'->>'id_company')::int = id_company
 	and (data->'field'->>'id_system')::int = id_system
 	and tb_table.id = id_table;
+	
 	if (table_name = null or table_name = '') then
 	    raise exception 'Table name not found for table id %', id_table;
     end if;
     
 	-- Valiadte the json and persist it
-    for item in execute 'select * from vw_table where vw_table.id_table = ' || id_table loop
+    for item in execute concat('select * from vw_table where vw_table.id_table = ', id_table) loop
+
 	    -- Keep key information
 		field_name = trim(item.field_name);
         field_type = item.id_type;

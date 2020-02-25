@@ -135,7 +135,7 @@ $function$;
 author: david lancioni
 target: check if the record is unique at the table
 select table_json(1,1,1,'I')
-select * from tb_system
+select jsonb_set(table_json(1,1,1,'I'), '{"field", "id"}', '999')
 */
 drop function if exists table_json;
 create or replace function table_json(id_company int, id_system int, id_table int, action char(1))

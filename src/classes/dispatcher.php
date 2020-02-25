@@ -1,8 +1,8 @@
 
 <?php
-    class Dispatcher extends Crud {
+    class Dispatcher extends Base {
 
-        public function Query($json) {
+        public function Execute($json) {
 
             $sql = "";
             $resultset = "";
@@ -14,25 +14,7 @@
                 $this->set_error("Company.Query()", $this->getConnection()->error);
             }
             return $resultset;
-        }
-
-        public function Insert($json) {
-
-            $id = 0;
-            $sql = "";
-            $resultset = "";
-
-            try {
-                $sql = $this->PrepareStatementForInsert($json);
-                $this->getConnection()->query($sql);
-                $id = $this->getConnection()->insert_id;
-                if ($id == 0) 
-                    throw new Exception($this->getConnection()->error);
-            } catch (Exception $ex) {
-                $this->set_error("Company.Insert()", $this->getConnection()->error);
-            }
-            return $id;
-        }        
+        }    
 
     } // End of class
 ?>

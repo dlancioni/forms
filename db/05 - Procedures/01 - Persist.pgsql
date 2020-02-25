@@ -6,7 +6,7 @@ call persist('{"data": {"id": 5, "name": "System 2", "id_company": 1}, "session"
 drop procedure if exists persist;
 create or replace procedure system.persist(INOUT json jsonb)
 language plpgsql
-AS $procedure$
+AS $$
 declare
 	id int := 0;
     id_company int := 0;
@@ -32,9 +32,13 @@ begin
 	end if;
 
 	-- Must figure out table name
-    select (data->'data'->>'table_name')::text into table_name from tb_table t where t.id = id_table_;
+    select (data->'data'->>'table_name')::text into table_name
+	from tb_table t 
+	where t.id_company = id_company
+	and t.id_system = id_system
+	and t.id = id_table_;
 	if (table_name = null or table_name = '') then
-	    raise exception 'Table name not found for table id %', id_table_;	
+	    raise exception 'Table name not found for table id %', id_table_;
     end if;
     
 	-- Valiadte the json and persist it
@@ -64,7 +68,9 @@ begin
 				end if;
 			end if;
 		elsif (action = 'D') then        
-			execute is_fk(id_company, id_system, id_table_, id);
+			if (is_fk(id_company, id_system, id_table_, id) = true) then
+				raise exception 'Registro não pode ser excluído, existem dependencias em %', table_name;
+			end if;
 		end if;
     end loop;
 
@@ -82,7 +88,6 @@ begin
 
 -- Error handling
 exception when others then 
-    -- raise exception '% %', SQLERRM, SQLSTATE;
     raise exception '%', SQLERRM;
 end;
-$procedure$
+$$

@@ -1,7 +1,7 @@
 /* 
-call persist('{"field": {"name": "reports1", "id_company": 1}, "session": {"action": "I", "id_table": 2, "id_system": 1, "id_company": 1}}'); 
-call persist('{"field": {"id": 5, "name": "System 2", "id_company": 1}, "session": {"action": "U", "id_table": 2, "id_system": 1, "id_company": 1}}'); 
-call persist('{"field": {"id": 5, "name": "System 2", "id_company": 1}, "session": {"action": "D", "id_table": 2, "id_system": 1, "id_company": 1}}'); 
+call persist('{"session":{"id_company":1,"id_system":1,"id_table":1,"action":"I"},"field":{"id":1,"name":"lancioni it","expire_date":"2021-01-01","price":1200}}'); 
+call persist('{"session":{"id_company":1,"id_system":1,"id_table":1,"action":"U"},"field":{"id":1,"name":"Lancioni IT","expire_date":"2021-01-01","price":1200}}'); 
+call persist('{"session":{"id_company":1,"id_system":1,"id_table":1,"action":"D"},"field":{"id":1,"name":"Lancioni IT","expire_date":"2021-01-01","price":1200}}'); 
 */
 drop procedure if exists persist;
 create or replace procedure persist(INOUT json jsonb)
@@ -22,7 +22,7 @@ declare
 begin
 
 	-- Keep key parameters
-	id = json->'field'->>'id';	
+	id = (json->'field'->>'id')::int;	
 	id_company := (json->'session'->>'id_company')::int;
 	id_system := (json->'session'->>'id_system')::int;
 	id_table := (json->'session'->>'id_table')::int;
@@ -67,19 +67,14 @@ begin
 					 raise exception 'Valor % ja existe na tabela % campo %', field_value, table_name, field_name;
 				end if;
 			end if;
-		elsif (action = 'D') then        
-			if (is_fk(id_company, id_system, id_table, id) = true) then
-				raise exception 'Registro não pode ser excluído, existem dependencias em %', table_name;
-			end if;
+		elsif (action = 'D') then
+			execute is_fk(id_company, id_system, id_table, id);
 		end if;
     end loop;
 
     -- Persist data, on insert generate id and stamp as new element
 	if (action = 'I') then
-		execute concat('insert into ', table_name, ' (id) values (default)');
-		id := (select currval(concat(table_name, '_id_seq')));
-		json := jsonb_set(json, '{"field", "id"}', dbqt(id::text)::jsonb);
-		execute concat('update ', table_name, ' set data = ', qt(json::text), ' where id = ', id);
+		execute concat('insert into ', table_name, ' (data) values (', qt(json::text), ')');
     elsif (action = 'U') then
 		execute concat('update ', table_name, ' set data = ', qt(json::text), ' where id = ', id);
     elsif (action = 'D') then

@@ -42,7 +42,7 @@ select is_fk(1,1,1,1)
 */
 drop function if exists is_fk;
 create or replace function is_fk(id_company integer, id_system integer, id_table integer, id integer)
-returns boolean
+returns void
 language plpgsql
 as $function$
 declare
@@ -66,11 +66,9 @@ begin
         sql = sql || ' and (data->' || qt('session') || '->>' || qt('id_system') || ')::int = ' || id_system;
         sql = sql || ' and (data->' || qt('field') || '->>' || qt(item1.field_name) || ')::int = ' || id;
         for item2 in execute sql loop
-            return true;    	    
+			raise exception 'Registro não pode ser excluído, existem dependencias em %', item1.table_name;
         end loop;
     end loop;
-
-    return false;
 end;
 $function$;
 

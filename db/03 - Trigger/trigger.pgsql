@@ -10,23 +10,23 @@ declare
     id_table int := new.data->'session'->>'id_table';
     action text := new.data->'session'->>'action';
     name text := new.data->'field'->>'name';
+    id text := new.data->'field'->>'id';
 begin
+
     -- Get tb_system in json format
-    json := table_json(id_company, id_system, id_table, action);
-    -- Set target table to 2 (tb_system)
-    json := jsonb_set(json, '{"session", "id_table"}', dbqt('2')::jsonb);
-    -- Set new values
+    json := table_json(id_company, id_system, 2, action);
+    json := jsonb_set(json, '{"field", "id_company"}', dbqt(id_company::text)::jsonb);
     json := jsonb_set(json, '{"field", "name"}', dbqt(name)::jsonb);
 
     -- Update table according to the action
     if (tg_op = 'INSERT') then
-        call persist(json);
+        execute concat('insert into tb_system (data) values (', qt(json::text), ')');
         return new;
     elsif (tg_op = 'UPDATE') then
-        call persist(json);
+        execute concat('update tb_system set data = ', qt(json::text), ' where id = ', id);
         return new;
     elsif (tg_op = 'DELETE') then
-        call persist(json);
+        -- cannot delete on trigger
         return old;
     end if;
 
@@ -34,6 +34,6 @@ end;
 $$ language plpgsql;
 
 drop trigger if exists tg_company_system on tb_company;
-create trigger tg_company_system after insert or update or delete on tb_company
+create trigger tg_company_system after insert or update on tb_company
 for each row execute procedure fn_company_system();
 

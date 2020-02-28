@@ -37,43 +37,6 @@ $function$;
 
 /*
 author: david lancioni
-target: avoid delete records while there are dependencies (fks)
-select is_fk(1,1,1,1)
-*/
-drop function if exists is_fk;
-create or replace function is_fk(id_company integer, id_system integer, id_table integer, id integer)
-returns void
-language plpgsql
-as $function$
-declare
-    sql varchar;
-    item1 record;
-    item2 record;    
-begin
-    sql = '';
-    sql = sql || ' select';
-    sql = sql || ' table_name,';
-    sql = sql || ' field_name';
-    sql = sql || ' from vw_table';
-    sql = sql || ' where id_company = ' || id_company;
-    sql = sql || ' and id_system = ' || id_system;
-    sql = sql || ' and id_fk = ' || id_table;
-    for item1 in execute sql loop
-        sql = '';
-        sql = sql || ' select id';
-        sql = sql || ' from ' || item1.table_name;
-        sql = sql || ' where (data->' || qt('session') || '->>' || qt('id_company') || ')::int = ' || id_company;
-        sql = sql || ' and (data->' || qt('session') || '->>' || qt('id_system') || ')::int = ' || id_system;
-        sql = sql || ' and (data->' || qt('field') || '->>' || qt(item1.field_name) || ')::int = ' || id;
-        for item2 in execute sql loop
-			raise exception 'Registro não pode ser excluído, existem dependencias em %', item1.table_name;
-        end loop;
-    end loop;
-end;
-$function$;
-
-/*
-author: david lancioni
 target: check if the record is unique at the table
 select is_unique(1,1,'tb_system', 'name', 'formsss') -- true, dont exists
 select is_unique(1,1,'tb_system', 'name', 'forms') -- false, already exists 
@@ -171,3 +134,27 @@ begin
 
 end;
 $function$;
+
+/*
+author: david lancioni
+target: Format numbers based on mask
+*/
+create or replace function format_number(number numeric, mask text)
+returns text
+language plpgsql
+as $function$
+declare output text := '';
+begin
+    -- select format_number1(1000, '999.999'); -- 1.000
+    if (trim(mask) = '') then
+        raise exception 'mascara [%] invalida', mask;
+    end if;
+    -- revert mask to en-us format
+    mask := replace(replace(replace(mask, ',', '?'), '.', ','), '?', '.');
+    -- apply mask to value 
+    output := replace(replace(replace(to_char(number, mask), ',', '?'), '.', ','), '?', '.');
+    -- just return it
+    return output;
+end;
+$function$
+

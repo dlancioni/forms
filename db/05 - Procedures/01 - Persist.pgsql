@@ -127,8 +127,32 @@ begin
 	------------------------------------------------ DELETE
 	------------------------------------------------
 	if (action = 'D') then
-		execute is_fk(id_company, id_system, id_table, id);
-		execute concat('delete from ', table_name, ' where id = ', id);			
+		raise notice 'Before %', 1;	
+		-- Figure out dependency table
+		sql = '';
+		sql = concat(sql, ' select');
+		sql = concat(sql, ' table_name,');
+		sql = concat(sql, ' field_name');
+		sql = concat(sql, ' from vw_table');
+		sql = concat(sql, ' where id_company = ', id_company);
+		sql = concat(sql, ' and id_system = ', id_system);
+		sql = concat(sql, ' and id_fk = ', id_table);
+		for item in execute sql loop
+			-- Check if dependency has data
+			sql = '';
+			sql = concat(sql, ' select id,');
+			sql = concat(sql, qt(item.table_name), ' table_name');
+			sql = concat(sql, ' from ', item.table_name);
+			sql = concat(sql, ' where (data->', qt('session'), '->>', qt('id_company'), ')::int = ', id_company);
+			sql = concat(sql, ' and (data->', qt('session'), '->>', qt('id_system'), ')::int = ', id_system);
+			sql = concat(sql, ' and (data->', qt('field'), '->>', qt(item.field_name), ')::int = ', id);
+			for item in execute sql loop
+				raise exception 'Registro não pode ser excluído, existem dependencias em %', item.table_name;
+			end loop;
+		end loop;
+		-- Delete the record
+		sql := concat('delete from ', table_name, ' where id = ', id);
+		execute sql;
 	end if;
 
 -- Error handling

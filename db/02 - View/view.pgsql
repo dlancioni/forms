@@ -5,7 +5,6 @@ drop view if exists vw_table;
 create or replace view vw_table  as
 select
 tb_field.id id,
-(tb_field.data->'field'->>'id_company')::int id_company,
 (tb_field.data->'field'->>'id_system')::int id_system,
 (tb_field.data->'field'->>'id_table')::int id_table,
 trim(tb_field.data->'field'->>'label') field_label,
@@ -24,7 +23,6 @@ trim(tb_table.data->'field'->>'table_name') table_name
 from tb_field
 
 inner join tb_table on
-tb_field.data->'session'->>'id_company' = tb_table.data->'session'->>'id_company' and
 tb_field.data->'session'->>'id_system' = tb_table.data->'session'->>'id_system' and            
 (tb_field.data->'field'->>'id_table')::int = tb_table.id
 

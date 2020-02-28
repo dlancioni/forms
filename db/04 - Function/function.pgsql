@@ -42,7 +42,7 @@ select is_unique(1,1,'tb_system', 'name', 'formsss') -- true, dont exists
 select is_unique(1,1,'tb_system', 'name', 'forms') -- false, already exists 
 */
 drop function if exists is_unique;
-create or replace function is_unique(id_company integer, id_system integer, table_name character varying, field_name character varying, field_value character varying)
+create or replace function is_unique(id_system integer, table_name character varying, field_name character varying, field_value character varying)
 returns boolean
 language plpgsql
 as $function$
@@ -52,8 +52,7 @@ declare
 begin
 
     sql = concat(sql, ' select * from ', table_name);
-    sql = concat(sql, ' where (data->', qt('session'), '->>', qt('id_company'), ')::int = ', id_company);
-    sql = concat(sql, ' and (data->', qt('session'), '->>', qt('id_system'), ')::int = ', id_system);
+    sql = concat(sql, ' where (data->', qt('session'), '->>', qt('id_system'), ')::int = ', id_system);
     sql = concat(sql, ' and data->', qt('field'), '->>', qt(field_name), ' = ', qt(field_value));
     for item in execute sql loop
         return false;    
@@ -99,7 +98,7 @@ select table_json(1,1,1,'I')
 select jsonb_set(table_json(1,1,1,'I'), '{"field", "id"}', '999')
 */
 drop function if exists table_json;
-create or replace function table_json(id_company int, id_system int, id_table int, action char(1))
+create or replace function table_json(id_system int, id_table int, action char(1))
 returns jsonb
 language plpgsql
 as $function$
@@ -112,7 +111,6 @@ begin
 
     -- Create session
     session = concat(session, dbqt('session'), ':', '{');
-    session = concat(session, dbqt('id_company'), ':', id_company, ',');
     session = concat(session, dbqt('id_system'), ':', id_system, ',');
     session = concat(session, dbqt('id_table'), ':', id_table, ',');
     session = concat(session, dbqt('action'), ':', dbqt(action));
@@ -121,8 +119,7 @@ begin
     -- Create record
     field = concat(field, dbqt('field'), ':', '{');
     sql := concat(sql, ' select field_name from vw_table');
-    sql := concat(sql, ' where id_company = ', id_company);
-    sql := concat(sql, ' and id_system = ', id_system);
+    sql := concat(sql, ' where id_system = ', id_system);
     sql := concat(sql, ' and id_table = ', id_table);
     for item in execute sql loop        
         field = concat(field, dbqt(item.field_name), ':', dbqt(''), ',');        
@@ -156,5 +153,8 @@ begin
     -- just return it
     return output;
 end;
-$function$
+$function$;
+
+
+
 

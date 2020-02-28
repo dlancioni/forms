@@ -5,7 +5,6 @@ target: Create, change or delete records on tb_system when tb_company is touched
 create or replace function fn_company_system() returns trigger as $$
 declare
     json jsonb;
-    id_company int := new.data->'session'->>'id_company';
     id_system int := new.data->'session'->>'id_system';
     id_table int := new.data->'session'->>'id_table';
     action text := new.data->'session'->>'action';
@@ -14,8 +13,7 @@ declare
 begin
 
     -- Get tb_system in json format
-    json := table_json(id_company, id_system, 2, action);
-    json := jsonb_set(json, '{"field", "id_company"}', dbqt(id_company::text)::jsonb);
+    json := table_json(id_system, 2, action);
     json := jsonb_set(json, '{"field", "name"}', dbqt(name)::jsonb);
 
     -- Update table according to the action

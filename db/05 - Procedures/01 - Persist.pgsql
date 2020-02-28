@@ -9,18 +9,21 @@ language plpgsql
 AS $$
 declare
 	id int := 0;
+    field_type int := 0;
     id_company int := 0;
     id_system int := 0;
 	id_table int := 0;
+	old text := '';
+	new text := '';
+	output text := '';
+	sql varchar := '';
 	action varchar := '';
 	table_name varchar := '';
-	sql varchar := '';
 	field_name varchar := '';
-    field_type int := 0;
 	field_value varchar := '';	
-	json_old jsonb;
-	output text := '';
     item record;
+	json_old jsonb;
+
 begin
 
 	-- Keep key parameters
@@ -49,28 +52,26 @@ begin
 
 	-- Validate if json changed
 	if (action = 'U') then
-
 		-- Figure out existing json_new		
-		sql := concat(sql, ' select data->', qt('field'), ' json_old from ', table_name);
+		sql := concat(sql, ' select data json_old from ', table_name);
 		sql := concat(sql, ' where (data->', qt('session'), '->>', qt('id_system'), ')::int = ', id_system);
 		sql := concat(sql, ' and id = ', id);
 		for item in execute sql loop
 			json_old := item.json_old;
 		end loop;
-
 		-- validate if json changed
 		sql := concat('select field_name from vw_table where id_table = ', id_table);
 		for item in execute sql loop
-			if (trim(json_extract_path(json_new, dbqt('field'), item.field_name)) != trim(json_extract_path(json_old, dbqt('field'), item.field_name))) then
+			old := json_extract_path(json_old::json, 'field', item.field_name)::text;
+			new := json_extract_path(json_new::json, 'field', item.field_name)::text;
+			if (trim(old) != trim(new)) then
 				output := concat(output, ';', item.field_name);
 			end if;
 		end loop;
-
 		-- Do not update, nothing changed
 		if (output = '') then
-			raise exception 'Nenhuma mudança identificada nos dados, alteração não realizada';
+			raise exception 'Nenhuma mudança foi identificada, alteração não realizada';
 		end if;			
-
 	end if;	
     
 	-- Validate json_new field by field

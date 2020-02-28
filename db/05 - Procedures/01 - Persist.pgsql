@@ -4,7 +4,7 @@ call persist('{"session":{"id_company":1,"id_system":1,"id_table":1,"action":"U"
 call persist('{"session":{"id_company":1,"id_system":1,"id_table":1,"action":"D"},"field":{"id":1,"name":"Lancioni IT","expire_date":"2021-01-01","price":1200}}'); 
 */
 drop procedure if exists persist;
-create or replace procedure persist(INOUT json jsonb)
+create or replace procedure persist(INOUT json_new jsonb)
 language plpgsql
 AS $$
 declare
@@ -18,15 +18,17 @@ declare
 	field_name varchar := '';
     field_type int := 0;
 	field_value varchar := '';	
+	json_old jsonb;
+	output text := '';
     item record;
 begin
 
 	-- Keep key parameters
-	id = (json->'field'->>'id')::int;	
-	id_company := (json->'session'->>'id_company')::int;
-	id_system := (json->'session'->>'id_system')::int;
-	id_table := (json->'session'->>'id_table')::int;
-	action = json->'session'->>'action';
+	id = (json_new->'field'->>'id')::int;	
+	id_company := (json_new->'session'->>'id_company')::int;
+	id_system := (json_new->'session'->>'id_system')::int;
+	id_table := (json_new->'session'->>'id_table')::int;
+	action = json_new->'session'->>'action';
 
 	-- Validate input
 	if (position(action in 'IUD') = 0) then
@@ -34,26 +36,52 @@ begin
 	end if;
 
 	-- Must figure out table name
-    select (data->'field'->>'table_name')::text 
+    select 
+	(data->'field'->>'table_name')::text
 	into table_name 
 	from tb_table
-	where (data->'field'->>'id_company')::int = id_company
-	and (data->'field'->>'id_system')::int = id_system
+	where (data->'field'->>'id_system')::int = id_system
 	and tb_table.id = id_table;
 	
 	if (table_name = null or table_name = '') then
 	    raise exception 'Table name not found for table id %', id_table;
     end if;
+
+	-- Validate if json changed
+	if (action = 'U') then
+
+		-- Figure out existing json_new		
+		sql := concat(sql, ' select data->', qt('field'), ' json_old from ', table_name);
+		sql := concat(sql, ' where (data->', qt('session'), '->>', qt('id_system'), ')::int = ', id_system);
+		sql := concat(sql, ' and id = ', id);
+		for item in execute sql loop
+			json_old := item.json_old;
+		end loop;
+
+		-- validate if json changed
+		sql := concat('select field_name from vw_table where id_table = ', id_table);
+		for item in execute sql loop
+			if (trim(json_extract_path(json_new, dbqt('field'), item.field_name)) != trim(json_extract_path(json_old, dbqt('field'), item.field_name))) then
+				output := concat(output, ';', item.field_name);
+			end if;
+		end loop;
+
+		-- Do not update, nothing changed
+		if (output = '') then
+			raise exception 'Nenhuma mudança identificada nos dados, alteração não realizada';
+		end if;			
+
+	end if;	
     
-	-- Valiadte the json and persist it
+	-- Validate json_new field by field
     for item in execute concat('select * from vw_table where vw_table.id_table = ', id_table) loop
 
 	    -- Keep key information
 		field_name = trim(item.field_name);
         field_type = item.id_type;
-		field_value = trim(json->'field'->>field_name);
+		field_value = trim(json_new->'field'->>field_name);
 
-        -- validate data
+		-- Validations on insert and update
 		if (action = 'I' or action = 'U') then
 			-- Validate mandatory fields
 			if ((item.id_mandatory)::int = 1) then
@@ -67,16 +95,20 @@ begin
 					 raise exception 'Valor % ja existe na tabela % campo %', field_value, table_name, field_name;
 				end if;
 			end if;
-		elsif (action = 'D') then
+		end if;
+
+		-- Validations on delete only
+		if (action = 'D') then
 			execute is_fk(id_company, id_system, id_table, id);
 		end if;
+
     end loop;
 
     -- Persist data, on insert generate id and stamp as new element
 	if (action = 'I') then
-		execute concat('insert into ', table_name, ' (data) values (', qt(json::text), ')');
+		execute concat('insert into ', table_name, ' (data) values (', qt(json_new::text), ')');
     elsif (action = 'U') then
-		execute concat('update ', table_name, ' set data = ', qt(json::text), ' where id = ', id);
+		execute concat('update ', table_name, ' set data = ', qt(json_new::text), ' where id = ', id);
     elsif (action = 'D') then
 		execute concat('delete from ', table_name, ' where id = ', id);
 	end if;

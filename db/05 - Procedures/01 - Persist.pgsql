@@ -1,7 +1,7 @@
 /* 
-call persist('{"session":{"id_company":1,"id_system":1,"id_table":1,"action":"I"},"field":{"id":1,"name":"lancioni it","expire_date":"2021-01-01","price":1200}}'); 
-call persist('{"session":{"id_company":1,"id_system":1,"id_table":1,"action":"U"},"field":{"id":1,"name":"Lancioni IT","expire_date":"2021-01-01","price":1200}}'); 
-call persist('{"session":{"id_company":1,"id_system":1,"id_table":1,"action":"D"},"field":{"id":1,"name":"Lancioni IT","expire_date":"2021-01-01","price":1200}}'); 
+call persist('{"session":{"id_system":1,"id_table":1,"action":"I"},"field":{"id":1,"name":"lancioni it","expire_date":"2021-01-01","price":1200}}'); 
+call persist('{"session":{"id_system":1,"id_table":1,"action":"U"},"field":{"id":1,"name":"Lancioni IT","expire_date":"2021-01-01","price":1200}}'); 
+call persist('{"session":{"id_system":1,"id_table":1,"action":"D"},"field":{"id":1,"name":"Lancioni IT","expire_date":"2021-01-01","price":1200}}'); 
 */
 drop procedure if exists persist;
 create or replace procedure persist(INOUT json_new jsonb)
@@ -10,7 +10,6 @@ AS $$
 declare
 	id int := 0;
     field_type int := 0;
-    id_company int := 0;
     id_system int := 0;
 	id_table int := 0;
 	id_mandatory int := 0;
@@ -30,7 +29,6 @@ begin
 
 	-- Keep key parameters
 	id = (json_new->'field'->>'id')::int;	
-	id_company := (json_new->'session'->>'id_company')::int;
 	id_system := (json_new->'session'->>'id_system')::int;
 	id_table := (json_new->'session'->>'id_table')::int;
 	action = json_new->'session'->>'action';
@@ -68,7 +66,7 @@ begin
 			end if;
 			-- Validate unique values
 			if (id_unique = 1) then
-				if (is_unique(id_company, id_system, table_name, field_name, field_value) = false) then
+				if (is_unique(id_system, table_name, field_name, field_value) = false) then
 					raise exception 'Valor % ja existe na tabela % campo %', field_value, table_name, field_name;
 				end if;
 			end if;
@@ -108,7 +106,7 @@ begin
 			-- If changed, validate unique values
 			if (trim(old) != trim(new)) then
 				if (id_unique = 1) then
-					if (is_unique(id_company, id_system, table_name, field_name, field_value) = false) then
+					if (is_unique(id_system, table_name, field_name, field_value) = false) then
 						raise exception 'Valor % ja existe na tabela % campo %', field_value, table_name, field_name;
 					end if;
 				end if;
@@ -134,8 +132,7 @@ begin
 		sql = concat(sql, ' table_name,');
 		sql = concat(sql, ' field_name');
 		sql = concat(sql, ' from vw_table');
-		sql = concat(sql, ' where id_company = ', id_company);
-		sql = concat(sql, ' and id_system = ', id_system);
+		sql = concat(sql, ' where id_system = ', id_system);
 		sql = concat(sql, ' and id_fk = ', id_table);
 		for item in execute sql loop
 			-- Check if dependency has data
@@ -143,8 +140,7 @@ begin
 			sql = concat(sql, ' select id,');
 			sql = concat(sql, qt(item.table_name), ' table_name');
 			sql = concat(sql, ' from ', item.table_name);
-			sql = concat(sql, ' where (data->', qt('session'), '->>', qt('id_company'), ')::int = ', id_company);
-			sql = concat(sql, ' and (data->', qt('session'), '->>', qt('id_system'), ')::int = ', id_system);
+			sql = concat(sql, ' where (data->', qt('session'), '->>', qt('id_system'), ')::int = ', id_system);
 			sql = concat(sql, ' and (data->', qt('field'), '->>', qt(item.field_name), ')::int = ', id);
 			for item in execute sql loop
 				raise exception 'Registro não pode ser excluído, existem dependencias em %', item.table_name;
@@ -155,8 +151,13 @@ begin
 		execute sql;
 	end if;
 
+	-- return json with success
+	json_new := return(1, action, id, '', '');
+
 -- Error handling
-exception when others then 
-    raise exception '%', SQLERRM;
+exception 
+	when others then 
+		-- return json with error
+		json_new := return(0, action, id, SQLERRM, '');
 end;
 $$

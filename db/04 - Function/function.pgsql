@@ -155,6 +155,40 @@ begin
 end;
 $function$;
 
+/*
+author: david lancioni
+target: Format numbers based on mask
+select return(1, 'I', 23, '', '')
+select return(0, 'U', 23, 'exception goes here', 'warning goes here')
+*/
+create or replace function return(status int, action text, id int, error text, warning text)
+returns jsonb
+language plpgsql
+as $function$
+declare output text := '';
+declare message text := '';
+begin
 
+    if (action = 'I') then 
+        message := 'Registro INCLUÍDO com sucesso' || '. id: ' || id::text;
+    elsif (action = 'U') then
+        message := 'Registro ALTERADO com sucesso' || '. id: ' || id::text;
+    elsif (action = 'D') then
+        message := 'Registro EXCLUÍDO com sucesso' || '. id: ' || id::text;
+    else
+        message := 'Invalid action';    
+    end if;
+
+    output := concat(output, '{');
+    output := concat(output, '"status":', status, ',');
+    output := concat(output, '"id":', id, ',');
+    output := concat(output, '"action":', dbqt(action), ',');
+    output := concat(output, '"message":', dbqt(message), ',');
+    output := concat(output, '"error":', dbqt(error), ',');
+    output := concat(output, '"warning":', dbqt(warning));
+    output := concat(output, '}');
+    return output;
+end;
+$function$;
 
 

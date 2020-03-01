@@ -60,7 +60,7 @@ begin
 			id_unique = (item.id_unique)::int;
 			-- Validate mandatory fields
 			if (id_mandatory = 1) then
-				if (field_value = null OR field_value = '') then
+				if (field_value = null or field_value = '') then
 					raise exception 'Campo % é obrigatorio', field_name;
 				end if;
 			end if;

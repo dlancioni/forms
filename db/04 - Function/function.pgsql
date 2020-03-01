@@ -192,3 +192,28 @@ end;
 $function$;
 
 
+/*
+author: david lancioni
+target: Parse string in a valid date
+select parse_date('2020/12/31', 'yyyy/MM/dd') -- true
+select parse_date('', 'dd/mm/yyyy') -- false
+*/
+create or replace function parse_date(date text, mask text)
+returns boolean
+language plpgsql
+as $function$
+declare
+    output text;
+begin
+    -- Parse string into date
+    select to_date(date, mask)::date into output;
+    -- handle empty date 
+    if (length(output) != length(mask)) then
+        return false;
+    end if;
+    -- return
+    return true;
+exception when others then
+    return false;
+end;
+$function$;

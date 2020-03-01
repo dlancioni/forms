@@ -1,7 +1,7 @@
 /* 
-call persist('{"session":{"id_system":1,"id_table":1,"action":"I"},"field":{"id":1,"name":"lancioni it","expire_date":"2021-01-01","price":1200}}'); 
-call persist('{"session":{"id_system":1,"id_table":1,"action":"U"},"field":{"id":1,"name":"Lancioni IT","expire_date":"2021-01-01","price":1200}}'); 
-call persist('{"session":{"id_system":1,"id_table":1,"action":"D"},"field":{"id":1,"name":"Lancioni IT","expire_date":"2021-01-01","price":1200}}'); 
+call persist('{"session":{"id_system":1,"id_table":1,"id_action":1},"field":{"id":1,"name":"lancioni it","expire_date":"2021-01-01","price":1200}}'); 
+call persist('{"session":{"id_system":1,"id_table":1,"id_action":2},"field":{"id":1,"name":"Lancioni IT","expire_date":"2021-01-01","price":1200}}'); 
+call persist('{"session":{"id_system":1,"id_table":1,"id_action":3},"field":{"id":1,"name":"Lancioni IT","expire_date":"2021-01-01","price":1200}}'); 
 */
 drop procedure if exists persist;
 create or replace procedure persist(INOUT json_new jsonb)
@@ -18,7 +18,7 @@ declare
 	new text := '';
 	output text := '';
 	sql varchar := '';
-	action varchar := '';
+	id_action int := 0;
 	table_name varchar := '';
 	field_name varchar := '';
 	field_value varchar := '';	
@@ -31,11 +31,11 @@ begin
 	id = (json_new->'field'->>'id')::int;	
 	id_system := (json_new->'session'->>'id_system')::int;
 	id_table := (json_new->'session'->>'id_table')::int;
-	action = json_new->'session'->>'action';
+	id_action = (json_new->'session'->>'id_action')::int;
 
 	-- Validate input
-	if (position(action in 'IUD') = 0) then
-	    raise exception 'Action is invalid or missing: %', action;	
+	if (position(id_action::text in '123') = 0) then
+	    raise exception 'Action is invalid or missing: %', id_action;	
 	end if;
 
 	-- Must figure out table name
@@ -49,7 +49,7 @@ begin
 	------------------------------------------------
 	------------------------------------------------ INSERT
 	------------------------------------------------
-	if (action = 'I') then
+	if (id_action = 1) then
 		-- Validate input and persist
 		for item in execute concat('select * from vw_table where vw_table.id_table = ', id_table) loop
 			-- Keep key information
@@ -78,7 +78,7 @@ begin
 	------------------------------------------------
 	------------------------------------------------ UPDATE
 	------------------------------------------------
-	if (action = 'U') then
+	if (id_action = 2) then
 		-- Figure out existing json_new		
 		sql := concat(sql, ' select data json_old from ', table_name);
 		sql := concat(sql, ' where (data->', qt('session'), '->>', qt('id_system'), ')::int = ', id_system);
@@ -124,7 +124,7 @@ begin
 	------------------------------------------------
 	------------------------------------------------ DELETE
 	------------------------------------------------
-	if (action = 'D') then
+	if (id_action = 3) then
 		raise notice 'Before %', 1;	
 		-- Figure out dependency table
 		sql = '';
@@ -151,13 +151,13 @@ begin
 		execute sql;
 	end if;
 
-	-- return json with success
-	json_new := return(1, action, id, '', '');
+	-- Return json with success (1 Success)
+	json_new := return(1, id_action, id, '', '');
 
 -- Error handling
 exception 
 	when others then 
-		-- return json with error
-		json_new := return(0, action, id, SQLERRM, '');
+		-- Return json with error (0 Fail)
+		json_new := return(0, id_action, id, SQLERRM, '');
 end;
 $$

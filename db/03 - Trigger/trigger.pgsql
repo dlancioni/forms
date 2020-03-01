@@ -7,13 +7,13 @@ declare
     json jsonb;
     id_system int := new.data->'session'->>'id_system';
     id_table int := new.data->'session'->>'id_table';
-    action text := new.data->'session'->>'action';
+    id_action text := new.data->'session'->>'id_action';
     name text := new.data->'field'->>'name';
     id text := new.data->'field'->>'id';
 begin
 
     -- Get tb_system in json format
-    json := table_json(id_system, 2, action);
+    json := table_json(id_system, 2, id_action);
     json := jsonb_set(json, '{"field", "name"}', dbqt(name)::jsonb);
 
     -- Update table according to the action

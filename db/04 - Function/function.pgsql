@@ -98,7 +98,7 @@ select table_json(1,1,1,'I')
 select jsonb_set(table_json(1,1,1,'I'), '{"field", "id"}', '999')
 */
 drop function if exists table_json;
-create or replace function table_json(id_system int, id_table int, action char(1))
+create or replace function table_json(id_system int, id_table int, id_action int)
 returns jsonb
 language plpgsql
 as $function$
@@ -113,7 +113,7 @@ begin
     session = concat(session, dbqt('session'), ':', '{');
     session = concat(session, dbqt('id_system'), ':', id_system, ',');
     session = concat(session, dbqt('id_table'), ':', id_table, ',');
-    session = concat(session, dbqt('action'), ':', dbqt(action));
+    session = concat(session, dbqt('id_action'), ':', id_action);
     session = concat(session, '}');
 
     -- Create record
@@ -161,7 +161,7 @@ target: Format numbers based on mask
 select return(1, 'I', 23, '', '')
 select return(0, 'U', 23, 'exception goes here', 'warning goes here')
 */
-create or replace function return(status int, action text, id int, error text, warning text)
+create or replace function return(status int, id_action int, id int, error text, warning text)
 returns jsonb
 language plpgsql
 as $function$
@@ -169,11 +169,11 @@ declare output text := '';
 declare message text := '';
 begin
 
-    if (action = 'I') then 
+    if (id_action = 1) then 
         message := 'Registro INCLUÍDO com sucesso' || '. id: ' || id::text;
-    elsif (action = 'U') then
+    elsif (id_action = 2) then
         message := 'Registro ALTERADO com sucesso' || '. id: ' || id::text;
-    elsif (action = 'D') then
+    elsif (id_action = 3) then
         message := 'Registro EXCLUÍDO com sucesso' || '. id: ' || id::text;
     else
         message := 'Invalid action';    
@@ -182,7 +182,7 @@ begin
     output := concat(output, '{');
     output := concat(output, '"status":', status, ',');
     output := concat(output, '"id":', id, ',');
-    output := concat(output, '"action":', dbqt(action), ',');
+    output := concat(output, '"action":', id_action, ',');
     output := concat(output, '"message":', dbqt(message), ',');
     output := concat(output, '"error":', dbqt(error), ',');
     output := concat(output, '"warning":', dbqt(warning));

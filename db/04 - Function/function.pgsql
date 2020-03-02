@@ -97,8 +97,8 @@ target: check if the record is unique at the table
 select table_json(1,1,1,'I')
 select jsonb_set(table_json(1,1,1,'I'), '{"field", "id"}', '999')
 */
-drop function if exists table_json;
-create or replace function table_json(id_system int, id_table int, id_action int)
+drop function if exists json_in;
+create or replace function json_in(id_system int, id_table int, id_action int)
 returns jsonb
 language plpgsql
 as $function$
@@ -161,7 +161,7 @@ target: Format numbers based on mask
 select return(1, 'I', 23, '', '')
 select return(0, 'U', 23, 'exception goes here', 'warning goes here')
 */
-create or replace function return(status int, id_action int, id int, error text, warning text)
+create or replace function json_out(status int, id_action int, id int, error text, warning text)
 returns jsonb
 language plpgsql
 as $function$
@@ -195,6 +195,7 @@ $function$;
 /*
 author: david lancioni
 target: Parse string in a valid date
+select parse_date('', 'yyyy/MM/dd') -- true (nothing to parse)
 select parse_date('2020/12/31', 'yyyy/MM/dd') -- true
 select parse_date('', 'dd/mm/yyyy') -- false
 */

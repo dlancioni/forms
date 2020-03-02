@@ -166,12 +166,12 @@ begin
 	end if;
 
 	-- Return json with success (1 Success)
-	json_new := return(1, id_action, id, '', '');
+	json_new := json_out(1, id_action, id, '', '');
 
 -- Error handling
 exception 
 	when others then 
 		-- Return json with error (0 Fail)
-		json_new := return(0, id_action, id, SQLERRM, '');
+		json_new := json_out(0, id_action, id, SQLERRM, '');
 end;
 $$

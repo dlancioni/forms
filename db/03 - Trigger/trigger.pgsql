@@ -13,7 +13,7 @@ declare
 begin
 
     -- Get tb_system in json format
-    json := table_json(id_system, 2, id_action);
+    json := json_in(id_system, 2, id_action);
     json := jsonb_set(json, '{"field", "name"}', dbqt(name)::jsonb);
 
     -- Update table according to the action

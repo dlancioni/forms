@@ -1,5 +1,5 @@
 /* 
-call persist('{"session":{"id_system":1,"id_table":1,"id_action":1},"field":{"id":1,"name":"lancioni it","expire_date":"2021-01-01","price":1200}}'); 
+call persist('{"session":{"id_system":1,"id_table":1,"id_action":1},"field":{"id":1,"name":"lancioni it","expire_date":"2021-01-","price":1200}}'); 
 call persist('{"session":{"id_system":1,"id_table":1,"id_action":2},"field":{"id":1,"name":"Lancioni IT","expire_date":"2021-01-01","price":1200}}'); 
 call persist('{"session":{"id_system":1,"id_table":1,"id_action":3},"field":{"id":1,"name":"Lancioni IT","expire_date":"2021-01-01","price":1200}}'); 
 */
@@ -12,8 +12,8 @@ declare
     field_type int := 0;
     id_system int := 0;
 	id_table int := 0;
-	id_mandatory int := 0;
-	id_unique int := 0;	
+	field_mandatory int := 0;
+	field_unique int := 0;	
 	old text := '';
 	new text := '';
 	output text := '';
@@ -21,7 +21,8 @@ declare
 	id_action int := 0;
 	table_name varchar := '';
 	field_name varchar := '';
-	field_value varchar := '';	
+	field_value varchar := '';
+	field_mask varchar := '';
     item record;
 	json_old jsonb;
 
@@ -56,18 +57,25 @@ begin
 			field_name = trim(item.field_name);
 			field_type = item.id_type;
 			field_value = trim(json_new->'field'->>field_name);
-			id_mandatory = (item.id_mandatory)::int;
-			id_unique = (item.id_unique)::int;
+			field_mask = trim(item.field_mask);
+			field_mandatory = (item.id_mandatory)::int;
+			field_unique = (item.id_unique)::int;
 			-- Validate mandatory fields
-			if (id_mandatory = 1) then
+			if (field_mandatory = 1) then
 				if (field_value = null or field_value = '') then
-					raise exception 'Campo % é obrigatorio', field_name;
+					raise exception 'Campo [%] é obrigatorio', field_name;
 				end if;
 			end if;
 			-- Validate unique values
-			if (id_unique = 1) then
+			if (field_unique = 1) then
 				if (is_unique(id_system, table_name, field_name, field_value) = false) then
-					raise exception 'Valor % ja existe na tabela % campo %', field_value, table_name, field_name;
+					raise exception 'Valor [%] ja existe na tabela % campo %', field_value, table_name, field_name;
+				end if;
+			end if;
+			-- Validate dates
+			if (field_type = 4) then
+				if (parse_date(field_value, field_mask) = false) then
+					raise exception 'Data inváida [%] no campo %', field_value, field_name;
 				end if;
 			end if;
 		end loop;
@@ -90,22 +98,28 @@ begin
 		sql := concat('select * from vw_table where id_table = ', id_table);
 		for item in execute sql loop
 			-- Collect data
-			id_mandatory = (item.id_mandatory)::int;
-			id_unique = (item.id_unique)::int;			
+			field_mandatory = (item.id_mandatory)::int;
+			field_unique = (item.id_unique)::int;			
 			field_name = trim(item.field_name);
 			field_type = item.id_type;
 			field_value = trim(json_new->'field'->>field_name);						
 			old := json_extract_path(json_old::json, 'field', item.field_name)::text;
 			new := json_extract_path(json_new::json, 'field', item.field_name)::text;
 			-- Validate mandatory fields
-			if (id_mandatory = 1) then
+			if (field_mandatory = 1) then
 				if (field_value = null OR field_value = '') then
 					raise exception 'Campo % é obrigatorio', field_name;
 				end if;
-			end if;			
+			end if;
 			-- If changed, validate unique values
 			if (trim(old) != trim(new)) then
-				if (id_unique = 1) then
+				-- Validate dates
+				if (field_type = 4) then
+					if (parse_date(field_value, field_mask) = false) then
+						raise exception 'Data inváida [%] no campo %', field_value, field_name;
+					end if;
+				end if;			
+				if (field_unique = 1) then
 					if (is_unique(id_system, table_name, field_name, field_value) = false) then
 						raise exception 'Valor % ja existe na tabela % campo %', field_value, table_name, field_name;
 					end if;

@@ -205,9 +205,20 @@ as $function$
 declare
     output text;
 begin
-    -- Parse string into date
+    -- empty return true
+    date := trim(date);
+    mask := trim(mask);
+    if (date = '') then
+        return true;
+    end if;
+
+    -- parse string into date
     select to_date(date, mask)::date into output;
-    -- handle empty date 
+    -- input must have same size as mask
+    if (length(date) != length(mask)) then
+        return false;
+    end if;
+    -- output must have same size as mask
     if (length(output) != length(mask)) then
         return false;
     end if;

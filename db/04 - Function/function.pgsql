@@ -1,5 +1,65 @@
 /*
 author: david lancioni
+target: 
+*/
+drop function if exists col;
+create or replace function col(field_name text, field_type integer)
+returns text
+language plpgsql
+as $function$
+declare
+    output text := '';
+begin
+    output = concat(output , ' (data->', qt('field'), '->>', qt(field_name), ' ');
+    if (field_type = 1) then
+        output = concat(output, ')::int');
+    elsif (field_type = 2) then
+        output = concat(output, ')::float');
+    elsif (field_type = 3) then
+        output = concat(output, ')::text');
+    elsif (field_type = 4) then
+        output = concat(output, ')::date');
+    end if;
+    output = concat(output, ' as ', field_name);
+
+    return output;
+end;
+$function$;
+
+/*
+author: david lancioni
+target: 
+*/
+drop function if exists condition;
+create or replace function condition(field_name text, field_type integer, field_operator text, field_value text)
+returns text
+language plpgsql
+as $function$
+declare
+    output text := '';
+begin
+    output = concat(output , ' (data->', qt('field'), '->>', qt(field_name));
+    if (field_type = 1) then
+        output = concat(output, ')::int');
+    elsif (field_type = 2) then
+        output = concat(output, ')::float');
+    elsif (field_type = 3) then
+        output = concat(output, ')::text');
+        field_value := qt(field_value);
+    elsif (field_type = 4) then
+        output = concat(output, ')::date');
+        field_value := qt(field_value);
+    end if;
+    output = concat(output, ' ', field_operator);
+    output = concat(output, ' ', field_value);
+    output = concat(output, ' ');
+
+    return output;
+end;
+$function$;
+
+/*
+author: david lancioni
 target: crop data from string 
 select crop('id,name, ', ',' );
 */
@@ -37,6 +97,55 @@ $function$;
 
 /*
 author: david lancioni
+target: Format numbers based on mask
+*/
+drop function if exists format_number;
+create or replace function format_number(number numeric, mask text)
+returns text
+language plpgsql
+as $function$
+declare output text := '';
+begin
+    -- select format_number1(1000, '999.999'); -- 1.000
+    if (trim(mask) = '') then
+        raise exception 'mascara [%] invalida', mask;
+    end if;
+    -- revert mask to en-us format
+    mask := replace(replace(replace(mask, ',', '?'), '.', ','), '?', '.');
+    -- apply mask to value 
+    output := replace(replace(replace(to_char(number, mask), ',', '?'), '.', ','), '?', '.');
+    -- just return it
+    return output;
+end;
+$function$;
+
+/*
+author: david lancioni
+target: Get table name
+*/
+drop function if exists get_table;
+create or replace function get_table(id_system integer, id_table integer)
+returns text
+language plpgsql
+as $function$
+declare
+    sql text;
+    item record;
+begin
+    sql = concat(sql, 'select');
+    sql = concat(sql, col('table_name', 3));
+    sql = concat(sql, ' from tb_table');
+    sql = concat(sql, ' where id = ', id_table);
+    sql = concat(sql, ' and ', condition('id_system', 1, '=', id_system::text));
+    for item in execute sql loop
+    return item.table_name;
+    end loop;
+    raise exception 'tabela nao encontrada para codigo de sistema (%) e tabela (%)', id_system, id_table;
+end;
+$function$;
+
+/*
+author: david lancioni
 target: check if the record is unique at the table
 select is_unique(1,1,'tb_system', 'name', 'formsss') -- true, dont exists
 select is_unique(1,1,'tb_system', 'name', 'forms') -- false, already exists 
@@ -50,7 +159,6 @@ declare
     sql varchar := '';
     item record;    
 begin
-
     sql = concat(sql, ' select * from ', table_name);
     sql = concat(sql, ' where (data->', qt('session'), '->>', qt('id_system'), ')::int = ', id_system);
     sql = concat(sql, ' and data->', qt('field'), '->>', qt(field_name), ' = ', qt(field_value));
@@ -58,36 +166,6 @@ begin
         return false;    
     end loop;
     return true;
-end;
-$function$;
-
-/*
-author: david lancioni
-target: set value between single quote
-select qt('david');
-*/
-drop function if exists qt;
-create or replace function qt(value character varying)
-returns character varying
-language plpgsql
-as $function$
-begin
-    return '''' || value || '''';    
-end;
-$function$;
-
-/*
-author: david lancioni
-target: just output values for debug porpouse
-select trace('david');
-*/
-drop function if exists trace;
-create or replace function trace(value text)
-returns void
-language plpgsql
-as $function$
-begin
-    raise notice '%', value;
 end;
 $function$;
 
@@ -135,40 +213,18 @@ $function$;
 /*
 author: david lancioni
 target: Format numbers based on mask
-*/
-create or replace function format_number(number numeric, mask text)
-returns text
-language plpgsql
-as $function$
-declare output text := '';
-begin
-    -- select format_number1(1000, '999.999'); -- 1.000
-    if (trim(mask) = '') then
-        raise exception 'mascara [%] invalida', mask;
-    end if;
-    -- revert mask to en-us format
-    mask := replace(replace(replace(mask, ',', '?'), '.', ','), '?', '.');
-    -- apply mask to value 
-    output := replace(replace(replace(to_char(number, mask), ',', '?'), '.', ','), '?', '.');
-    -- just return it
-    return output;
-end;
-$function$;
-
-/*
-author: david lancioni
-target: Format numbers based on mask
 select return(1, 'I', 23, '', '')
 select return(0, 'U', 23, 'exception goes here', 'warning goes here')
 */
+drop function if exists json_out;
 create or replace function json_out(status int, id_action int, id int, error text, warning text)
 returns jsonb
 language plpgsql
 as $function$
-declare output text := '';
-declare message text := '';
+declare 
+    output text := '';
+    message text := '';
 begin
-
     if (id_action = 1) then 
         message := 'Registro INCLUÍDO com sucesso' || '. id: ' || id::text;
     elsif (id_action = 2) then
@@ -199,6 +255,7 @@ select parse_date('', 'yyyy/MM/dd') -- true (nothing to parse)
 select parse_date('2020/12/31', 'yyyy/MM/dd') -- true
 select parse_date('', 'dd/mm/yyyy') -- false
 */
+drop function if exists parse_date;
 create or replace function parse_date(date text, mask text)
 returns boolean
 language plpgsql
@@ -227,5 +284,20 @@ begin
     return true;
 exception when others then
     return false;
+end;
+$function$;
+
+/*
+author: david lancioni
+target: set value between single quote
+select qt('david');
+*/
+drop function if exists qt;
+create or replace function qt(value character varying)
+returns character varying
+language plpgsql
+as $function$
+begin
+    return '''' || value || '''';    
 end;
 $function$;

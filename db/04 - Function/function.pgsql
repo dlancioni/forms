@@ -1,66 +1,5 @@
 /*
-author: david lancioni
-target: 
-*/
-drop function if exists col;
-create or replace function col(field_name text, field_type integer)
-returns text
-language plpgsql
-as $function$
-declare
-    output text := '';
-begin
-    output = concat(output , ' (data->', qt('field'), '->>', qt(field_name), ' ');
-    if (field_type = 1) then
-        output = concat(output, ')::int');
-    elsif (field_type = 2) then
-        output = concat(output, ')::float');
-    elsif (field_type = 3) then
-        output = concat(output, ')::text');
-    elsif (field_type = 4) then
-        output = concat(output, ')::date');
-    end if;
-    output = concat(output, ' as ', field_name);
-
-    return output;
-end;
-$function$;
-
-/*
-author: david lancioni
-target: 
-*/
-drop function if exists condition;
-create or replace function condition(field_name text, field_type integer, field_operator text, field_value text)
-returns text
-language plpgsql
-as $function$
-declare
-    output text := '';
-begin
-    output = concat(output , ' (data->', qt('field'), '->>', qt(field_name));
-    if (field_type = 1) then
-        output = concat(output, ')::int');
-    elsif (field_type = 2) then
-        output = concat(output, ')::float');
-    elsif (field_type = 3) then
-        output = concat(output, ')::text');
-        field_value := qt(field_value);
-    elsif (field_type = 4) then
-        output = concat(output, ')::date');
-        field_value := qt(field_value);
-    end if;
-    output = concat(output, ' ', field_operator);
-    output = concat(output, ' ', field_value);
-    output = concat(output, ' ');
-
-    return output;
-end;
-$function$;
-
-/*
-author: david lancioni
-target: crop data from string 
+Crop data from string 
 select crop('id,name, ', ',' );
 */
 drop function if exists crop;
@@ -74,8 +13,7 @@ end;
 $function$;
 
 /*
-author: david lancioni
-target: set value between double quote
+Set value between double quote
 select dbqt('david');
 select dbqt('');
 */
@@ -96,8 +34,7 @@ end;
 $function$;
 
 /*
-author: david lancioni
-target: Format numbers based on mask
+Format numbers based on mask
 */
 drop function if exists format_number;
 create or replace function format_number(number numeric, mask text)
@@ -120,8 +57,50 @@ end;
 $function$;
 
 /*
-author: david lancioni
-target: Get table name
+Get dynamic and condition
+*/
+drop function if exists get_condition;
+create or replace function get_condition(json jsonb)
+returns text
+language plpgsql
+as $function$
+declare
+    id_system int := 0;
+    id_table int := 0;
+    sql text := '';
+    output text := '';
+    item record;
+    data text;
+begin
+/*
+Call sample:
+select get_condition('{"session":{"id_system":1,"id_table":1,"id_action":1},"criteria":[{"field_name":"name", "operator":"=", "field_value":"1"}]}')
+*/
+id_system := json->'session'->>'id_system';
+id_table := json->'session'->>'id_table';
+data := qt(json_extract_path(json::json, 'criteria')::text);
+
+sql := concat(sql, ' select x.field_name, x.operator, x.field_value::text, v.id_type field_type');
+sql := concat(sql, ' from json_to_recordset(', data, ') as x(field_name text, operator text, field_value int)');
+sql := concat(sql, ' inner join vw_table v on x.field_name = v.field_name');
+sql := concat(sql, ' where v.id_system = ', id_system);
+sql := concat(sql, ' and v.id_table = ', id_table);
+
+for item in execute sql
+loop    
+    output := concat(output, sql_condition(item.field_name, item.field_type, item.operator, item.field_value), ' and');
+end loop;
+output := crop(output, ' and');
+
+return output;
+
+end;
+$function$;
+
+/*
+Get table name
+select get_table(1,1) -- success
+select get_table(1,9) -- fail
 */
 drop function if exists get_table;
 create or replace function get_table(id_system integer, id_table integer)
@@ -133,10 +112,10 @@ declare
     item record;
 begin
     sql = concat(sql, 'select');
-    sql = concat(sql, col('table_name', 3));
+    sql = concat(sql, sql_column('table_name', 3));
     sql = concat(sql, ' from tb_table');
     sql = concat(sql, ' where id = ', id_table);
-    sql = concat(sql, ' and ', condition('id_system', 1, '=', id_system::text));
+    sql = concat(sql, ' and ', sql_condition('id_system', 1, '=', id_system::text));
     for item in execute sql loop
     return item.table_name;
     end loop;
@@ -145,10 +124,9 @@ end;
 $function$;
 
 /*
-author: david lancioni
-target: check if the record is unique at the table
-select is_unique(1,1,'tb_system', 'name', 'formsss') -- true, dont exists
-select is_unique(1,1,'tb_system', 'name', 'forms') -- false, already exists 
+Check if the record is unique at the table
+select is_unique(1,'tb_system', 'name', 'formsss') -- true, dont exists
+select is_unique(1,'tb_system', 'name', 'forms') -- false, already exists 
 */
 drop function if exists is_unique;
 create or replace function is_unique(id_system integer, table_name character varying, field_name character varying, field_value character varying)
@@ -170,8 +148,7 @@ end;
 $function$;
 
 /*
-author: david lancioni
-target: check if the record is unique at the table
+Check if the record is unique at the table
 select table_json(1,1,1,'I')
 select jsonb_set(table_json(1,1,1,'I'), '{"field", "id"}', '999')
 */
@@ -211,8 +188,7 @@ end;
 $function$;
 
 /*
-author: david lancioni
-target: Format numbers based on mask
+Format numbers based on mask
 select return(1, 'I', 23, '', '')
 select return(0, 'U', 23, 'exception goes here', 'warning goes here')
 */
@@ -247,10 +223,8 @@ begin
 end;
 $function$;
 
-
 /*
-author: david lancioni
-target: Parse string in a valid date
+Parse string in a valid date
 select parse_date('', 'yyyy/MM/dd') -- true (nothing to parse)
 select parse_date('2020/12/31', 'yyyy/MM/dd') -- true
 select parse_date('', 'dd/mm/yyyy') -- false
@@ -288,8 +262,7 @@ end;
 $function$;
 
 /*
-author: david lancioni
-target: set value between single quote
+Sset value between single quote
 select qt('david');
 */
 drop function if exists qt;
@@ -299,5 +272,63 @@ language plpgsql
 as $function$
 begin
     return '''' || value || '''';    
+end;
+$function$;
+
+/*
+author: david lancioni
+target: 
+*/
+drop function if exists sql_column;
+create or replace function sql_column(field_name text, field_type integer)
+returns text
+language plpgsql
+as $function$
+declare
+    output text := '';
+begin
+    output = concat(output , ' (data->', qt('field'), '->>', qt(field_name), ' ');
+    if (field_type = 1) then
+        output = concat(output, ')::int');
+    elsif (field_type = 2) then
+        output = concat(output, ')::float');
+    elsif (field_type = 3) then
+        output = concat(output, ')::text');
+    elsif (field_type = 4) then
+        output = concat(output, ')::date');
+    end if;
+    output = concat(output, ' as ', field_name);
+
+    return output;
+end;
+$function$;
+
+/*
+target: 
+*/
+drop function if exists sql_condition;
+create or replace function sql_condition(field_name text, field_type integer, field_operator text, field_value text)
+returns text
+language plpgsql
+as $function$
+declare
+    output text := '';
+begin
+    output = concat(output , ' (data->', qt('field'), '->>', qt(field_name));
+    if (field_type = 1) then
+        output = concat(output, ')::int');
+    elsif (field_type = 2) then
+        output = concat(output, ')::float');
+    elsif (field_type = 3) then
+        output = concat(output, ')::text');
+        field_value := qt(field_value);
+    elsif (field_type = 4) then
+        output = concat(output, ')::date');
+        field_value := qt(field_value);
+    end if;
+    output = concat(output, ' ', field_operator);
+    output = concat(output, ' ', field_value);
+    output = concat(output, ' ');
+    return output;
 end;
 $function$;

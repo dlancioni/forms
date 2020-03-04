@@ -31,7 +31,7 @@ begin
 end;
 $$ language plpgsql;
 
-drop trigger if exists tg_company_system on tb_company;
-create trigger tg_company_system after insert or update on tb_company
-for each row execute procedure fn_company_system();
+-- drop trigger if exists tg_company_system on tb_company;
+-- create trigger tg_company_system after insert or update on tb_company
+-- for each row execute procedure fn_company_system();
 

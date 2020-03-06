@@ -65,35 +65,64 @@ returns text
 language plpgsql
 as $function$
 declare
-    id_system int := 0;
-    id_table int := 0;
+    systemId int := 0;
+    tableId int := 0;
     sql text := '';
     output text := '';
     item record;
     data text;
 begin
+    /*
+    select get_condition('{"session":{"id_system":1,"id_table":1,"id_action":1},"criteria":[{"field_name":"name", "operator":"=", "field_value":"1"}]}')
+    */
+    systemId := json->'session'->>'id_system';
+    tableId := json->'session'->>'id_table';
+    data := qt(json_extract_path(json::json, 'criteria')::text);
+    sql := concat(sql, ' select x.field_name, x.operator, x.field_value::text, v.id_type field_type');
+    sql := concat(sql, ' from json_to_recordset(', data, ') as x(field_name text, operator text, field_value text)');
+    sql := concat(sql, ' inner join vw_table v on x.field_name = v.field_name');
+    sql := concat(sql, ' where v.id_system = ', systemId);
+    sql := concat(sql, ' and v.id_table = ', tableId);
+    for item in execute sql
+    loop
+        output := concat(output, sql_condition(item.field_name, item.field_type, item.operator, item.field_value), ' and');
+    end loop;
+    if (trim(output) != '') then
+        output := ' and ' || crop(output, ' and');
+    end if;
+    return output;
+end;
+$function$;
+
 /*
-Call sample:
-select get_condition('{"session":{"id_system":1,"id_table":1,"id_action":1},"criteria":[{"field_name":"name", "operator":"=", "field_value":"1"}]}')
+Get table name
+select get_join(1,1) -- success
+select get_join(1,9) -- fail
 */
-id_system := json->'session'->>'id_system';
-id_table := json->'session'->>'id_table';
-data := qt(json_extract_path(json::json, 'criteria')::text);
-
-sql := concat(sql, ' select x.field_name, x.operator, x.field_value::text, v.id_type field_type');
-sql := concat(sql, ' from json_to_recordset(', data, ') as x(field_name text, operator text, field_value int)');
-sql := concat(sql, ' inner join vw_table v on x.field_name = v.field_name');
-sql := concat(sql, ' where v.id_system = ', id_system);
-sql := concat(sql, ' and v.id_table = ', id_table);
-
-for item in execute sql
-loop    
-    output := concat(output, sql_condition(item.field_name, item.field_type, item.operator, item.field_value), ' and');
-end loop;
-output := crop(output, ' and');
-
-return output;
-
+create or replace function get_join(json text)
+returns text
+language plpgsql
+as $function$
+declare
+    item record;
+    sql text := '';
+    output text := '';
+begin
+    -- select row_to_json(tb_table)::text from tb_table
+    sql := concat(sql, ' select');
+    sql := concat(sql, ' t1.table_name base_table,');
+    sql := concat(sql, ' t1.field_name,');
+    sql := concat(sql, ' t1.id_fk,');
+    sql := concat(sql, sql_column('table_name', 3));
+    sql := concat(sql, ' from vw_table t1');
+    sql := concat(sql, ' inner join tb_table t2 on t1.id_fk = t2.id'); 
+    sql := concat(sql, ' where id_table = 3');
+    for item in execute sql loop
+        output := concat(output, 'inner join ', item.table_name , ' on ');
+        output := concat(output, item.base_table, '.', item.field_name, ' = ', item.table_name, '.id');
+        output := concat(output, ' ');
+    end loop;
+    return output;
 end;
 $function$;
 
@@ -103,7 +132,7 @@ select get_table(1,1) -- success
 select get_table(1,9) -- fail
 */
 drop function if exists get_table;
-create or replace function get_table(id_system integer, id_table integer)
+create or replace function get_table(systemId integer, tableId integer)
 returns text
 language plpgsql
 as $function$
@@ -114,12 +143,12 @@ begin
     sql = concat(sql, 'select');
     sql = concat(sql, sql_column('table_name', 3));
     sql = concat(sql, ' from tb_table');
-    sql = concat(sql, ' where id = ', id_table);
-    sql = concat(sql, ' and ', sql_condition('id_system', 1, '=', id_system::text));
+    sql = concat(sql, ' where id = ', tableId);
+    sql = concat(sql, ' and ', sql_condition('id_system', 1, '=', systemId::text));
     for item in execute sql loop
     return item.table_name;
     end loop;
-    raise exception 'tabela nao encontrada para codigo de sistema (%) e tabela (%)', id_system, id_table;
+    raise exception 'tabela nao encontrada para codigo de sistema (%) e tabela (%)', systemId, tableId;
 end;
 $function$;
 
@@ -129,7 +158,7 @@ select is_unique(1,'tb_system', 'name', 'formsss') -- true, dont exists
 select is_unique(1,'tb_system', 'name', 'forms') -- false, already exists 
 */
 drop function if exists is_unique;
-create or replace function is_unique(id_system integer, table_name character varying, field_name character varying, field_value character varying)
+create or replace function is_unique(systemId integer, tableName character varying, fieldName character varying, fieldValue character varying)
 returns boolean
 language plpgsql
 as $function$
@@ -137,9 +166,9 @@ declare
     sql varchar := '';
     item record;    
 begin
-    sql = concat(sql, ' select * from ', table_name);
-    sql = concat(sql, ' where (data->', qt('session'), '->>', qt('id_system'), ')::int = ', id_system);
-    sql = concat(sql, ' and data->', qt('field'), '->>', qt(field_name), ' = ', qt(field_value));
+    sql = concat(sql, ' select * from ', tableName);
+    sql = concat(sql, ' where (data->', qt('session'), '->>', qt('id_system'), ')::int = ', systemId);
+    sql = concat(sql, ' and data->', qt('field'), '->>', qt(fieldName), ' = ', qt(fieldValue));
     for item in execute sql loop
         return false;    
     end loop;
@@ -149,11 +178,10 @@ $function$;
 
 /*
 Check if the record is unique at the table
-select table_json(1,1,1,'I')
-select jsonb_set(table_json(1,1,1,'I'), '{"field", "id"}', '999')
+select json_in(1,1,1)
 */
 drop function if exists json_in;
-create or replace function json_in(id_system int, id_table int, id_action int)
+create or replace function json_in(systemId int, tableId int, actionId int)
 returns jsonb
 language plpgsql
 as $function$
@@ -166,16 +194,16 @@ begin
 
     -- Create session
     session = concat(session, dbqt('session'), ':', '{');
-    session = concat(session, dbqt('id_system'), ':', id_system, ',');
-    session = concat(session, dbqt('id_table'), ':', id_table, ',');
-    session = concat(session, dbqt('id_action'), ':', id_action);
+    session = concat(session, dbqt('id_system'), ':', systemId, ',');
+    session = concat(session, dbqt('id_table'), ':', tableId, ',');
+    session = concat(session, dbqt('id_action'), ':', actionId);
     session = concat(session, '}');
 
     -- Create record
     field = concat(field, dbqt('field'), ':', '{');
     sql := concat(sql, ' select field_name from vw_table');
-    sql := concat(sql, ' where id_system = ', id_system);
-    sql := concat(sql, ' and id_table = ', id_table);
+    sql := concat(sql, ' where id_system = ', systemId);
+    sql := concat(sql, ' and id_table = ', tableId);
     for item in execute sql loop        
         field = concat(field, dbqt(item.field_name), ':', dbqt(''), ',');        
     end loop;
@@ -189,11 +217,11 @@ $function$;
 
 /*
 Format numbers based on mask
-select return(1, 'I', 23, '', '')
-select return(0, 'U', 23, 'exception goes here', 'warning goes here')
+select json_out(1, 1, 23, '', '')
+select json_out(0, 2, 23, 'exception goes here', 'warning goes here')
 */
 drop function if exists json_out;
-create or replace function json_out(status int, id_action int, id int, error text, warning text)
+create or replace function json_out(status int, actionId int, id int, error text, warning text)
 returns jsonb
 language plpgsql
 as $function$
@@ -201,11 +229,11 @@ declare
     output text := '';
     message text := '';
 begin
-    if (id_action = 1) then 
+    if (actionId = 1) then 
         message := 'Registro INCLUÍDO com sucesso' || '. id: ' || id::text;
-    elsif (id_action = 2) then
+    elsif (actionId = 2) then
         message := 'Registro ALTERADO com sucesso' || '. id: ' || id::text;
-    elsif (id_action = 3) then
+    elsif (actionId = 3) then
         message := 'Registro EXCLUÍDO com sucesso' || '. id: ' || id::text;
     else
         message := 'Invalid action';    
@@ -214,7 +242,7 @@ begin
     output := concat(output, '{');
     output := concat(output, '"status":', status, ',');
     output := concat(output, '"id":', id, ',');
-    output := concat(output, '"action":', id_action, ',');
+    output := concat(output, '"action":', actionId, ',');
     output := concat(output, '"message":', dbqt(message), ',');
     output := concat(output, '"error":', dbqt(error), ',');
     output := concat(output, '"warning":', dbqt(warning));
@@ -266,7 +294,7 @@ Sset value between single quote
 select qt('david');
 */
 drop function if exists qt;
-create or replace function qt(value character varying)
+create or replace function qt(value text)
 returns character varying
 language plpgsql
 as $function$
@@ -277,29 +305,34 @@ $function$;
 
 /*
 author: david lancioni
-target: 
+target: Return sql for select clause in json format
+Tests:
+select sql_column('id', '1'); -- int
+select sql_column('price', '2'); -- decimal (float)
+select sql_column('name', '3'); -- text
+select sql_column('dt', '4'); -- date
+select sql_column('boolean', '5'); -- boolean (0/1 int)
 */
 drop function if exists sql_column;
-create or replace function sql_column(field_name text, field_type integer)
+create or replace function sql_column(fieldName text, fieldType integer)
 returns text
 language plpgsql
 as $function$
 declare
-    output text := '';
+    sql text := '';
 begin
-    output = concat(output , ' (data->', qt('field'), '->>', qt(field_name), ' ');
-    if (field_type = 1) then
-        output = concat(output, ')::int');
-    elsif (field_type = 2) then
-        output = concat(output, ')::float');
-    elsif (field_type = 3) then
-        output = concat(output, ')::text');
-    elsif (field_type = 4) then
-        output = concat(output, ')::date');
+    sql = concat(sql , ' (data->', qt('field'), '->>', qt(fieldName), ' ');
+    if (fieldType = 1 or fieldType = 5) then
+        sql = concat(sql, ')::int');
+    elsif (fieldType = 2) then
+        sql = concat(sql, ')::float');
+    elsif (fieldType = 3) then
+        sql = concat(sql, ')::text');
+    elsif (fieldType = 4) then
+        sql = concat(sql, ')::date');
     end if;
-    output = concat(output, ' as ', field_name);
-
-    return output;
+    sql = concat(sql, ' as ', fieldName);
+    return sql;
 end;
 $function$;
 
@@ -307,27 +340,28 @@ $function$;
 target: 
 */
 drop function if exists sql_condition;
-create or replace function sql_condition(field_name text, field_type integer, field_operator text, field_value text)
+create or replace function sql_condition(fieldName text, fieldType integer, fieldOperator text, fieldValue text)
 returns text
 language plpgsql
 as $function$
 declare
     output text := '';
 begin
-    output = concat(output , ' (data->', qt('field'), '->>', qt(field_name));
-    if (field_type = 1) then
+    -- Note: apply single quote on data and string
+    output = concat(output , ' (data->', qt('field'), '->>', qt(fieldName));
+    if (fieldType = 1) then
         output = concat(output, ')::int');
-    elsif (field_type = 2) then
+    elsif (fieldType = 2) then
         output = concat(output, ')::float');
-    elsif (field_type = 3) then
+    elsif (fieldType = 3) then
         output = concat(output, ')::text');
-        field_value := qt(field_value);
-    elsif (field_type = 4) then
+        fieldValue := qt(fieldValue);
+    elsif (fieldType = 4) then
         output = concat(output, ')::date');
-        field_value := qt(field_value);
+        fieldValue := qt(fieldValue);
     end if;
-    output = concat(output, ' ', field_operator);
-    output = concat(output, ' ', field_value);
+    output = concat(output, ' ', fieldOperator);
+    output = concat(output, ' ', fieldValue);
     output = concat(output, ' ');
     return output;
 end;

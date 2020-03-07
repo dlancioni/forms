@@ -1,7 +1,7 @@
 /* 
-call persist('{"session":{"id_system":1,"id_table":1,"id_action":1},"field":{"id":1,"name":"lancioni it","expire_date":"2021-01-","price":1200}}'); 
-call persist('{"session":{"id_system":1,"id_table":1,"id_action":2},"field":{"id":1,"name":"Lancioni IT","expire_date":"2021-01-01","price":1200}}'); 
-call persist('{"session":{"id_system":1,"id_table":1,"id_action":3},"field":{"id":1,"name":"Lancioni IT","expire_date":"2021-01-01","price":1200}}'); 
+call persist('{"session":{"id_system":1,"id_table":1,"id_action":1},"field":{"id":1,"name":"lancioni it","expire_date":"31/12/2021","price":1200}}'); 
+call persist('{"session":{"id_system":1,"id_table":1,"id_action":2},"field":{"id":1,"name":"Lancioni IT","expire_date":"31/12/2021","price":1200}}'); 
+call persist('{"session":{"id_system":1,"id_table":1,"id_action":3},"field":{"id":1,"name":"Lancioni IT","expire_date":"31/12/2021","price":1200}}'); 
 */
 drop procedure if exists persist;
 create or replace procedure persist(INOUT json_new jsonb)
@@ -59,7 +59,7 @@ begin
 			-- Keep key information
 			fieldName = trim(item.field_name);
 			fieldType = item.id_type;
-			fieldValue = trim(json_new->'field'->>field_name);
+			fieldValue = trim(json_new->'field'->>fieldName);
 			fieldMask = trim(item.field_mask);
 			fieldMandatory = (item.id_mandatory)::int;
 			fieldUnique = (item.id_unique)::int;
@@ -105,7 +105,8 @@ begin
 			fieldUnique = (item.id_unique)::int;			
 			fieldName = trim(item.field_name);
 			fieldType = item.id_type;
-			fieldValue = trim(json_new->'field'->>field_name);						
+			fieldValue = trim(json_new->'field'->>fieldName);
+			fieldMask = trim(item.field_mask);
 			old := json_extract_path(json_old::json, 'field', item.field_name)::text;
 			new := json_extract_path(json_new::json, 'field', item.field_name)::text;
 			-- Validate mandatory fields
@@ -119,12 +120,12 @@ begin
 				-- Validate dates
 				if (fieldType = 4) then
 					if (parse_date(fieldValue, fieldMask) = false) then
-						raise exception 'Data inváida [%] no campo %', fieldValue, field_name;
+						raise exception 'Data inváida [%] no campo %', fieldValue, fieldName;
 					end if;
 				end if;			
 				if (fieldUnique = 1) then
-					if (is_unique(systemId, tableName, field_name, fieldValue) = false) then
-						raise exception 'Valor % ja existe na tabela % campo %', fieldValue, tableName, field_name;
+					if (is_unique(systemId, tableName, fieldName, fieldValue) = false) then
+						raise exception 'Valor [%] ja existe na tabela % campo %', fieldValue, tableName, fieldName;
 					end if;
 				end if;
 				output := concat(output, ';', item.field_name);
@@ -142,7 +143,6 @@ begin
 	------------------------------------------------ DELETE
 	------------------------------------------------
 	if (actionId = 3) then
-		raise notice 'Before %', 1;	
 		-- Figure out dependency table
 		sql = '';
 		sql = concat(sql, ' select');

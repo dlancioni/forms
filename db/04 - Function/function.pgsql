@@ -113,7 +113,7 @@ begin
     sql := concat(sql, ' t1.table_name base_table,');
     sql := concat(sql, ' t1.field_name,');
     sql := concat(sql, ' t1.id_fk,');
-    sql := concat(sql, sql_column('table_name', 3));
+    sql := concat(sql, sql_column('table_name', 3, ''));
     sql := concat(sql, ' from vw_table t1');
     sql := concat(sql, ' inner join tb_table t2 on t1.id_fk = t2.id'); 
     sql := concat(sql, ' where id_table = 3');
@@ -141,7 +141,7 @@ declare
     item record;
 begin
     sql = concat(sql, 'select');
-    sql = concat(sql, sql_column('table_name', 3));
+    sql = concat(sql, sql_column('table_name', 3, ''));
     sql = concat(sql, ' from tb_table');
     sql = concat(sql, ' where id = ', tableId);
     sql = concat(sql, ' and ', sql_condition('id_system', 1, '=', systemId::text));
@@ -229,14 +229,19 @@ declare
     output text := '';
     message text := '';
 begin
-    if (actionId = 1) then 
-        message := 'Registro INCLUÍDO com sucesso' || '. id: ' || id::text;
-    elsif (actionId = 2) then
-        message := 'Registro ALTERADO com sucesso' || '. id: ' || id::text;
-    elsif (actionId = 3) then
-        message := 'Registro EXCLUÍDO com sucesso' || '. id: ' || id::text;
+
+    if (trim(error) = '') then
+        if (actionId = 1) then 
+            message := 'Registro INCLUÍDO com sucesso' || '. id: ' || id::text;
+        elsif (actionId = 2) then
+            message := 'Registro ALTERADO com sucesso' || '. id: ' || id::text;
+        elsif (actionId = 3) then
+            message := 'Registro EXCLUÍDO com sucesso' || '. id: ' || id::text;
+        else
+            message := 'Invalid action';    
+        end if;
     else
-        message := 'Invalid action';    
+        message := error;
     end if;
 
     output := concat(output, '{');
@@ -244,7 +249,6 @@ begin
     output := concat(output, '"id":', id, ',');
     output := concat(output, '"action":', actionId, ',');
     output := concat(output, '"message":', dbqt(message), ',');
-    output := concat(output, '"error":', dbqt(error), ',');
     output := concat(output, '"warning":', dbqt(warning));
     output := concat(output, '}');
     return output;
@@ -256,6 +260,7 @@ Parse string in a valid date
 select parse_date('', 'yyyy/MM/dd') -- true (nothing to parse)
 select parse_date('2020/12/31', 'yyyy/MM/dd') -- true
 select parse_date('', 'dd/mm/yyyy') -- false
+select parse_date('25/12/2021', 'dd/mm/yyyy') -- true
 */
 drop function if exists parse_date;
 create or replace function parse_date(date text, mask text)
@@ -307,32 +312,32 @@ $function$;
 author: david lancioni
 target: Return sql for select clause in json format
 Tests:
-select sql_column('id', '1'); -- int
-select sql_column('price', '2'); -- decimal (float)
-select sql_column('name', '3'); -- text
-select sql_column('dt', '4'); -- date
-select sql_column('boolean', '5'); -- boolean (0/1 int)
+select sql_column('id', '1', ''); -- int
+select sql_column('price', '2', ''); -- decimal (float)
+select sql_column('name', '3', ''); -- text
+select sql_column('expire_date', '4', 'dd/mm/yyyy'); -- date
+select sql_column('boolean', '5', ''); -- boolean (0/1 int)
 */
 drop function if exists sql_column;
-create or replace function sql_column(fieldName text, fieldType integer)
+create or replace function sql_column(fieldName text, fieldType integer, fieldMask text)
 returns text
 language plpgsql
 as $function$
 declare
-    sql text := '';
+    field text := '';
 begin
-    sql = concat(sql , ' (data->', qt('field'), '->>', qt(fieldName), ' ');
+    field = concat(field , 'data->', qt('field'), '->>', qt(fieldName), ' ');
     if (fieldType = 1 or fieldType = 5) then
-        sql = concat(sql, ')::int');
+        field = concat('(', field, ')::int');
     elsif (fieldType = 2) then
-        sql = concat(sql, ')::float');
+        field = concat('(', field, ')::float');
     elsif (fieldType = 3) then
-        sql = concat(sql, ')::text');
+        field = concat('(', field, ')::text');
     elsif (fieldType = 4) then
-        sql = concat(sql, ')::date');
+        field = concat('(', 'to_date(', field, ',', qt(fieldMask), '))::date');
     end if;
-    sql = concat(sql, ' as ', fieldName);
-    return sql;
+    field = concat(field, ' as ', fieldName);
+    return field;
 end;
 $function$;
 

@@ -8,7 +8,7 @@ ALTER ROLE qqbzxiqr IN DATABASE qqbzxiqr SET search_path TO system;
 -- -----------------------------------------------------
 drop table if exists tb_system cascade;
 create table if not exists tb_system (id serial, data jsonb);
---insert into tb_system (data) values ('{"session":{"id_system":1,"id_table":1,"id_action":1},"field":{"id":1,"name":"forms"}}');
+insert into tb_system (data) values ('{"session":{"id_system":1,"id_table":1,"id_action":1},"field":{"id":1,"name":"forms"}}');
 
 -- -----------------------------------------------------
 -- table tb_table

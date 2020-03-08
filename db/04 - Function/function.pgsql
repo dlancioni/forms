@@ -73,11 +73,11 @@ declare
     data text;
 begin
     /*
-    select get_condition('{"session":{"id_system":1,"id_table":1,"id_action":1},"criteria":[{"field_name":"name", "operator":"=", "field_value":"1"}]}')
+    select get_condition('{"session":{"id_system":1,"id_table":1,"id_action":1},"filter":[{"field_name":"name", "operator":"=", "field_value":"1"}]}')
     */
     systemId := json->'session'->>'id_system';
     tableId := json->'session'->>'id_table';
-    data := qt(json_extract_path(json::json, 'criteria')::text);
+    data := qt(json_extract_path(json::json, 'filter')::text);
     sql := concat(sql, ' select x.field_name, x.operator, x.field_value::text, v.id_type field_type');
     sql := concat(sql, ' from json_to_recordset(', data, ') as x(field_name text, operator text, field_value text)');
     sql := concat(sql, ' inner join vw_table v on x.field_name = v.field_name');

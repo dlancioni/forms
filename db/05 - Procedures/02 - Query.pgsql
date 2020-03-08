@@ -18,7 +18,11 @@ begin
     id_table := json_new::jsonb->'session'->>'id_table';
 
     /*
-    call query('{"session":{"id_system":1,"id_table":1,"id_action":1},"criteria":[{"field_name":"id", "operator":"=", "field_value":"1"}]}')
+     -- no condition
+    call query('{"session":{"id_system":1,"id_table":1,"id_action":1},"filter":[]}')
+    
+     -- filtering
+    call query('{"session":{"id_system":1,"id_table":1,"id_action":1},"filter":[{"field_name":"id", "operator":"=", "field_value":"1"}]}')
     */
 
     -- prepare sql on view table
@@ -34,7 +38,7 @@ begin
 
     -- get data and return json
     for item in execute sql2 loop
-    rows := concat(rows, item.record::text, ',');
+        rows := concat(rows, item.record::text, ',');
     end loop;
 
     -- format final result

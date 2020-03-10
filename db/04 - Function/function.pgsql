@@ -166,13 +166,13 @@ language plpgsql
 as $function$
 declare
     sql varchar := '';
-    item record;    
+    item record;
 begin
     sql = concat(sql, ' select * from ', tableName);
-    sql = concat(sql, ' where (data->', qt('session'), '->>', qt('id_system'), ')::int = ', systemId);
-    sql = concat(sql, ' and data->', qt('field'), '->>', qt(fieldName), ' = ', qt(fieldValue));
+    sql = concat(sql, ' where (session->>', qt('id_system'), ')::int = ', systemId);
+    sql = concat(sql, ' and ', sql_condition(fieldName, 3, '=', fieldValue));
     for item in execute sql loop
-        return false;    
+        return false;
     end loop;
     return true;
 end;
@@ -326,9 +326,9 @@ returns text
 language plpgsql
 as $function$
 declare
-    field text := '';
+field text := '';
 begin
-    field = concat(field , 'data->', qt('field'), '->>', qt(fieldName), ' ');
+    field = concat(field , 'field', '->>', qt(fieldName), ' ');
     if (fieldType = 1 or fieldType = 5) then
         field = concat('(', field, ')::int');
     elsif (fieldType = 2) then
@@ -355,7 +355,8 @@ declare
     output text := '';
 begin
     -- Note: apply single quote on data and string
-    output = concat(output , ' (data->', qt('field'), '->>', qt(fieldName));
+    output = concat(output , ' (field', '->>', qt(fieldName));
+
     if (fieldType = 1) then
         output = concat(output, ')::int');
     elsif (fieldType = 2) then
@@ -367,9 +368,11 @@ begin
         output = concat(output, ')::date');
         fieldValue := qt(fieldValue);
     end if;
+
     output = concat(output, ' ', fieldOperator);
     output = concat(output, ' ', fieldValue);
     output = concat(output, ' ');
+
     return output;
 end;
 $function$;

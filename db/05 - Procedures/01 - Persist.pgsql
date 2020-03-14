@@ -105,7 +105,7 @@ begin
 
 		-- Stamp the id in the json
 		json_new := json_new->>'field';
-		json_new := jsonb_set(json_new::jsonb, '{id}', dbqt(id::text)::jsonb, true);
+		json_new := jsonb_set(json_new::jsonb, '{id}', id::text::jsonb, true);
 
 		-- Save new json
 		sql := concat('update ', tableName, ' set field = ', qt(json_new::text), ' where id = ', id);

@@ -4,7 +4,7 @@ select crop('id,name, ', ',' );
 */
 drop function if exists crop;
 create or replace function crop(text text, value text)
-returns character varying
+returns text
 language plpgsql
 as $function$
 begin
@@ -19,7 +19,7 @@ select dbqt('');
 */
 drop function if exists dbqt;
 create or replace function dbqt(value text)
-returns character varying
+returns text
 language plpgsql
 as $function$
 begin
@@ -128,6 +128,79 @@ begin
 end;
 $function$;
 
+create or replace function get_json(systemId integer, tableId integer, userId integer, actionId integer)
+returns jsonb
+language plpgsql
+as $function$
+declare
+    sql text := '';
+    session text := '';
+    field text := '';
+    item record;
+begin
+    -- Create session
+    session = concat(session, dbqt('session'), ':', '{');
+    session = concat(session, dbqt('id_system'), ':', systemId, ',');
+    session = concat(session, dbqt('id_table'), ':', tableId, ',');
+    session = concat(session, dbqt('id_user'), ':', userId, ',');
+    session = concat(session, dbqt('id_action'), ':', actionId);
+    session = concat(session, '}');
+
+    -- Create record
+    field = concat(field, dbqt('field'), ':', '{');
+    sql := concat(sql, ' select field_name from vw_table');
+    sql := concat(sql, ' where id_system = ', systemId);
+    sql := concat(sql, ' and id_table = ', tableId);
+    for item in execute sql loop
+    field = concat(field, dbqt(item.field_name), ':', dbqt(''), ',');
+    end loop;
+    field := concat(crop(field, ','), '}');
+
+    -- Create final JSONB
+    return concat('{', session, ',', field, '}');
+
+end;
+$function$;
+
+/*
+Format numbers based on mask
+select get_output(1, 1, 23, '', '')
+select get_output(0, 2, 23, 'exception goes here', 'warning goes here')
+*/
+drop function if exists get_output;
+create or replace function get_output(status integer, actionId integer, id integer, error text, warning text)
+returns jsonb
+language plpgsql
+as $function$
+declare
+    output text := '';
+    message text := '';
+begin
+    if (trim(error) = '') then
+        if (actionId = 1) then
+            message := 'Registro INCLUÍDO com sucesso' || '. id: ' || id::text;
+        elsif (actionId = 2) then
+            message := 'Registro ALTERADO com sucesso' || '. id: ' || id::text;
+        elsif (actionId = 3) then
+            message := 'Registro EXCLUÍDO com sucesso' || '. id: ' || id::text;
+        else
+            message := 'Invalid action';
+        end if;
+    else
+        message := error;
+    end if;
+
+    output := concat(output, '{');
+    output := concat(output, '"status":', status, ',');
+    output := concat(output, '"id":', id, ',');
+    output := concat(output, '"action":', actionId, ',');
+    output := concat(output, '"message":', dbqt(message), ',');
+    output := concat(output, '"warning":', dbqt(warning));
+    output := concat(output, '}');
+    return output;
+end;
+$function$;
+
 /*
 Get table name
 select get_table(1,1) -- success
@@ -160,7 +233,7 @@ select is_unique(1,'tb_system', 'name', 'formsss') -- true, dont exists
 select is_unique(1,'tb_system', 'name', 'forms') -- false, already exists 
 */
 drop function if exists is_unique;
-create or replace function is_unique(systemId integer, tableName character varying, fieldName character varying, fieldValue character varying)
+create or replace function is_unique(systemId integer, tableName text, fieldName text, fieldValue text)
 returns boolean
 language plpgsql
 as $function$
@@ -175,85 +248,6 @@ begin
         return false;
     end loop;
     return true;
-end;
-$function$;
-
-/*
-Check if the record is unique at the table
-select json_in(1,1,1)
-*/
-drop function if exists json_in;
-create or replace function json_in(systemId int, tableId int, actionId int)
-returns jsonb
-language plpgsql
-as $function$
-declare
-    sql text := '';
-    session text := '';
-    field text := '';
-    item record;   
-begin
-
-    -- Create session
-    session = concat(session, dbqt('session'), ':', '{');
-    session = concat(session, dbqt('id_system'), ':', systemId, ',');
-    session = concat(session, dbqt('id_table'), ':', tableId, ',');
-    session = concat(session, dbqt('id_action'), ':', actionId);
-    session = concat(session, '}');
-
-    -- Create record
-    field = concat(field, dbqt('field'), ':', '{');
-    sql := concat(sql, ' select field_name from vw_table');
-    sql := concat(sql, ' where id_system = ', systemId);
-    sql := concat(sql, ' and id_table = ', tableId);
-    for item in execute sql loop        
-        field = concat(field, dbqt(item.field_name), ':', dbqt(''), ',');        
-    end loop;
-    field := concat(crop(field, ','), '}');
-
-    -- Create final JSONB
-    return concat('{', session, ',', field, '}');
-
-end;
-$function$;
-
-/*
-Format numbers based on mask
-select json_out(1, 1, 23, '', '')
-select json_out(0, 2, 23, 'exception goes here', 'warning goes here')
-*/
-drop function if exists json_out;
-create or replace function json_out(status int, actionId int, id int, error text, warning text)
-returns jsonb
-language plpgsql
-as $function$
-declare 
-    output text := '';
-    message text := '';
-begin
-
-    if (trim(error) = '') then
-        if (actionId = 1) then 
-            message := 'Registro INCLUÍDO com sucesso' || '. id: ' || id::text;
-        elsif (actionId = 2) then
-            message := 'Registro ALTERADO com sucesso' || '. id: ' || id::text;
-        elsif (actionId = 3) then
-            message := 'Registro EXCLUÍDO com sucesso' || '. id: ' || id::text;
-        else
-            message := 'Invalid action';    
-        end if;
-    else
-        message := error;
-    end if;
-
-    output := concat(output, '{');
-    output := concat(output, '"status":', status, ',');
-    output := concat(output, '"id":', id, ',');
-    output := concat(output, '"action":', actionId, ',');
-    output := concat(output, '"message":', dbqt(message), ',');
-    output := concat(output, '"warning":', dbqt(warning));
-    output := concat(output, '}');
-    return output;
 end;
 $function$;
 
@@ -297,12 +291,12 @@ end;
 $function$;
 
 /*
-Sset value between single quote
+Set value between single quote
 select qt('david');
 */
 drop function if exists qt;
 create or replace function qt(value text)
-returns character varying
+returns text
 language plpgsql
 as $function$
 begin
@@ -326,7 +320,7 @@ returns text
 language plpgsql
 as $function$
 declare
-field text := '';
+    field text := '';
 begin
     field = concat(field , 'field', '->>', qt(fieldName), ' ');
     if (fieldType = 1 or fieldType = 5) then
@@ -374,5 +368,19 @@ begin
     output = concat(output, ' ');
 
     return output;
+end;
+$function$;
+
+/*
+Sset value between single quote
+select trace('david');
+*/
+drop function if exists trace;
+create or replace function trace(value text)
+returns void
+language plpgsql
+as $function$
+begin
+    raise notice '%', value;
 end;
 $function$;

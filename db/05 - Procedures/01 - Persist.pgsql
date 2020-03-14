@@ -1,7 +1,7 @@
 /* 
-call persist('{"session":{"id_system":1,"id_table":1,"id_action":1},"field":{"id":"0","name":"lancioni it","expire_date":"31/12/2021","price":1200}}'); 
-call persist('{"session":{"id_system":1,"id_table":1,"id_action":2},"field":{"id":"1","name":"Lancioni IT","expire_date":"31/12/2021","price":1200}}'); 
-call persist('{"session":{"id_system":1,"id_table":1,"id_action":3},"field":{"id":"1","name":"Lancioni IT","expire_date":"31/12/2021","price":1200}}'); 
+call persist('{"session":{"id_system":1,"id_table":1,"id_action":1},"field":{"id":0,"name":"lancioni it","expire_date":"31/12/2021","price":1200}}'); 
+call persist('{"session":{"id_system":1,"id_table":1,"id_action":2},"field":{"id":1,"name":"Lancioni IT","expire_date":"31/12/2021","price":1200}}'); 
+call persist('{"session":{"id_system":1,"id_table":1,"id_action":3},"field":{"id":1,"name":"Lancioni IT","expire_date":"31/12/2021","price":1200}}'); 
 */
 drop procedure if exists persist;
 create or replace procedure persist(INOUT data jsonb)
@@ -30,7 +30,6 @@ declare
 	json_old jsonb;
 	jsons jsonb;
 	jsonf jsonb;
-
 
 begin
 	-- Start processing
@@ -113,7 +112,8 @@ begin
 
 		-- Get inserted id and stamp in the json
  		select currval(pg_get_serial_sequence(tableName, 'id')) into id;
-		jsonf := jsonb_set(jsonf, '{id}', dbqt(id::text)::jsonb, false);
+		-- jsonf := jsonb_set(jsonf, '{id}', dbqt(id::text)::jsonb, false);
+		jsonf := jsonb_set(jsonf, '{id}', id::text::jsonb, false);
 
 		-- Save new json
 		sql := concat('update ', tableName, ' set field = ', qt(jsonf::text), ' where id = ', id);

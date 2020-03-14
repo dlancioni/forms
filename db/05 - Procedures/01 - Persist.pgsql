@@ -1,10 +1,10 @@
 /* 
-call persist('{"session":{"id_system":1,"id_table":1,"id_action":1},"field":{"id":0,"name":"lancioni it","expire_date":"31/12/2021","price":1200}}'); 
-call persist('{"session":{"id_system":1,"id_table":1,"id_action":2},"field":{"id":1,"name":"Lancioni IT","expire_date":"31/12/2021","price":1200}}'); 
-call persist('{"session":{"id_system":1,"id_table":1,"id_action":3},"field":{"id":1,"name":"Lancioni IT","expire_date":"31/12/2021","price":1200}}'); 
+call persist('{"session":{"id_system":1,"id_table":1,"id_action":1},"field":{"id":"0","name":"lancioni it","expire_date":"31/12/2021","price":1200}}'); 
+call persist('{"session":{"id_system":1,"id_table":1,"id_action":2},"field":{"id":"1","name":"Lancioni IT","expire_date":"31/12/2021","price":1200}}'); 
+call persist('{"session":{"id_system":1,"id_table":1,"id_action":3},"field":{"id":"1","name":"Lancioni IT","expire_date":"31/12/2021","price":1200}}'); 
 */
 drop procedure if exists persist;
-create or replace procedure persist(INOUT json_new jsonb)
+create or replace procedure persist(INOUT data jsonb)
 language plpgsql
 AS $$
 declare
@@ -28,16 +28,22 @@ declare
 
     item record;
 	json_old jsonb;
+	jsons jsonb;
+	jsonf jsonb;
+
 
 begin
 	-- Start processing
-	execute trace('Begin Persist(): ', json_new::text);
+	execute trace('Begin Persist(): ', data::text);
 
 	-- Keep key parameters
-	id = (json_new->'field'->>'id')::int;	
-	systemId := (json_new->'session'->>'id_system')::int;
-	tableId := (json_new->'session'->>'id_table')::int;
-	actionId = (json_new->'session'->>'id_action')::int;
+	jsons := data->'session';
+	jsonf := data->'field';	
+	
+	id = (jsonf->>'id')::int;	
+	systemId := (jsons->>'id_system')::int;
+	tableId := (jsons->>'id_table')::int;
+	actionId = (jsons->>'id_action')::int;
 
 	-- Validate input
 	if (position(actionId::text in '123') = 0) then
@@ -67,7 +73,7 @@ begin
 			-- Keep key information
 			fieldName = trim(item.field_name);
 			fieldType = item.id_type;
-			fieldValue = trim(json_new->'field'->>fieldName);
+			fieldValue = trim(jsonf->>fieldName);
 			fieldMask = trim(item.field_mask);
 			fieldMandatory = (item.id_mandatory)::int;
 			fieldUnique = (item.id_unique)::int;
@@ -96,19 +102,21 @@ begin
 		end loop;
 
 		-- Prepare statement
-		sql := concat('insert into ', tableName, ' (session, field) values (', qt(json_new->>'session'::text), ', ', qt(json_new->>'field'::text), ')');
+		sql := '';
+		sql := concat(sql, 'insert into ', tableName);
+		sql := concat(sql, ' (session, field) values (');
+		sql := concat(sql, qt(jsons::text), ', ');
+		sql := concat(sql, qt(jsonf::text));
+		sql := concat(sql, ')');
 		execute trace('SQL: ', sql); 
 		execute sql;
 
 		-- Get inserted id and stamp in the json
  		select currval(pg_get_serial_sequence(tableName, 'id')) into id;
-
-		-- Stamp the id in the json
-		json_new := json_new->>'field';
-		json_new := jsonb_set(json_new::jsonb, '{id}', id::text::jsonb, true);
+		jsonf := jsonb_set(jsonf, '{id}', dbqt(id::text)::jsonb, false);
 
 		-- Save new json
-		sql := concat('update ', tableName, ' set field = ', qt(json_new::text), ' where id = ', id);
+		sql := concat('update ', tableName, ' set field = ', qt(jsonf::text), ' where id = ', id);
 		execute trace('SQL: ', sql);
 		execute sql;		
 
@@ -122,27 +130,40 @@ begin
 		-- Before UPDATE
 		execute trace('Validating before UPDATE: ', actionId::text);
 
-		-- Figure out existing json_new		
-		sql := concat(sql, ' select data json_old from ', tableName);
+		-- Figure out existing data		
+		sql := concat(sql, ' select field json_old from ', tableName);
 		sql := concat(sql, ' where (session', '->>', qt('id_system'), ')::int = ', systemId);
-		sql := concat(sql, ' and id = ', id);
+		sql := concat(sql, ' and (field', '->>', qt('id'), ')::int = ', id);
+		execute trace('Get existing json: ', sql);
 		for item in execute sql loop
 			json_old := item.json_old;
 		end loop;
 
+		-- Are json different
+		execute trace('Are json different: ', '');
+		execute trace('json old: ', json_old::text);
+		execute trace('json new: ', jsonf::text);
+
 		-- validate if json changed
 		sql := concat('select * from vw_table where id_table = ', tableId);
+		execute trace('Get table structure: ', sql);
 		for item in execute sql loop
 
 			-- Collect data
 			fieldMandatory = (item.id_mandatory)::int;
 			fieldUnique = (item.id_unique)::int;			
-			fieldName = trim(item.field_name);
+			fieldName = trim(item.field_name);			
 			fieldType = item.id_type;
-			fieldValue = trim(json_new->'field'->>fieldName);
+			fieldValue = trim(jsonf->>fieldName);
 			fieldMask = trim(item.field_mask);
-			old := json_extract_path(json_old::json, 'field', item.field_name)::text;
-			new := json_extract_path(json_new::json, 'field', item.field_name)::text;
+
+			old := json_extract_path(json_old::json, fieldName)::text;
+			new := json_extract_path(jsonf::json, fieldName)::text;
+
+			-- Check for changes
+			execute trace('fieldName: ', fieldName);
+			execute trace('Old value: ', old);
+			execute trace('New value: ', new);
 
 			-- Validate mandatory fields
 			if (fieldMandatory = 1) then
@@ -174,10 +195,16 @@ begin
 		end if;
 		
 		-- Before insert
-		execute trace('Before update: ', json_new::text);
+		execute trace('Before update: ', jsonf::text);
 
 		-- update the record
-		execute concat('update ', tableName, ' set data = ', qt(json_new::text), ' where id = ', id);
+		sql := '';
+		sql := concat(sql, ' update ', tableName, ' set ');
+		sql := concat(sql, ' session = ', qt(jsons::text), ', ');
+		sql := concat(sql, ' field = ', qt(jsonf::text));
+		sql := concat(sql, ' where id = ', id);
+		execute trace('SQL: ', sql);
+		execute sql;
 	end if;	
 
 	------------------------------------------------
@@ -214,7 +241,7 @@ begin
 	end if;
 
 	-- Return json with success (1 Success)
-	json_new := get_output(1, actionId, id, '', '');
+	data := get_output(1, actionId, id, '', '');
 
 	-- Finish
 	execute trace('End Persist(): ', 'Success');
@@ -224,9 +251,9 @@ exception
 	when others then 
 
 		-- Return json with error (0 Fail)
-		json_new := get_output(0, actionId, id, SQLERRM, '');
+		data := get_output(0, actionId, id, SQLERRM, '');
 
 		-- Finish
-		execute trace('End Persist(): ', 'Fail');
+		execute trace('End Persist() -> exception: ', SQLERRM);
 end;
 $$

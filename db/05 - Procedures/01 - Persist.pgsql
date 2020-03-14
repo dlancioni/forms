@@ -1,7 +1,7 @@
 /* 
 call persist('{"session":{"id_system":1,"id_table":1,"id_action":1},"field":{"id":0,"name":"lancioni it","expire_date":"31/12/2021","price":1200}}'); 
 call persist('{"session":{"id_system":1,"id_table":1,"id_action":2},"field":{"id":1,"name":"Lancioni IT","expire_date":"31/12/2021","price":1200}}'); 
-call persist('{"session":{"id_system":1,"id_table":1,"id_action":3},"field":{"id":1,"name":"Lancioni IT","expire_date":"31/12/2021","price":1200}}'); 
+call persist('{"session":{"id_system":1,"id_table":1,"id_action":3},"field":{"id":1}}'); 
 */
 drop procedure if exists persist;
 create or replace procedure persist(INOUT data jsonb)
@@ -27,9 +27,9 @@ declare
 	fieldMask varchar := '';
 
     item record;
-	json_old jsonb;
-	jsons jsonb;
-	jsonf jsonb;
+	jsone jsonb; -- existing json on database
+	jsons jsonb; -- session part
+	jsonf jsonb; -- field part
 
 begin
 	-- Start processing
@@ -131,17 +131,17 @@ begin
 		execute trace('Validating before UPDATE: ', actionId::text);
 
 		-- Figure out existing data		
-		sql := concat(sql, ' select field json_old from ', tableName);
+		sql := concat(sql, ' select field jsone from ', tableName);
 		sql := concat(sql, ' where (session', '->>', qt('id_system'), ')::int = ', systemId);
 		sql := concat(sql, ' and (field', '->>', qt('id'), ')::int = ', id);
 		execute trace('Get existing json: ', sql);
 		for item in execute sql loop
-			json_old := item.json_old;
+			jsone := item.jsone;
 		end loop;
 
 		-- Are json different
 		execute trace('Are json different: ', '');
-		execute trace('json old: ', json_old::text);
+		execute trace('json old: ', jsone::text);
 		execute trace('json new: ', jsonf::text);
 
 		-- validate if json changed
@@ -157,7 +157,7 @@ begin
 			fieldValue = trim(jsonf->>fieldName);
 			fieldMask = trim(item.field_mask);
 
-			old := json_extract_path(json_old::json, fieldName)::text;
+			old := json_extract_path(jsone::json, fieldName)::text;
 			new := json_extract_path(jsonf::json, fieldName)::text;
 
 			-- Check for changes

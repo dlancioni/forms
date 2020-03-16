@@ -241,7 +241,7 @@ begin
 	end if;
 
 	-- Return json with success (1 Success)
-	data := get_output(1, actionId, id, '', '');
+	data := get_output(1, actionId, id, '', '', '');
 
 	-- Finish
 	execute trace('End Persist(): ', 'Success');
@@ -251,7 +251,7 @@ exception
 	when others then 
 
 		-- Return json with error (0 Fail)
-		data := get_output(0, actionId, id, SQLERRM, '');
+		data := get_output(0, actionId, id, SQLERRM, '', '');
 
 		-- Finish
 		execute trace('End Persist() -> exception: ', SQLERRM);

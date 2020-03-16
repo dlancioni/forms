@@ -164,11 +164,14 @@ $function$;
 
 /*
 Format numbers based on mask
-select get_output(1, 1, 23, '', '')
-select get_output(0, 2, 23, 'exception goes here', 'warning goes here')
+
+select get_output(0, 2, 23, 'exception goes here', 'warning goes here', '', '')
+select get_output(0, 0, 0, 'exception goes here', '', '[]')
+select get_output(1, 1, 0, '', '', '[{"id": 1, "url": "-", "name": "system", "id_system": 1, "table_name": "tb_system"}]');
+select get_output(0, 0, 0, 'SQLERRM', '', '[]')::jsonb;
 */
 drop function if exists get_output;
-create or replace function get_output(status integer, actionId integer, id integer, error text, warning text)
+create or replace function get_output(status integer, actionId integer, id integer, error text, warning text, resultset text)
 returns jsonb
 language plpgsql
 as $function$
@@ -177,7 +180,9 @@ declare
     message text := '';
 begin
     if (trim(error) = '') then
-        if (actionId = 1) then
+        if (actionId = 0) then
+            message := ''; -- Query
+        elsif if (actionId = 1) then
             message := 'Registro INCLUÍDO com sucesso' || '. id: ' || id::text;
         elsif (actionId = 2) then
             message := 'Registro ALTERADO com sucesso' || '. id: ' || id::text;
@@ -195,8 +200,10 @@ begin
     output := concat(output, '"id":', id, ',');
     output := concat(output, '"action":', actionId, ',');
     output := concat(output, '"message":', dbqt(message), ',');
-    output := concat(output, '"warning":', dbqt(warning));
+    output := concat(output, '"warning":', dbqt(warning), ',');
+    output := concat(output, '"resultset":', resultset);
     output := concat(output, '}');
+    raise notice '%', output;
     return output;
 end;
 $function$;
@@ -376,11 +383,11 @@ Sset value between single quote
 select trace('david');
 */
 drop function if exists trace;
-create or replace function trace(value text)
+create or replace function trace(v1 text, v2 text)
 returns void
 language plpgsql
 as $function$
 begin
-    raise notice '%', value;
+    raise notice '%', concat(v1, ' ', v2);
 end;
 $function$;

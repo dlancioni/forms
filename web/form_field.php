@@ -1,4 +1,5 @@
 <?php 
+/*
     while ($row = $rs_field->fetch_assoc()) {
 
         if ($row["name"] != "id") {
@@ -7,4 +8,5 @@
             echo "<input class='w3-input' type='text'>";
         }
     }
+    */
 ?>

@@ -1,5 +1,5 @@
 <?php 
-    $columns = $rs_data->fetch_fields();    
+    //$columns = $rs_data->fetch_fields();    
 ?>
 
 <div class="w3-responsive">
@@ -7,17 +7,20 @@
         <thead>
             <tr>
                 <?php
+                    /*
                     foreach ($columns as $column) {
                         if ($column->name != "Id") {                        
                             echo "<th>$column->name</th>";
                         }
                     }
+                    */
                 ?>
             </tr>
         </thead>
 
         <tbody>
             <?php
+            /*
             while ($row = $rs_data->fetch_assoc()) {
                 echo "<tr>";
                 foreach ($columns as $column) {
@@ -29,6 +32,7 @@
                 }
                 echo "</tr>";
             }
+            */
         ?>
         </tbody>
     </table>

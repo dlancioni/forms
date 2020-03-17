@@ -1,5 +1,4 @@
 </p>
-
 <div class="w3-bar w3-black">
   <a href="#" class="w3-bar-item w3-button w3-mobile w3-black">Home</a>
   <div class="w3-dropdown-hover w3-mobile">

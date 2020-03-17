@@ -1,26 +1,26 @@
+<?php include "../src/declare.php";?>
+
 <!DOCTYPE html>
-<!-- BEGIN HTML -->
 <html>
 <body>
 <form id='Report' method='Post' action='form.php'>
-    <!-- HEADER -->
-    <?php include "web/header.php";?>
-    <?php include "src/header.php";?>
+    <!-- PAGE HEADER-->
+    <?php include "header.php";?>
     <?php include "menu.php";?>
-    <!-- CONTENTS -->
+    <!-- PAGE CONTENTS-->
     <div class="w3-row">
         <div class="w3-col l2">&nbsp;</div>
         <div class="w3-col l8">
-        <a href="report.php">Report</a>
+        <a href="table.php">table</a>
+        <a href="form.php">form</a>
         </div>
         <div class="w3-col l2">&nbsp;</div>
     </div>
-    <!-- JS -->
-    <?php include "report_js.php";?>
-    <!-- FOOTER -->
-    <?php include "web/footer.php";?>
-    <?php include "web/footer.php";?>
-<!-- END HTML -->
+    <!-- PAGE FOOTER-->    
+    <?php include "js.php";?>
+    <?php include "footer.php";?>
 </form>
 </body>
 </html>
+
+<?php include "../src/release.php";?>

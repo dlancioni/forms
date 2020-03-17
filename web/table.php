@@ -7,12 +7,12 @@
     <!-- PAGE HEADER-->
     <?php include "header.php";?>
     <?php include "menu.php";?>
-    <!-- PAGE CONTENTS -->
+    <!-- CONTENTS -->
     <div class="w3-row">
         <div class="w3-col l2">&nbsp;</div>
         <div class="w3-col l8">
             <?php include "title.php";?>
-            <?php include "form_field.php";?>
+            <?php include "table_grid.php";?>
             <?php include "button.php";?>
         </div>
         <div class="w3-col l2">&nbsp;</div>

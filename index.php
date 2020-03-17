@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 <body>
-Hello World
+<script>
+self.location.href = 'web/index.php'
+</script>
 </body>
 </html>

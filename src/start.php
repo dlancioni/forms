@@ -7,12 +7,16 @@
     session_start();
 
     // General Declaration
+    $sql = "";
     $rs = "";
     $input = "";    
     $output = "";
     $id_layout = 0;
     $id_system = 1;
     $id_table = 0;
+
+    const FIELD_LABEL = 3;
+    const FIELD_NAME = 4;
 
     try {
 
@@ -22,8 +26,12 @@
         if ($_GET["id_table"] != null)    
             $id_table = htmlspecialchars($_GET["id_table"]);    // from URL - table to usue
 
-    } catch (exception $e) {
+        // Keep the table structure
+        $sql = "select * from vw_table where id_system = $1 and id_table = $2";
+        $table = pg_query_params($conn, $sql, array($id_system, $id_table));
 
+    } catch (exception $e) {
+            echo "ERRO EM START.PHP: " . $e;
     }
 
 ?>

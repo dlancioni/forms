@@ -1,4 +1,4 @@
-<?php include "../src/declare.php";?>
+<?php include "../src/start.php";?>
 
 <!DOCTYPE html>
 <html>
@@ -11,8 +11,20 @@
     <div class="w3-row">
         <div class="w3-col l2">&nbsp;</div>
         <div class="w3-col l8">
-        <a href="table.php">table</a>
-        <a href="form.php">form</a>
+
+        <?php
+        include "title.php";
+        switch ($id_layout) {
+            case 1: // table
+                include "grid.php";
+                break;
+            case 2: // form
+                include "field.php";
+                break;
+            default:
+        }
+        include "button.php";
+        ?>
         </div>
         <div class="w3-col l2">&nbsp;</div>
     </div>
@@ -22,5 +34,3 @@
 </form>
 </body>
 </html>
-
-<?php include "../src/release.php";?>

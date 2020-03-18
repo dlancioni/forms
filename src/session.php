@@ -1,5 +1,6 @@
 <?php
     // Include dependencies
+    include "constants.php";
     include "exception.php";
     include "connection.php";
 
@@ -14,9 +15,6 @@
     $id_layout = 0;
     $id_system = 1;
     $id_table = 0;
-
-    const FIELD_LABEL = 3;
-    const FIELD_NAME = 4;
 
     try {
 

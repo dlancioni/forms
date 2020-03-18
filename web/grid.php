@@ -21,7 +21,7 @@
                     pg_result_seek($table, 0);                
                     while ($column = pg_fetch_row($table)) {
                         echo "<th>" . $column[FIELD_LABEL] . "</th>";
-                    }                
+                    }
                 ?>
             </tr>
         </thead>

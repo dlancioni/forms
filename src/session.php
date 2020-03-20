@@ -2,7 +2,7 @@
     // Include dependencies
     include "constants.php";
     include "exception.php";
-    include "connection.php";
+    include "db.php";
 
     // Start session
     session_start();
@@ -17,6 +17,7 @@
     $id_table = 0;
 
     try {
+        $db = new Db();
 
         // Requests
         if ($_GET["id_layout"] != null)
@@ -25,8 +26,13 @@
             $id_table = htmlspecialchars($_GET["id_table"]);    // from URL - table to usue
 
         // Keep the table structure
-        $sql = "select * from vw_table where id_system = $1 and id_table = $2";
-        $table = pg_query_params($conn, $sql, array($id_system, $id_table));
+        $sql = "select * from vw_table where id_system = " . $id_system . "and id_table = " . $id_table;
+        $table = $db->Query($sql);
+
+
+
+
+
 
     } catch (exception $e) {
             echo "ERRO EM START.PHP: " . $e;

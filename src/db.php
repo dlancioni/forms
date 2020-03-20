@@ -35,14 +35,15 @@
 
             try {
                 $connection = $this->getConnection();
-                $output = pg_query_params($connection, $sql, array($json));
-                while ($row = pg_fetch_row($output)) {
+                $resultset = pg_query_params($connection, $sql, array($json));
+                while ($row = pg_fetch_row($resultset)) {
                     if ($row[0]) {
                         $data = json_decode($row[0])->resultset;
                     }
                 }
                 $this->set_error("", "");
             } catch (exception $e) {
+                $data = "";
                 $this->set_error("DB.Execute()", pg_last_error($connection));
             } finally {
                 pg_close($connection);
@@ -56,6 +57,7 @@
                 $resultset = pg_query($connection, $sql);
                 $this->set_error("", "");
             } catch (exception $ex) {
+                $resultset = "";
                 $this->set_error("db.Query()", pg_last_error($connection));
             } finally {
                 pg_close($connection);

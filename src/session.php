@@ -14,9 +14,12 @@
     $output = "";
     $id_layout = 0;
     $id_system = 1;
-    $id_table = 0;
+    $id_table = 2;
+    $data = "";
+    $table = "";
 
     try {
+        // Instance to database
         $db = new Db();
 
         // Requests
@@ -29,13 +32,12 @@
         $sql = "select * from vw_table where id_system = " . $id_system . "and id_table = " . $id_table;
         $table = $db->Query($sql);
 
-
-
-
-
+        // Get data
+        $input = '{"session":{"id_system":1,"id_table":2,"id_action":1},"filter":[]}';
+        $data = $db->Execute($input);
 
     } catch (exception $e) {
-            echo "ERRO EM START.PHP: " . $e;
+
     }
 
 ?>

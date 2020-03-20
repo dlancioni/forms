@@ -1,4 +1,8 @@
 <?php
+
+    // Paging
+    const PAGE_SIZE = 10;
+
     // VW_TABLE column representation
     const FIELD_LABEL = 3;
     const FIELD_NAME = 4;

@@ -17,6 +17,7 @@
         switch ($id_layout) {
             case 1: // table
                 include "grid.php";
+                include "paging.php";                
                 break;
             case 2: // form
                 include "field.php";

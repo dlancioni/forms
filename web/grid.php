@@ -18,9 +18,9 @@
             if ($data != "" && $table != "") {
                 foreach ($data as $item) {
                     echo "<tr>";
-                    pg_result_seek($table, 0);           
+                    pg_result_seek($table, 0);
                     while ($column = pg_fetch_row($table)) {
-                        $field = trim($column[FIELD_NAME]);                       
+                        $field = trim($column[FIELD_NAME]);
                         echo "<td>" . $item->$field . "</td>";
                     }
                     echo "</tr>";

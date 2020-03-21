@@ -49,7 +49,15 @@ insert into tb_field (field) values ('{"id":17,"id_system":1,"id_table":3,"label
 insert into tb_field (field) values ('{"id":18,"id_system":1,"id_table":3,"label":"Unique","name":"id_unique","id_type":5,"size":0,"mask":"","id_mandatory":0,"id_unique":0,"id_fk":4,"domain":"tb_bool"}');
 insert into tb_field (field) values ('{"id":19,"id_system":1,"id_table":3,"label":"Inner Table","name":"id_fk","id_type":1,"size":0,"mask":"","id_mandatory":0,"id_unique":0,"id_fk":4,"domain":"tb_bool"}');
 insert into tb_field (field) values ('{"id":20,"id_system":1,"id_table":3,"label":"Domain","name":"domain","id_type":3,"size":50,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":0,"domain":""}');
+
+insert into tb_field (field) values ('{"id":21,"id_system":1,"id_table":4,"label":"Id","name":"id","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":0,"domain":""}');
+insert into tb_field (field) values ('{"id":22,"id_system":1,"id_table":4,"label":"Id Domain","name":"id_domain","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":0,"domain":""}');
+insert into tb_field (field) values ('{"id":23,"id_system":1,"id_table":4,"label":"Value","name":"value","id_type":3,"size":50,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":0,"domain":""}');
+insert into tb_field (field) values ('{"id":24,"id_system":1,"id_table":4,"label":"Domain","name":"domain","id_type":3,"size":50,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":0,"domain":""}');
+
 update tb_field set session = '{"id_system":1,"id_table":1,"id_action":3}';
+
+
 
 -- -----------------------------------------------------
 -- table tb_domain

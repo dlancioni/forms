@@ -70,6 +70,11 @@ begin
     sql1 := concat(sql1, get_condition(data::jsonb));
 
     ---
+    --- Ordering
+    ---    
+    sql1 := concat(sql1, ' order by ', tableName, '.id');
+
+    ---
     --- Json transformation
     ---    
     sql1 := concat('select to_jsonb(r)::text as record from (', sql1, ') r');

@@ -97,9 +97,10 @@ end;
 $function$;
 
 /*
-Get table name
-select get_join(1,1) -- success
-select get_join(1,9) -- fail
+Get join
+select get_join(1,1) -- No join
+select get_join(1,2) -- Simple join
+select get_join(1,3) -- Complex join (domain)
 */
 drop function if exists get_join;
 create or replace function get_join(systemId int, tableId int)
@@ -109,6 +110,7 @@ as $function$
 declare
     item record;
     sql text := '';
+    tableAlias text := '';
     output text := '';
 begin
     -- select row_to_json(tb_table)::text from tb_table
@@ -124,10 +126,14 @@ begin
     sql := concat(sql, ' and id_table = ', tableId);
 
     for item in execute sql loop
-        output := concat(output, 'inner join ', item.table_name , ' on ');
-        output := concat(output, '(', item.base_table, '.field->>', qt(item.field_name), ')::int = ', item.table_name, '.id');
         if (item.id_fk = 4) then
-            output := concat(output, ' and ', item.table_name, '.domain_name = ', qt(item.domain_name));
+            tableAlias = concat('tb_', replace(item.field_name, 'id_', ''));
+            output := concat(output, 'inner join ', item.table_name , ' ', tableAlias,  ' on ');
+            output := concat(output, '(', item.base_table, '.field->>', qt(item.field_name), ')::int = (', tableAlias, '.field->>', qt('id_domain'), ')::int');
+            output := concat(output, ' and (', tableAlias, '.field->>', qt('domain'), ')::text = ', qt(item.domain_name));
+        else
+            output := concat(output, 'inner join ', item.table_name , ' on ');
+            output := concat(output, '(', item.base_table, '.field->>', qt(item.field_name), ')::int = ', item.table_name, '.id');
         end if;
         output := concat(output, ' ');
     end loop;
@@ -429,6 +435,7 @@ declare
     sql1 text := '';
     sql2 text := '';
     tableName text := '';
+    fieldName text := '';    
     output text := '';
 begin
     sql1 = concat('select * from vw_table where id_system = ', systemId, ' and id_table = ', tableId);
@@ -440,18 +447,27 @@ begin
         else
             -- Other tables, get first text field
             tableName := get_table(systemId, item1.id_fk);
-            sql2 := concat(sql2, ' select field_name, id_type, field_mask from vw_table');
-            sql2 := concat(sql2, ' where id_system = ', systemId);
-            sql2 := concat(sql2, ' and id_table = ', item1.id_fk);
-            sql2 := concat(sql2, ' and id_type = ', 3);
-            sql2 := concat(sql2, ' limit 1');
-            for item2 in execute sql2 loop
-                output := concat(output, sql_column(tableName, item2.field_name, item2.id_type, item2.field_mask, item1.field_name), ',');
-            end loop;
+            
+            if (item1.id_fk = 4) then
+                -- Domain
+                tableName = concat('tb_', replace(item1.field_name, 'id_', ''));
+                output := concat(output, sql_column(tableName, 'value', 3, item1.field_mask, item1.field_name), ',');                
+            else
+                -- Other foreign keys
+                sql2 := '';
+                sql2 := concat(sql2, ' select field_name, id_type, field_mask from vw_table');
+                sql2 := concat(sql2, ' where id_system = ', systemId);
+                sql2 := concat(sql2, ' and id_table = ', item1.id_fk);
+                sql2 := concat(sql2, ' and id_type = ', 3);
+                sql2 := concat(sql2, ' limit 1');
+                for item2 in execute sql2 loop
+                    output := concat(output, sql_column(tableName, item2.field_name, item2.id_type, item2.field_mask, item1.field_name), ',');
+                end loop;
+            end if;
         end if;
     end loop;
     output := crop(output, ',');
-
+    execute trace('get_field_list: ', output);
     return output;
 end;
 $function$;

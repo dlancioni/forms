@@ -1,7 +1,7 @@
 <?php
 
     // Paging
-    const PAGE_SIZE = 10;
+    const PAGE_SIZE = 15;
 
     // VW_TABLE column representation
     const FIELD_ID = 1;

@@ -336,7 +336,7 @@ author: david lancioni
 target: Return sql for select clause in json format
 Tests:
 select sql_column('tb_system', 'id', '1', '', ''); -- int
-select sql_column('tb_system', 'price', '2', '', ''); -- decimal (float)
+select sql_column('tb_system', 'price', '100', '', ''); -- decimal (float)
 select sql_column('tb_system', 'name', '3', '', ''); -- text
 select sql_column('tb_system', 'expire_date', '4', 'dd/mm/yyyy', ''); -- date
 select sql_column('tb_system', 'boolean', '5', '', ''); -- boolean (0/1 int)
@@ -357,11 +357,12 @@ begin
     if (fieldType = 1 or fieldType = 5) then
         field = concat('(', field, ')::int');
     elsif (fieldType = 2) then
-        field = concat('(', field, ')::float');
+        field = concat('(', field, ')::text');
     elsif (fieldType = 3) then
         field = concat('(', field, ')::text');
     elsif (fieldType = 4) then
-        field = concat('(', 'to_date(', field, ',', qt(fieldMask), '))::date');
+        --field = concat('(', 'to_date(', field, ',', qt(fieldMask), '))::date');
+        field = concat('(', field, ')::text');
     end if;
 
     -- Field alias

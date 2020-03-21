@@ -127,11 +127,18 @@ begin
 
     for item in execute sql loop
         if (item.id_fk = 4) then
+            -- TB_DOMAIN
             tableAlias = concat('tb_', replace(item.field_name, 'id_', ''));
             output := concat(output, 'inner join ', item.table_name , ' ', tableAlias,  ' on ');
             output := concat(output, '(', item.base_table, '.field->>', qt(item.field_name), ')::int = (', tableAlias, '.field->>', qt('id_domain'), ')::int');
             output := concat(output, ' and (', tableAlias, '.field->>', qt('domain'), ')::text = ', qt(item.domain_name));
+        elsif (item.id_fk = 3) then
+            -- TB_TABLE
+            tableAlias = concat('tb_', replace(item.field_name, 'id_', ''));
+            output := concat(output, 'left join ', item.table_name , ' ', tableAlias,  ' on ');
+            output := concat(output, '(', item.base_table, '.field->>', qt(item.field_name), ')::int = (', tableAlias, '.field->>', qt('id_domain'), ')::int');        
         else
+            -- OTHER TABLES
             output := concat(output, 'inner join ', item.table_name , ' on ');
             output := concat(output, '(', item.base_table, '.field->>', qt(item.field_name), ')::int = ', item.table_name, '.id');
         end if;

@@ -18,7 +18,8 @@ trim(tb_field.field->>'mask') field_mask,
 trim(tb_mandatory.field->>'value')  field_mandatory,
 (tb_field.field->>'id_unique')::int id_unique,
 trim(tb_unique.field->>'value') field_unique,
-trim(tb_table.field->>'table_name') table_name
+trim(tb_table.field->>'table_name') table_name,
+trim(tb_field.field->>'domain') domain_name
 
 from tb_field
 

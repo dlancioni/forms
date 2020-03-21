@@ -1,3 +1,11 @@
+/*
+-- no condition
+call query('{"session":{"id_system":1,"id_table":2,"page_limit":5,"page_offset":0},"filter":[]}')
+
+-- filtering
+call query('{"session":{"id_system":1,"id_table":2,"id_action":1},"filter":[{"field_name":"id", "operator":"=", "field_value":"1"}]}')
+*/
+
 drop procedure if exists query;
 create or replace procedure query(inout data jsonb)
 language plpgsql
@@ -7,69 +15,99 @@ declare
     tableId int := 0;
     pageLimit int := 0;
     pageOffset int := 0;
-    sql1 text := '' ;
-    sql2 text := '';
+    sql1 text := '';
+    tableName text := '';
+    item1 record;
     rows text := '';
-    output text := '';
-    json text := '';
-    item record;
-    x jsonb;
     SUCCESS int := 1;
     FAIL int := 0;
 
 begin
 
-	-- Start processing
-	execute trace('Begin Persist(): ', data::text);
+    ---
+    --- Start processing
+    ---
+	execute trace('Begin Query(): ', data::text);
 
+    ---
+    --- Session related information
+    ---
     systemId := data::jsonb->'session'->>'id_system';
     tableId := data::jsonb->'session'->>'id_table';
     pageLimit := data::jsonb->'session'->>'page_limit';
     pageOffset := data::jsonb->'session'->>'page_offset';
+    tableName := get_table(systemId, tableId);
 
-    /*
-     -- no condition
-    call query('{"session":{"id_system":1,"id_table":2,"page_limit":5,"page_offset":0},"filter":[]}')
-    
-     -- filtering
-    call query('{"session":{"id_system":1,"id_table":2,"id_action":1},"filter":[{"field_name":"id", "operator":"=", "field_value":"1"}]}')
-    */
+    ---
+    --- Prepare main query
+    ---
+    --sql1 := 'select count(', tableName, '.id) over() as record_count,';
+    sql1 := 'select count(*) over() as record_count,';
 
-    -- Prepare main query
-    sql2 := 'select count(id) over() as record_count,';
-    sql1 = concat('select * from vw_table where id_system = ', systemId, ' and id_table = ', tableId);
-    for item in execute sql1 loop
-        sql2 := concat(sql2, sql_column(item.field_name, item.id_type, item.field_mask), ',');
-    end loop;    
-    sql2 := crop(sql2, ',');
-    sql2 := concat(sql2, ' from ', get_table(systemId, tableId));
-    sql2 := concat(sql2, ' where 1 = 1');
-    sql2 := concat(sql2, get_condition(data::jsonb));
-    sql2 := concat('select to_jsonb(r)::text as record from (', sql2, ') r');
-    sql2 := concat(sql2, ' limit ', pageLimit);
-    sql2 := concat(sql2, ' offset ', pageOffset);
-	execute trace('SQL: ', sql2);
+    ---
+    --- Prepare field list 
+    ---
+    sql1 := concat(sql1, get_field_list(systemId, tableId));
 
-    -- get data and return json
-    for item in execute sql2 loop
-        rows := concat(rows, item.record::text, ',');
+    ---
+    --- From clause
+    ---
+    sql1 := concat(sql1, ' from ', tableName, ' ');
+
+    ---
+    --- Join
+    ---
+    sql1 := concat(sql1, get_join(systemId, tableId));
+
+    ---
+    --- Condition (where)
+    ---
+    sql1 := concat(sql1, ' where (', tableName, '.session->', qt('id_system'), ')::int = ', systemId);
+
+    ---
+    --- Condition (and)
+    ---    
+    sql1 := concat(sql1, get_condition(data::jsonb));
+
+    ---
+    --- Json transformation
+    ---    
+    sql1 := concat('select to_jsonb(r)::text as record from (', sql1, ') r');
+
+    ---
+    --- Paging
+    ---
+    sql1 := concat(sql1, ' limit ', pageLimit);
+    sql1 := concat(sql1, ' offset ', pageOffset);
+	execute trace('SQL: ', sql1);
+
+    ---
+    --- Final json
+    ---
+    for item1 in execute sql1 loop
+        rows := concat(rows, item1.record::text, ',');
     end loop;
     rows := concat('[', crop(rows, ','), ']');
 
-    -- Return data
+    ---
+    --- Return data (success)
+    ---
     data := get_output(SUCCESS, 0, 0, '', '', rows);
 
-	-- Finish
-	execute trace('End Query(): ', 'Success');    
+    ---
+    --- Finish with success
+    ---
+	execute trace('End Query(): ', 'Success');
 
 exception when others then
-
-    -- Return json with error (0 Fail)
+    ---
+    --- Return data (fail)
+    ---
     data := get_output(FAIL, 0, 0, SQLERRM, '', '[]');
-
-    -- Finish
+    ---
+    --- Finish no success
+    ---
     execute trace('End Query() -> exception: ', SQLERRM);    
-
 end;
 
 $procedure$

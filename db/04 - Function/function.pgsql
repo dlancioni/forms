@@ -101,7 +101,8 @@ Get table name
 select get_join(1,1) -- success
 select get_join(1,9) -- fail
 */
-create or replace function get_join(json text)
+drop function if exists get_join;
+create or replace function get_join(systemId int, tableId int)
 returns text
 language plpgsql
 as $function$
@@ -115,13 +116,19 @@ begin
     sql := concat(sql, ' t1.table_name base_table,');
     sql := concat(sql, ' t1.field_name,');
     sql := concat(sql, ' t1.id_fk,');
-    sql := concat(sql, sql_column('table_name', 3, ''));
+    sql := concat(sql, ' t1.domain_name,');
+    sql := concat(sql, sql_column('t2','table_name', 3, '', ''));
     sql := concat(sql, ' from vw_table t1');
     sql := concat(sql, ' inner join tb_table t2 on t1.id_fk = t2.id'); 
-    sql := concat(sql, ' where id_table = 3');
+    sql := concat(sql, ' where id_system = ', systemId);
+    sql := concat(sql, ' and id_table = ', tableId);
+
     for item in execute sql loop
         output := concat(output, 'inner join ', item.table_name , ' on ');
-        output := concat(output, item.base_table, '.', item.field_name, ' = ', item.table_name, '.id');
+        output := concat(output, '(', item.base_table, '.field->>', qt(item.field_name), ')::int = ', item.table_name, '.id');
+        if (item.id_fk = 4) then
+            output := concat(output, ' and ', item.table_name, '.domain_name = ', qt(item.domain_name));
+        end if;
         output := concat(output, ' ');
     end loop;
     return output;
@@ -152,7 +159,7 @@ begin
     sql := concat(sql, ' where id_system = ', systemId);
     sql := concat(sql, ' and id_table = ', tableId);
     for item in execute sql loop
-    field = concat(field, dbqt(item.field_name), ':', dbqt(''), ',');
+        field = concat(field, dbqt(item.field_name), ':', dbqt(''), ',');
     end loop;
     field := concat(crop(field, ','), '}');
 
@@ -223,7 +230,7 @@ declare
     item record;
 begin
     sql = concat(sql, 'select');
-    sql = concat(sql, sql_column('table_name', 3, ''));
+    sql = concat(sql, sql_column('tb_table', 'table_name', 3, '', ''));
     sql = concat(sql, ' from tb_table');
     sql = concat(sql, ' where id = ', tableId);
     sql = concat(sql, ' and ', sql_condition('id_system', 1, '=', systemId::text));
@@ -315,21 +322,25 @@ $function$;
 author: david lancioni
 target: Return sql for select clause in json format
 Tests:
-select sql_column('id', '1', ''); -- int
-select sql_column('price', '2', ''); -- decimal (float)
-select sql_column('name', '3', ''); -- text
-select sql_column('expire_date', '4', 'dd/mm/yyyy'); -- date
-select sql_column('boolean', '5', ''); -- boolean (0/1 int)
+select sql_column('tb_system', 'id', '1', '', ''); -- int
+select sql_column('tb_system', 'price', '2', '', ''); -- decimal (float)
+select sql_column('tb_system', 'name', '3', '', ''); -- text
+select sql_column('tb_system', 'expire_date', '4', 'dd/mm/yyyy', ''); -- date
+select sql_column('tb_system', 'boolean', '5', '', ''); -- boolean (0/1 int)
 */
 drop function if exists sql_column;
-create or replace function sql_column(fieldName text, fieldType integer, fieldMask text)
+create or replace function sql_column(tableName text, fieldName text, fieldType integer, fieldMask text, fieldAlias text)
 returns text
 language plpgsql
 as $function$
 declare
     field text := '';
 begin
-    field = concat(field , 'field', '->>', qt(fieldName), ' ');
+
+    -- Table + Field Name
+    field = concat(field , tableName, '.field', '->>', qt(fieldName));
+
+    -- Field type
     if (fieldType = 1 or fieldType = 5) then
         field = concat('(', field, ')::int');
     elsif (fieldType = 2) then
@@ -339,7 +350,14 @@ begin
     elsif (fieldType = 4) then
         field = concat('(', 'to_date(', field, ',', qt(fieldMask), '))::date');
     end if;
-    field = concat(field, ' as ', fieldName);
+
+    -- Field alias
+    if (fieldAlias = '') then 
+        fieldAlias = fieldName;
+    end if;
+    
+    field = concat(field, ' as ', fieldAlias);
+
     return field;
 end;
 $function$;
@@ -391,3 +409,50 @@ begin
     raise notice '%', concat(v1, ' ', v2);
 end;
 $function$;
+
+
+
+/*
+Get table name
+select get_field_list(1,1) -- No join
+select get_field_list(1,2) -- Join
+select get_field_list(1,3) -- Domain
+*/
+drop function if exists get_field_list;
+create or replace function get_field_list(systemId int, tableId int)
+returns text
+language plpgsql
+as $function$
+declare
+    item1 record;
+    item2 record;
+    sql1 text := '';
+    sql2 text := '';
+    tableName text := '';
+    output text := '';
+begin
+    sql1 = concat('select * from vw_table where id_system = ', systemId, ' and id_table = ', tableId);
+    for item1 in execute sql1 loop
+        if (item1.id_fk = 0) then
+            -- Same tables
+            tableName := get_table(systemId, tableId);
+            output := concat(output, sql_column(tableName, item1.field_name, item1.id_type, item1.field_mask, ''), ',');
+        else
+            -- Other tables, get first text field
+            tableName := get_table(systemId, item1.id_fk);
+            sql2 := concat(sql2, ' select field_name, id_type, field_mask from vw_table');
+            sql2 := concat(sql2, ' where id_system = ', systemId);
+            sql2 := concat(sql2, ' and id_table = ', item1.id_fk);
+            sql2 := concat(sql2, ' and id_type = ', 3);
+            sql2 := concat(sql2, ' limit 1');
+            for item2 in execute sql2 loop
+                output := concat(output, sql_column(tableName, item2.field_name, item2.id_type, item2.field_mask, item1.field_name), ',');
+            end loop;
+        end if;
+    end loop;
+    output := crop(output, ',');
+
+    return output;
+end;
+$function$;
+

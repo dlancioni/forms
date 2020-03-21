@@ -3,7 +3,7 @@
         <thead>
             <tr>
                 <?php
-                    if ($table != "") {
+                    if ($table) {
                         pg_result_seek($table, 0);                
                         while ($column = pg_fetch_row($table)) {
                             echo "<th>" . $column[FIELD_LABEL] . "</th>";
@@ -15,7 +15,7 @@
 
         <tbody>
             <?php
-            if ($data != "" && $table != "") {
+            if ($data && $table) {
                 foreach ($data as $item) {
                     echo "<tr>";
                     pg_result_seek($table, 0);

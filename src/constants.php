@@ -4,6 +4,7 @@
     const PAGE_SIZE = 10;
 
     // VW_TABLE column representation
+    const FIELD_ID = 1;
     const FIELD_LABEL = 3;
     const FIELD_NAME = 4;
     const FIELD_TYPE = 5;

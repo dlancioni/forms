@@ -40,7 +40,7 @@
         $json = $jsonUtil->setSession($json, "id_table", $id_table);
         $json = $jsonUtil->setSession($json, "page_limit", PAGE_SIZE);
         $json = $jsonUtil->setSession($json, "page_offset", $pageOffset);
-        $data = $db->Execute($json);
+        $data = $db->Execute($json);        
 
     } catch (exception $e) {
         echo "EXCEPTION : " . $e;

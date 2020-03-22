@@ -30,7 +30,7 @@
 
         public function Execute($json) {
 
-            $sql = "call query($1)";
+            $sql = "call form($1)";
             $data = "";
 
             try {

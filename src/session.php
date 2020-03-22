@@ -40,7 +40,14 @@
         $json = $jsonUtil->setSession($json, "id_table", $id_table);
         $json = $jsonUtil->setSession($json, "page_limit", PAGE_SIZE);
         $json = $jsonUtil->setSession($json, "page_offset", $pageOffset);
-        $data = $db->Execute($json);        
+        
+        if ($id_layout == 1) {
+            $sql = "call query($1)";
+        } else {
+            $sql = "call form($1)";
+        }
+        $data = $db->Execute($sql, $json);  
+
 
     } catch (exception $e) {
         echo "EXCEPTION : " . $e;

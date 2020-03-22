@@ -28,9 +28,8 @@
             return $connection;
         }
 
-        public function Execute($json) {
+        public function Execute($sql, $json) {
 
-            $sql = "call form($1)";
             $data = "";
 
             try {

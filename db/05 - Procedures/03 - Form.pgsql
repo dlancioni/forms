@@ -120,24 +120,29 @@ begin
         form := concat(form, '</div>');
 
     end loop;
+
+    ---
+    --- Prepare HTML to return as JSON
+    ---
+    form := replace(form, '"', '|');
+    form := concat('{', dbqt('html'), ':', dbqt(form), '}');
     execute trace('Form: ', form);
 
     ---
     --- Return data (success)
     ---
-        form := '{"id": 1}';
     data := get_output(SUCCESS, 0, 0, '', '', form);
 
     ---
     --- Finish with success
     ---
-	--execute trace('End Query(): ', 'Success');
+	execute trace('End Query(): ', 'Success');
 
 exception when others then
     ---
     --- Return data (fail)
     ---
-    ---data := get_output(FAIL, 0, 0, SQLERRM, '', '[]');
+    data := get_output(FAIL, 0, 0, SQLERRM, '', '[]');
     ---
     --- Finish no success
     ---

@@ -13,6 +13,7 @@
     $id_layout = 0;
     $id_system = 1;
     $id_table = 2;
+    $id_view = 0;
     $data = "";
     $table = "";
     $json = '{"session":{"id_system":0,"id_table":0},"filter":[]}';

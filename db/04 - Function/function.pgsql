@@ -132,7 +132,7 @@ begin
             output := concat(output, 'inner join ', item.table_name , ' ', tableAlias,  ' on ');
             output := concat(output, '(', item.base_table, '.field->>', qt(item.field_name), ')::int = (', tableAlias, '.field->>', qt('id_domain'), ')::int');
             output := concat(output, ' and (', tableAlias, '.field->>', qt('domain'), ')::text = ', qt(item.domain_name));
-        elsif (item.id_fk = 3) then
+        elsif (item.id_fk = 2) then
             -- TB_TABLE
             tableAlias = concat('tb_', replace(item.field_name, 'id_', ''));
             output := concat(output, 'left join ', item.table_name , ' ', tableAlias,  ' on ');

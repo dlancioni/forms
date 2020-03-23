@@ -15,10 +15,14 @@ declare
     tableId int := 0;
     pageLimit int := 0;
     pageOffset int := 0;
+    html text := '';
     sql1 text := '';
+    sql2 text := '';    
     tableName text := '';
+    fieldName text := '';    
     item1 record;
-    rows text := '';
+    item2 record;    
+    resultset jsonb;
     SUCCESS int := 1;
     FAIL int := 0;
 
@@ -41,67 +45,71 @@ begin
     ---
     --- Prepare main query
     ---
-    --sql1 := 'select count(', tableName, '.id) over() as record_count,';
     sql1 := 'select count(*) over() as record_count,';
-
-    ---
-    --- Prepare field list 
-    ---
     sql1 := concat(sql1, get_field_list(systemId, tableId));
-
-    ---
-    --- From clause
-    ---
     sql1 := concat(sql1, ' from ', tableName, ' ');
-
-    ---
-    --- Join
-    ---
     sql1 := concat(sql1, get_join(systemId, tableId));
-
-    ---
-    --- Condition (where)
-    ---
     sql1 := concat(sql1, ' where (', tableName, '.session->', qt('id_system'), ')::int = ', systemId);
-
-    ---
-    --- Condition (and)
-    ---    
     sql1 := concat(sql1, get_condition(data::jsonb));
-
-    ---
-    --- Ordering
-    ---    
     sql1 := concat(sql1, ' order by ', tableName, '.id');
-
-    ---
-    --- Json transformation
-    ---    
     sql1 := concat('select to_jsonb(r)::text as record from (', sql1, ') r');
-
-    ---
-    --- Paging
-    ---
     sql1 := concat(sql1, ' limit ', pageLimit);
     sql1 := concat(sql1, ' offset ', pageOffset);
 	execute trace('SQL: ', sql1);
 
     ---
-    --- Final json
+    --- Get table structure
     ---
-    for item1 in execute sql1 loop
-        rows := concat(rows, item1.record::text, ',');
-    end loop;
-    rows := concat('[', crop(rows, ','), ']');
+    sql2 := concat(sql2, ' select * from vw_table');
+    sql2 := concat(sql2, ' where id_system = ', systemId);
+    sql2 := concat(sql2, ' and id_table = ', tableId);
+	execute trace('SQL2: ', sql2);
+
+    ---
+    --- Page title
+    ---
+    html := concat(html, '<h3>', get_table(systemId, tableId), '</h3><p>');
+
+    ---
+    --- Table header
+    ---
+    html := concat(html, '<thead>');
+        html := concat(html, '<tr>');
+            html := concat(html, '<td></td>');               
+            for item2 in execute sql2 loop
+                html := concat(html, '<td>', item2.field_label, '</td>');
+            end loop;
+        html := concat(html, '</tr>');
+    html := concat(html, '</thead>');
+
+    ---
+    --- Table body
+    ---
+    html := concat(html, '<tbody>');    
+        for item1 in execute sql1 loop
+            html := concat(html, '<tr>');            
+                resultset := item1.record;           
+                fieldName := 'idi';
+                html := concat(html, '<td><input type="radio" id="', resultset->>fieldName , '" name="selection" value=""></td>');        
+                for item2 in execute sql2 loop
+                    fieldName := item2.field_name;
+                    html := concat(html, '<td>', resultset->>fieldName, '</td>');
+                end loop;
+            html := concat(html, '</tr>');                
+        end loop;
+    html := concat(html, '</tbody>');    
+
+    ---
+    --- Prepare HTML to return as JSON
+    ---
+    html := replace(html, '"', '|');
+    html := concat('{', dbqt('html'), ':', dbqt(html), '}');
+    execute trace('html: ', html);
 
     ---
     --- Return data (success)
     ---
-    data := get_output(SUCCESS, 0, 0, '', '', rows);
-
-    ---
-    --- Finish with success
-    ---
+    data := get_output(SUCCESS, 0, 0, '', '', html);
 	execute trace('End Query(): ', 'Success');
 
 exception when others then
@@ -109,9 +117,6 @@ exception when others then
     --- Return data (fail)
     ---
     data := get_output(FAIL, 0, 0, SQLERRM, '', '[]');
-    ---
-    --- Finish no success
-    ---
     execute trace('End Query() -> exception: ', SQLERRM);    
 end;
 

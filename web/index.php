@@ -13,11 +13,9 @@
         <div class="w3-col l8">
 
         <?php
-        include "title.php";
         switch ($id_layout) {
             case 1: // table
                 include "grid.php";
-                include "paging.php";                
                 break;
             case 2: // form
                 include "field.php";

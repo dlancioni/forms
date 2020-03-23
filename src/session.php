@@ -15,7 +15,6 @@
     $id_table = 2;
     $id_view = 0;
     $data = "";
-    $table = "";
     $json = '{"session":{"id_system":0,"id_table":0},"filter":[]}';
 
     try {
@@ -30,10 +29,6 @@
             $id_table = htmlspecialchars($_GET["id_table"]);
         if ($_GET["page_offset"] != null)
             $pageOffset = $_GET["page_offset"];
-
-        // Keep the table structure
-        $sql = "select * from vw_table where id_system = " . $id_system . "and id_table = " . $id_table;
-        $table = $db->Query($sql);
 
         // Get data for current system and table
         $json = $jsonUtil->setSession($json, "id_system", $id_system);

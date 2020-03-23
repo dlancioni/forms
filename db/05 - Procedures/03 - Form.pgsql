@@ -1,6 +1,6 @@
 /*
 -- filtering
-call form('{"session":{"id_system":1,"id_table":2,"id_action":1},"filter":[{"field_name":"id", "operator":"=", "field_value":"0"}]}')
+call form('{"session":{"id_system":1,"id_table":2,"id":1}}')
 */
 
 drop procedure if exists form;
@@ -8,7 +8,7 @@ create or replace procedure form(inout data jsonb)
 language plpgsql
 as $procedure$
 declare
-    id int := 0;
+    id int := 1;
     systemId int := 0;
     tableId int := 0;
     fieldFK int := 0;
@@ -28,10 +28,11 @@ declare
     item2 record;
     item3 record;
     item4 record;    
+    resultset jsonb;
     SUCCESS int := 1;
     FAIL int := 0;
-begin
 
+begin
     ---
     --- Start processing
     ---
@@ -53,6 +54,19 @@ begin
 	execute trace('SQL1: ', sql1);
 
     ---
+    --- Get the record
+    ---
+    if (id > 0) then
+        sql2 := concat(sql2, ' select field from ', tableName);
+        sql2 := concat(sql2, ' where (session->>', qt('id_system'), ')::int = ', systemId);
+        sql2 := concat(sql2, ' and (field->>', qt('id'), ')::int = ', id);
+        execute trace('SQL2: ', sql2);
+        for item2 in execute sql2 loop
+            resultset := item2.field;
+        end loop;
+    end if;    
+
+    ---
     --- Create the form
     ---
     for item1 in execute sql1 loop
@@ -72,7 +86,7 @@ begin
             form := concat(form, ' class=', dbqt('w3-input w3-border'));
             form := concat(form, ' id=', dbqt(fieldName));
             form := concat(form, ' type=', dbqt('text'));
-            form := concat(form, ' value=', dbqt(''));
+            form := concat(form, ' value=', dbqt(resultset->>fieldName));
             form := concat(form, ' >');
         else
             form := concat(form, ' <select ');
@@ -80,8 +94,13 @@ begin
             form := concat(form, ' id=', dbqt(fieldName));
             form := concat(form, ' >');
 
+            -- Empty item    
+            form := concat(form, '<option value="0">');
+            form := concat(form, 'Selecionar');
+            form := concat(form, '</option>');            
+
             -- Figure out ID and DS to populate dropdown
-            execute trace('fieldFK: ', fieldFK::text);            
+            execute trace('fieldFK: ', fieldFK::text);
             if (fieldFK = 4) then
                 -- Domain table
                 sql4 := 'select ';
@@ -108,7 +127,13 @@ begin
 
             -- Populate the dropdown
             for item4 in execute sql4 loop
-                form := concat(form, '<option value=', dbqt(item4.id), '>');
+                form := concat(form, '<option value=', dbqt(item4.id));
+
+                if (resultset->>fieldName = item4.id) then
+                    form := concat(form, ' selected ');
+                end if;
+
+                form := concat(form, '>');
                 form := concat(form, item4.ds);
                 form := concat(form, '</option>');
             end loop;

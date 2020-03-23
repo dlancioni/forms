@@ -136,7 +136,7 @@ begin
             -- FKs
             tableAlias = concat('tb_', replace(item.field_name, 'id_', ''));
             output := concat(output, 'left join ', item.table_name , ' ', tableAlias,  ' on ');
-            output := concat(output, '(', item.base_table, '.field->>', qt(item.field_name), ')::int = (', tableAlias, '.field->>', qt('id_domain'), ')::int');        
+            output := concat(output, '(', item.base_table, '.field->>', qt(item.field_name), ')::int = ', tableAlias, '.id');
         end if;
         output := concat(output, ' ');
     end loop;
@@ -476,4 +476,3 @@ begin
     return output;
 end;
 $function$;
-

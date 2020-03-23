@@ -132,15 +132,11 @@ begin
             output := concat(output, 'inner join ', item.table_name , ' ', tableAlias,  ' on ');
             output := concat(output, '(', item.base_table, '.field->>', qt(item.field_name), ')::int = (', tableAlias, '.field->>', qt('id_domain'), ')::int');
             output := concat(output, ' and (', tableAlias, '.field->>', qt('domain'), ')::text = ', qt(item.domain_name));
-        elsif (item.id_fk = 2) then
-            -- TB_TABLE
+        else
+            -- FKs
             tableAlias = concat('tb_', replace(item.field_name, 'id_', ''));
             output := concat(output, 'left join ', item.table_name , ' ', tableAlias,  ' on ');
             output := concat(output, '(', item.base_table, '.field->>', qt(item.field_name), ')::int = (', tableAlias, '.field->>', qt('id_domain'), ')::int');        
-        else
-            -- OTHER TABLES
-            output := concat(output, 'inner join ', item.table_name , ' on ');
-            output := concat(output, '(', item.base_table, '.field->>', qt(item.field_name), ')::int = ', item.table_name, '.id');
         end if;
         output := concat(output, ' ');
     end loop;
@@ -462,6 +458,7 @@ begin
                 output := concat(output, sql_column(tableName, 'value', 3, item1.field_mask, item1.field_name), ',');                
             else
                 -- Other foreign keys
+                tableName = concat('tb_', replace(item1.field_name, 'id_', ''));                
                 sql2 := '';
                 sql2 := concat(sql2, ' select field_name, id_type, field_mask from vw_table');
                 sql2 := concat(sql2, ' where id_system = ', systemId);

@@ -33,7 +33,6 @@
         // Get data for current system and table
         $json = $jsonUtil->setSession($json, "id_system", $id_system);
         $json = $jsonUtil->setSession($json, "id_table", $id_table);
-        $json = $jsonUtil->setSession($json, "page_limit", PAGE_SIZE);
         $json = $jsonUtil->setSession($json, "page_offset", $pageOffset);
         
         if ($id_layout == 1) {

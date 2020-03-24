@@ -13,7 +13,6 @@ as $procedure$
 declare
     systemId int := 0;
     tableId int := 0;
-    pageLimit int := 0;
     pageOffset int := 0;
     html text := '';
     sql1 text := '';
@@ -25,6 +24,11 @@ declare
     resultset jsonb;
     SUCCESS int := 1;
     FAIL int := 0;
+
+    -- Paging
+    PAGE_SIZE float := 5;
+    recordCount float := 0;
+    pageCount float := 0;
 
 begin
 
@@ -38,7 +42,6 @@ begin
     ---
     systemId := data::jsonb->'session'->>'id_system';
     tableId := data::jsonb->'session'->>'id_table';
-    pageLimit := data::jsonb->'session'->>'page_limit';
     pageOffset := data::jsonb->'session'->>'page_offset';
     tableName := get_table(systemId, tableId);
 
@@ -53,7 +56,7 @@ begin
     sql1 := concat(sql1, get_condition(data::jsonb));
     sql1 := concat(sql1, ' order by ', tableName, '.id');
     sql1 := concat('select to_jsonb(r)::text as record from (', sql1, ') r');
-    sql1 := concat(sql1, ' limit ', pageLimit);
+    sql1 := concat(sql1, ' limit ', PAGE_SIZE);
     sql1 := concat(sql1, ' offset ', pageOffset);
 	execute trace('SQL: ', sql1);
 
@@ -68,11 +71,13 @@ begin
     ---
     --- Page title
     ---
-    html := concat(html, '<h3>', get_table(systemId, tableId), '</h3><p>');
+    html := concat(html, '<h3>', get_table(systemId, tableId), '</h3>');
+    html := concat(html, '<br>');
 
     ---
     --- Table header
     ---
+    html := concat(html, '<table class="w3-table w3-striped w3-hoverable">');
     html := concat(html, '<thead>');
         html := concat(html, '<tr>');
             html := concat(html, '<td></td>');               
@@ -88,8 +93,9 @@ begin
     html := concat(html, '<tbody>');    
         for item1 in execute sql1 loop
             html := concat(html, '<tr>');            
-                resultset := item1.record;           
-                fieldName := 'idi';
+                resultset := item1.record;
+                recordCount := resultset->>'record_count';
+                fieldName := 'id';
                 html := concat(html, '<td><input type="radio" id="', resultset->>fieldName , '" name="selection" value=""></td>');        
                 for item2 in execute sql2 loop
                     fieldName := item2.field_name;
@@ -97,7 +103,22 @@ begin
                 end loop;
             html := concat(html, '</tr>');                
         end loop;
-    html := concat(html, '</tbody>');    
+    html := concat(html, '</tbody>');
+    html := concat(html, '</table>');    
+    
+    ---
+    --- Paging
+    ---
+    html := concat(html, '<br>');
+    html := concat(html, '<center>');
+    pageCount := ceil(recordCount / PAGE_SIZE);
+    if (pageCount > 1) then
+        for i in 0..pageCount-1 loop
+            pageOffset = i * PAGE_SIZE;
+            html := concat(html, '<a href="index.php?id_layout=1&id_table=', tableId, '&page_offset=', pageOffset, '"> ', i+1, '</a>');
+        end loop;
+    end if;
+    html := concat(html, '</center>');
 
     ---
     --- Prepare HTML to return as JSON

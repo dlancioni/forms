@@ -8,6 +8,8 @@
       <a href="index.php?id_layout=1&id_table=1&page_offset=0" class="w3-bar-item w3-button w3-mobile">System</a>
       <a href="index.php?id_layout=1&id_table=2&page_offset=0" class="w3-bar-item w3-button w3-mobile">Table</a>
       <a href="index.php?id_layout=1&id_table=3&page_offset=0" class="w3-bar-item w3-button w3-mobile">Field</a>
+      <a href="index.php?id_layout=1&id_table=4&page_offset=0" class="w3-bar-item w3-button w3-mobile">Domain</a>
+      <a href="index.php?id_layout=1&id_table=5&page_offset=0" class="w3-bar-item w3-button w3-mobile">Action</a>
     </div>
   </div>
 
@@ -17,6 +19,8 @@
       <a href="index.php?id_layout=2&id_table=1&page_offset=0" class="w3-bar-item w3-button w3-mobile">System</a>
       <a href="index.php?id_layout=2&id_table=2&page_offset=0" class="w3-bar-item w3-button w3-mobile">Table</a>
       <a href="index.php?id_layout=2&id_table=3&page_offset=0" class="w3-bar-item w3-button w3-mobile">Field</a>
+      <a href="index.php?id_layout=2&id_table=4&page_offset=0" class="w3-bar-item w3-button w3-mobile">Domain</a>
+      <a href="index.php?id_layout=2&id_table=5&page_offset=0" class="w3-bar-item w3-button w3-mobile">Action</a>      
     </div>
   </div>
 

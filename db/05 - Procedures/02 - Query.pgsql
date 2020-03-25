@@ -26,7 +26,7 @@ declare
     FAIL int := 0;
 
     -- Paging
-    PAGE_SIZE float := 5;
+    PAGE_SIZE float := 10;
     recordCount float := 0;
     pageCount float := 0;
 

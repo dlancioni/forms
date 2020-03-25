@@ -149,7 +149,7 @@ begin
     if (pageCount > 1) then
         for i in 0..pageCount-1 loop
             pageOffset = i * PAGE_SIZE;
-            html := concat(html, '<a href="index.php?id_layout=1&id_table=', tableId, '&page_offset=', pageOffset, '"> ', i+1, '</a>');
+            html := concat(html, '<a href="index.php?id_target=1&id_table=', tableId, '&page_offset=', pageOffset, '"> ', i+1, '</a>');
         end loop;
     end if;
     html := concat(html, '</center>');

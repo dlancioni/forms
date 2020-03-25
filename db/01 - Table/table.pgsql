@@ -19,10 +19,10 @@ create table if not exists tb_table (id serial, session jsonb, field jsonb);
 insert into tb_table (field) values ('{"id":1,"id_system":1,"name":"system","url":"index.php?id_layout=1&id_table=1&page_offset=0","table_name":"tb_system"}');
 insert into tb_table (field) values ('{"id":2,"id_system":1,"name":"table","url":"index.php?id_layout=1&id_table=2&page_offset=0","table_name":"tb_table"}');
 insert into tb_table (field) values ('{"id":3,"id_system":1,"name":"field","url":"index.php?id_layout=1&id_table=3&page_offset=0","table_name":"tb_field"}');
-insert into tb_table (field) values ('{"id":4,"id_system":1,"name":"domain","url":"index.php?id_layout=4&id_table=1&page_offset=0","table_name":"tb_domain"}');
-insert into tb_table (field) values ('{"id":5,"id_system":1,"name":"Action","url":"index.php?id_layout=5&id_table=1&page_offset=0","table_name":"tb_action"}');
-insert into tb_table (field) values ('{"id":5,"id_system":1,"name":"Event","url":"index.php?id_layout=6&id_table=1&page_offset=0","table_name":"tb_event"}');
-insert into tb_table (field) values ('{"id":5,"id_system":1,"name":"Code","url":"index.php?id_layout=7&id_table=1&page_offset=0","table_name":"tb_code"}');
+insert into tb_table (field) values ('{"id":4,"id_system":1,"name":"domain","url":"index.php?id_layout=4&id_table=4&page_offset=0","table_name":"tb_domain"}');
+insert into tb_table (field) values ('{"id":5,"id_system":1,"name":"Action","url":"index.php?id_layout=5&id_table=5&page_offset=0","table_name":"tb_action"}');
+insert into tb_table (field) values ('{"id":6,"id_system":1,"name":"Event","url":"index.php?id_layout=6&id_table=6&page_offset=0","table_name":"tb_event_field"}');
+insert into tb_table (field) values ('{"id":7,"id_system":1,"name":"Code","url":"index.php?id_layout=7&id_table=7&page_offset=0","table_name":"tb_code"}');
 update tb_table set session = '{"id_system":1,"id_table":2,"id_action":1}';
 
 -- -----------------------------------------------------
@@ -109,10 +109,10 @@ update tb_action set session = '{"id_system":1,"id_table":5,"id_action":1}';
 -- -----------------------------------------------------
 -- table tb_event
 -- -----------------------------------------------------
-drop table if exists tb_event cascade;
-create table if not exists tb_event (id serial, session jsonb, field jsonb);
-insert into tb_event (field) values ('{"id":1,"id_table":1,"id_field":1,"id_event":1,"code":"alert(''Hello World'')"}');
-update tb_event set session = '{"id_system":1,"id_table":6,"id_action":1}';
+drop table if exists tb_event_field cascade;
+create table if not exists tb_event_field (id serial, session jsonb, field jsonb);
+insert into tb_event_field (field) values ('{"id":1,"id_table":1,"id_field":1,"id_event":1,"code":"alert(''Hello World'')"}');
+update tb_event_field set session = '{"id_system":1,"id_table":6,"id_action":1}';
 
 -- -----------------------------------------------------
 -- table tb_code

@@ -74,12 +74,12 @@ begin
     --- Prepare query to get actions (buttons)
     ---
     sql3 := concat(sql3, ' select');
-    sql3 := concat(sql3, ' tb_action.field->>', qt('id'));
-    sql3 := concat(sql3, ' ,tb_action.field->>', qt('id_table'));
-    sql3 := concat(sql3, ' ,tb_action.field->>', qt('id_target'));
-    sql3 := concat(sql3, ' ,tb_action.field->>', qt('label'));
-    sql3 := concat(sql3, ' ,tb_action.field->>', qt('id_event'));
-    sql3 := concat(sql3, ' ,tb_action.field->>', qt('js'));
+    sql3 := concat(sql3, ' tb_action.field->>', qt('id'), ' id');
+    sql3 := concat(sql3, ' ,tb_action.field->>', qt('id_table'), ' id_table');
+    sql3 := concat(sql3, ' ,tb_action.field->>', qt('id_target'), ' id_target' );
+    sql3 := concat(sql3, ' ,tb_action.field->>', qt('label'), ' caption');
+    sql3 := concat(sql3, ' ,tb_action.field->>', qt('id_event'), ' id_event');
+    sql3 := concat(sql3, ' ,tb_action.field->>', qt('js'), ' js');
     sql3 := concat(sql3, ' ,tb_domain_event.field->>', qt('value'), ' event_name');
     sql3 := concat(sql3, ' from tb_action');
     sql3 := concat(sql3, ' inner join tb_domain tb_domain_event on ');
@@ -143,11 +143,14 @@ begin
     ---
     --- Actions
     ---
-    html := concat(html, '<center>');
-        for item3 in execute sql3 loop
-
-        end loop;
-    html := concat(html, '</center>');
+    for item3 in execute sql3 loop
+        html := concat(html, ' <input "');
+        html := concat(html, ' type="button"');
+        html := concat(html, ' class="w3-button w3-blue"');
+        html := concat(html, ' id=', dbqt(item3.id));
+        html := concat(html, ' value=', dbqt(item3.caption));
+        html := concat(html, ' >');            
+    end loop;
 
     ---
     --- Prepare HTML to return as JSON

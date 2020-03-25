@@ -21,6 +21,8 @@ insert into tb_table (field) values ('{"id":2,"id_system":1,"name":"table","url"
 insert into tb_table (field) values ('{"id":3,"id_system":1,"name":"field","url":"index.php?id_layout=1&id_table=3&page_offset=0","table_name":"tb_field"}');
 insert into tb_table (field) values ('{"id":4,"id_system":1,"name":"domain","url":"index.php?id_layout=4&id_table=1&page_offset=0","table_name":"tb_domain"}');
 insert into tb_table (field) values ('{"id":5,"id_system":1,"name":"Action","url":"index.php?id_layout=5&id_table=1&page_offset=0","table_name":"tb_action"}');
+insert into tb_table (field) values ('{"id":5,"id_system":1,"name":"Event","url":"index.php?id_layout=6&id_table=1&page_offset=0","table_name":"tb_event"}');
+insert into tb_table (field) values ('{"id":5,"id_system":1,"name":"Code","url":"index.php?id_layout=7&id_table=1&page_offset=0","table_name":"tb_code"}');
 update tb_table set session = '{"id_system":1,"id_table":2,"id_action":1}';
 
 -- -----------------------------------------------------
@@ -62,7 +64,17 @@ insert into tb_field (field) values ('{"id":26,"id_system":1,"id_table":5,"label
 insert into tb_field (field) values ('{"id":27,"id_system":1,"id_table":5,"label":"Target","name":"id_target","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":4,"domain":"tb_target"}');
 insert into tb_field (field) values ('{"id":28,"id_system":1,"id_table":5,"label":"Label","name":"label","id_type":3,"size":50,"mask":"","id_mandatory":1,"id_unique":0,"id_fk":0,"domain":""}');
 insert into tb_field (field) values ('{"id":29,"id_system":1,"id_table":5,"label":"Event","name":"id_event","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":4,"domain":"tb_event"}');
-insert into tb_field (field) values ('{"id":30,"id_system":1,"id_table":5,"label":"JS","name":"js","id_type":3,"size":500,"mask":"","id_mandatory":1,"id_unique":0,"id_fk":0,"domain":""}');
+insert into tb_field (field) values ('{"id":30,"id_system":1,"id_table":5,"label":"Code","name":"code","id_type":3,"size":500,"mask":"","id_mandatory":1,"id_unique":0,"id_fk":0,"domain":""}');
+-- tb_event
+insert into tb_field (field) values ('{"id":31,"id_system":1,"id_table":6,"label":"Id","name":"id","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":0,"domain":""}');
+insert into tb_field (field) values ('{"id":32,"id_system":1,"id_table":6,"label":"Table","name":"id_table","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":0,"id_fk":2,"domain":""}');
+insert into tb_field (field) values ('{"id":33,"id_system":1,"id_table":6,"label":"Field","name":"id_field","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":0,"id_fk":3,"domain":""}');
+insert into tb_field (field) values ('{"id":34,"id_system":1,"id_table":6,"label":"Event","name":"id_event","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":4,"domain":"tb_event"}');
+insert into tb_field (field) values ('{"id":35,"id_system":1,"id_table":6,"label":"Code","name":"code","id_type":3,"size":500,"mask":"","id_mandatory":1,"id_unique":0,"id_fk":0,"domain":""}');
+-- tb_code
+insert into tb_field (field) values ('{"id":36,"id_system":1,"id_table":7,"label":"Id","name":"id","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":0,"domain":""}');
+insert into tb_field (field) values ('{"id":37,"id_system":1,"id_table":7,"label":"Code","name":"code","id_type":3,"size":500,"mask":"","id_mandatory":1,"id_unique":0,"id_fk":0,"domain":""}');
+-- Fix session for all records
 update tb_field set session = '{"id_system":1,"id_table":5,"id_action":3}';
 
 -- -----------------------------------------------------
@@ -90,6 +102,23 @@ update tb_domain set session = '{"id_system":1,"id_table":4,"id_action":1}';
 -- -----------------------------------------------------
 drop table if exists tb_action cascade;
 create table if not exists tb_action (id serial, session jsonb, field jsonb);
-insert into tb_action (field) values ('{"id":1,"id_table":1,"id_target":1,"label":"Novo","id_event":1,"js":"alert(''Hello World'')"}');
-insert into tb_action (field) values ('{"id":1,"id_table":1,"id_target":2,"label":"Voltar","id_event":1,"js":"history.go(-1)"}');
+insert into tb_action (field) values ('{"id":1,"id_table":1,"id_target":1,"label":"Novo","id_event":1,"code":"msg()"}');
+insert into tb_action (field) values ('{"id":2,"id_table":1,"id_target":2,"label":"Voltar","id_event":1,"code":"back()"}');
 update tb_action set session = '{"id_system":1,"id_table":5,"id_action":1}';
+
+-- -----------------------------------------------------
+-- table tb_event
+-- -----------------------------------------------------
+drop table if exists tb_event cascade;
+create table if not exists tb_event (id serial, session jsonb, field jsonb);
+insert into tb_event (field) values ('{"id":1,"id_table":1,"id_field":1,"id_event":1,"code":"alert(''Hello World'')"}');
+update tb_event set session = '{"id_system":1,"id_table":6,"id_action":1}';
+
+-- -----------------------------------------------------
+-- table tb_code
+-- -----------------------------------------------------
+drop table if exists tb_code cascade;
+create table if not exists tb_code (id serial, session jsonb, field jsonb);
+insert into tb_code (field) values ('{"id":1,"code":"function msg() {alert(''Hello World'')};"}');
+insert into tb_code (field) values ('{"id":2,"code":"function back() {history.go(-1)};"}');
+update tb_code set session = '{"id_system":1,"id_table":7,"id_action":1}';

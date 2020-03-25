@@ -13,7 +13,7 @@
         <div class="w3-col l8">
 
         <?php
-        switch ($id_layout) {
+        switch ($targetId) {
             case 1: // table
                 include "grid.php";
                 break;
@@ -22,13 +22,11 @@
                 break;
             default:
         }
-        include "button.php";
         ?>
         </div>
         <div class="w3-col l2">&nbsp;</div>
     </div>
     <!-- PAGE FOOTER-->    
-    <?php include "js.php";?>
     <?php include "footer.php";?>
 </form>
 </body>

@@ -1,13 +1,13 @@
 /*
 -- no condition
-call query('{"session":{"id_system":1,"id_table":2,"page_limit":5,"page_offset":0},"filter":[]}')
+call report('{"session":{"id_system":1,"id_table":2,"page_limit":5,"page_offset":0},"filter":[]}')
 
 -- filtering
-call query('{"session":{"id_system":1,"id_table":2,"id_action":1},"filter":[{"field_name":"id", "operator":"=", "field_value":"1"}]}')
+call report('{"session":{"id_system":1,"id_table":2,"id_action":1},"filter":[{"field_name":"id", "operator":"=", "field_value":"1"}]}')
 */
 
-drop procedure if exists query;
-create or replace procedure query(inout data jsonb)
+drop procedure if exists report;
+create or replace procedure report(inout data jsonb)
 language plpgsql
 as $procedure$
 declare
@@ -17,12 +17,14 @@ declare
     html text := '';
     sql1 text := '';
     sql2 text := '';
-    sql3 text := '';    
+    sql3 text := '';
+    sql4 text := '';        
     tableName text := '';
     fieldName text := '';    
     item1 record;
     item2 record;
     item3 record;    
+    item4 record;    
     resultset jsonb;
     SUCCESS int := 1;
     FAIL int := 0;
@@ -79,14 +81,24 @@ begin
     sql3 := concat(sql3, ' ,tb_action.field->>', qt('id_target'), ' id_target' );
     sql3 := concat(sql3, ' ,tb_action.field->>', qt('label'), ' caption');
     sql3 := concat(sql3, ' ,tb_action.field->>', qt('id_event'), ' id_event');
-    sql3 := concat(sql3, ' ,tb_action.field->>', qt('js'), ' js');
+    sql3 := concat(sql3, ' ,tb_action.field->>', qt('code'), ' code');
     sql3 := concat(sql3, ' ,tb_domain_event.field->>', qt('value'), ' event_name');
     sql3 := concat(sql3, ' from tb_action');
     sql3 := concat(sql3, ' inner join tb_domain tb_domain_event on ');
     sql3 := concat(sql3, ' (tb_action.field->>', qt('id'), ')::int = (tb_domain_event.field->>', qt('id_domain'), ')::int');
     sql3 := concat(sql3, ' and tb_domain_event.field->>', qt('domain'), ' = ', qt('tb_event'));
     sql3 := concat(sql3, ' where (tb_action.session->', qt('id_system'), ')::int = ', systemId);
-	execute trace('SQL3: ', sql3);    
+	execute trace('SQL3: ', sql3);
+
+    ---
+    --- Prepare JS code
+    ---
+    sql4 := concat(sql4, ' select');
+    sql4 := concat(sql4, ' field->>', qt('id'), ' id');
+    sql4 := concat(sql4, ' ,field->>', qt('code'), ' code');
+    sql4 := concat(sql4, ' from tb_code');
+    sql4 := concat(sql4, ' where (session->', qt('id_system'), ')::int = ', systemId);
+	execute trace('SQL4: ', sql4);
 
     ---
     --- Page title
@@ -97,6 +109,7 @@ begin
     ---
     --- Table header
     ---
+    html := concat(html, '<div class="w3-responsive">');
     html := concat(html, '<table class="w3-table w3-striped w3-hoverable">');
     html := concat(html, '<thead>');
         html := concat(html, '<tr>');
@@ -124,7 +137,8 @@ begin
             html := concat(html, '</tr>');                
         end loop;
     html := concat(html, '</tbody>');
-    html := concat(html, '</table>');    
+    html := concat(html, '</table>');
+    html := concat(html, '</div">');    
     
     ---
     --- Paging
@@ -140,8 +154,9 @@ begin
     end if;
     html := concat(html, '</center>');
     html := concat(html, '<br>');
+
     ---
-    --- Actions
+    --- Actions (Buttons)
     ---
     for item3 in execute sql3 loop
         html := concat(html, ' <input "');
@@ -149,8 +164,19 @@ begin
         html := concat(html, ' class="w3-button w3-blue"');
         html := concat(html, ' id=', dbqt(item3.id));
         html := concat(html, ' value=', dbqt(item3.caption));
+        html := concat(html, ' ', item3.event_name, ' = ', dbqt(item3.code));
         html := concat(html, ' >');            
     end loop;
+
+    ---
+    --- Javascript
+    ---
+    html := concat(html, '<script langauage="JavaScript">');    
+    for item4 in execute sql4 loop
+        html := concat(html, item4.code);
+    end loop;
+    html := concat(html, '</script>');    
+
 
     ---
     --- Prepare HTML to return as JSON

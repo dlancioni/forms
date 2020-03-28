@@ -3,7 +3,8 @@
 <!DOCTYPE html>
 <html>
 <body>
-<form id='Report' method='Post' action='form.php'>
+<form id='form1' name='form1' method='Post'>
+    <input id="id_table" type="hidden" value="<?php echo $tableId; ?>">
     <!-- PAGE HEADER-->
     <?php include "header.php";?>
     <?php include "menu.php";?>

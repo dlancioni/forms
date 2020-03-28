@@ -78,7 +78,8 @@ begin
         fieldFK = item1.id_fk;
         domainName := trim(item1.domain_name);
 
-        form := concat(form, '<div class="w3-third">');
+        --form := concat(form, '<div class="w3-half">');
+        form := concat(form, '<div class="">');
         form := concat(form, '<label>', fieldLabel, '</label>');        
 
         if (fieldFK = 0) then

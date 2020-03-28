@@ -15,7 +15,8 @@ declare
     sql1 text := '';
     sql2 text := '';
     sql3 text := '';
-    sql4 text := '';    
+    sql4 text := '';
+    sql5 text := '';
     tableName text := '';
     tableFk text := '';
     fieldName text := '';
@@ -23,7 +24,7 @@ declare
     fieldType int := 0;
     fieldMask text := '';
     domainName text := '';
-    form text := '';
+    html text := '';
     item1 record;
     item2 record;
     item3 record;
@@ -78,27 +79,27 @@ begin
         fieldFK = item1.id_fk;
         domainName := trim(item1.domain_name);
 
-        --form := concat(form, '<div class="w3-half">');
-        form := concat(form, '<div class="">');
-        form := concat(form, '<label>', fieldLabel, '</label>');        
+        --html := concat(html, '<div class="w3-half">');
+        html := concat(html, '<div class="">');
+        html := concat(html, '<label>', fieldLabel, '</label>');        
 
         if (fieldFK = 0) then
-            form := concat(form, ' <input ');
-            form := concat(form, ' class=', dbqt('w3-input w3-border'));
-            form := concat(form, ' id=', dbqt(fieldName));
-            form := concat(form, ' type=', dbqt('text'));
-            form := concat(form, ' value=', dbqt(resultset->>fieldName));
-            form := concat(form, ' >');
+            html := concat(html, ' <input ');
+            html := concat(html, ' class=', dbqt('w3-input w3-border'));
+            html := concat(html, ' id=', dbqt(fieldName));
+            html := concat(html, ' type=', dbqt('text'));
+            html := concat(html, ' value=', dbqt(resultset->>fieldName));
+            html := concat(html, ' >');
         else
-            form := concat(form, ' <select ');
-            form := concat(form, ' class=', dbqt('w3-input w3-border'));
-            form := concat(form, ' id=', dbqt(fieldName));
-            form := concat(form, ' >');
+            html := concat(html, ' <select ');
+            html := concat(html, ' class=', dbqt('w3-input w3-border'));
+            html := concat(html, ' id=', dbqt(fieldName));
+            html := concat(html, ' >');
 
             -- Empty item    
-            form := concat(form, '<option value="0">');
-            form := concat(form, 'Selecionar');
-            form := concat(form, '</option>');            
+            html := concat(html, '<option value="0">');
+            html := concat(html, 'Selecionar');
+            html := concat(html, '</option>');            
 
             -- Figure out ID and DS to populate dropdown
             execute trace('fieldFK: ', fieldFK::text);
@@ -128,36 +129,57 @@ begin
 
             -- Populate the dropdown
             for item4 in execute sql4 loop
-                form := concat(form, '<option value=', dbqt(item4.id));
+                html := concat(html, '<option value=', dbqt(item4.id));
 
                 if (resultset->>fieldName = item4.id) then
-                    form := concat(form, ' selected ');
+                    html := concat(html, ' selected ');
                 end if;
 
-                form := concat(form, '>');
-                form := concat(form, item4.ds);
-                form := concat(form, '</option>');
+                html := concat(html, '>');
+                html := concat(html, item4.ds);
+                html := concat(html, '</option>');
             end loop;
 
-            form := concat(form, '</select>');            
+            html := concat(html, '</select>');            
         end if;
 
-        form := concat(form, '<br>');
-        form := concat(form, '</div>');
+        html := concat(html, '<br>');
+        html := concat(html, '</div>');
 
     end loop;
 
     ---
+    --- Actions (Buttons)
+    ---
+    html :=concat(html, get_table_action(systemId, tableId, 2));
+
+    ---
+    --- Javascript
+    ---
+    sql5 := concat(sql5, ' select');
+    sql5 := concat(sql5, ' field->>', qt('id'), ' id');
+    sql5 := concat(sql5, ' ,field->>', qt('code'), ' code');
+    sql5 := concat(sql5, ' from tb_code');
+    sql5 := concat(sql5, ' where (session->', qt('id_system'), ')::int = ', systemId);
+	execute trace('SQL5: ', sql5);
+
+    html := concat(html, '<script langauage="JavaScript">');    
+    for item4 in execute sql5 loop
+        html := concat(html, item4.code);
+    end loop;
+    html := concat(html, '</script>');    
+
+    ---
     --- Prepare HTML to return as JSON
     ---
-    form := replace(form, '"', '|');
-    form := concat('{', dbqt('html'), ':', dbqt(form), '}');
-    execute trace('Form: ', form);
+    html := replace(html, '"', '|');
+    html := concat('{', dbqt('html'), ':', dbqt(html), '}');
+    execute trace('Form: ', html);
 
     ---
     --- Return data (success)
     ---
-    data := get_output(SUCCESS, 0, 0, '', '', form);
+    data := get_output(SUCCESS, 0, 0, '', '', html);
 
     ---
     --- Finish with success

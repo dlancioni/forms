@@ -1,8 +1,16 @@
 <!DOCTYPE html>
 <html>
 <body>
-<script>
-self.location.href = 'web/index.php?id_target=1&id_table=2&page_offset=1'
-</script>
+
+<form id='form1' method='post' action='web/index.php'>
+
+    <input name="page_offset" type="text" value="0">
+    <input name="id_table" type="text" value="1">
+    <input name="id_target" type="text" value="1">
+
+    <input id="login" type="submit" value="Login">
+</form>
+
+
 </body>
 </html>

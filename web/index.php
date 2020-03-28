@@ -4,7 +4,13 @@
 <html>
 <body>
 <form id='form1' name='form1' method='Post'>
-    <input id="id_table" type="hidden" value="<?php echo $tableId; ?>">
+
+    <!-- USER SESSION -->
+    <input id="page_offset" name="page_offset" type="hidden" value="0">
+    <input id="id_table" name="id_table" type="hidden" value="<?php echo $tableId; ?>">
+    <input id="id_target" name="id_target" type="hidden" value="<?php if ($targetId==1) {echo "2";} else {echo 1;} ?>">
+
+
     <!-- PAGE HEADER-->
     <?php include "header.php";?>
     <?php include "menu.php";?>

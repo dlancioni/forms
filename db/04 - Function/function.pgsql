@@ -476,3 +476,59 @@ begin
     return output;
 end;
 $function$;
+
+/*
+Set value between double quote
+select get_table_action(1, 1, 1);
+*/
+drop function if exists get_table_action;
+create or replace function get_table_action(systemId int, tableId int, targetId int)
+returns text
+language plpgsql
+as $function$
+declare
+    sql1 text := '';
+    html text := '';  
+    item1 record;  
+begin
+
+    ---
+    --- Prepare query to get actions (buttons)
+    ---
+    sql1 := concat(sql1, ' select');
+    sql1 := concat(sql1, ' tb_action.field->>', qt('id'), ' id');
+    sql1 := concat(sql1, ' ,tb_action.field->>', qt('id_table'), ' id_table');
+    sql1 := concat(sql1, ' ,tb_action.field->>', qt('id_target'), ' id_target' );
+    sql1 := concat(sql1, ' ,tb_action.field->>', qt('label'), ' caption');
+    sql1 := concat(sql1, ' ,tb_action.field->>', qt('id_event'), ' id_event');
+    sql1 := concat(sql1, ' ,tb_action.field->>', qt('code'), ' code');
+    sql1 := concat(sql1, ' ,tb_domain_event.field->>', qt('value'), ' event_name');
+    sql1 := concat(sql1, ' from tb_action');
+    sql1 := concat(sql1, ' inner join tb_domain tb_domain_event on ');
+    sql1 := concat(sql1, ' (tb_action.field->>', qt('id'), ')::int = (tb_domain_event.field->>', qt('id_domain'), ')::int');
+    sql1 := concat(sql1, ' and tb_domain_event.field->>', qt('domain'), ' = ', qt('tb_event'));
+    sql1 := concat(sql1, ' where (tb_action.session->', qt('id_system'), ')::int = ', systemId);
+    sql1 := concat(sql1, ' and (tb_action.field->', qt('id_table'), ')::int = ', tableId);
+    sql1 := concat(sql1, ' and (tb_action.field->', qt('id_target'), ')::int = ', targetId);
+	execute trace('sql1: ', sql1);
+
+    ---
+    --- Actions (Buttons)
+    ---
+    for item1 in execute sql1 loop
+        html := concat(html, '<input');
+        html := concat(html, ' type=', dbqt('button'));
+        html := concat(html, ' class=', dbqt('w3-button w3-blue'));
+        html := concat(html, ' id=', dbqt(item1.id));
+        html := concat(html, ' value=', dbqt(item1.caption));
+        html := concat(html, ' ', item1.event_name, ' = ', dbqt(item1.code));
+        html := concat(html, ' >');            
+    end loop;    
+
+    ---
+    --- return buttons as html
+    ---
+    return html;
+
+end;
+$function$;

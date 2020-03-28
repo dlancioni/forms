@@ -73,34 +73,6 @@ begin
 	execute trace('SQL2: ', sql2);
 
     ---
-    --- Prepare query to get actions (buttons)
-    ---
-    sql3 := concat(sql3, ' select');
-    sql3 := concat(sql3, ' tb_action.field->>', qt('id'), ' id');
-    sql3 := concat(sql3, ' ,tb_action.field->>', qt('id_table'), ' id_table');
-    sql3 := concat(sql3, ' ,tb_action.field->>', qt('id_target'), ' id_target' );
-    sql3 := concat(sql3, ' ,tb_action.field->>', qt('label'), ' caption');
-    sql3 := concat(sql3, ' ,tb_action.field->>', qt('id_event'), ' id_event');
-    sql3 := concat(sql3, ' ,tb_action.field->>', qt('code'), ' code');
-    sql3 := concat(sql3, ' ,tb_domain_event.field->>', qt('value'), ' event_name');
-    sql3 := concat(sql3, ' from tb_action');
-    sql3 := concat(sql3, ' inner join tb_domain tb_domain_event on ');
-    sql3 := concat(sql3, ' (tb_action.field->>', qt('id'), ')::int = (tb_domain_event.field->>', qt('id_domain'), ')::int');
-    sql3 := concat(sql3, ' and tb_domain_event.field->>', qt('domain'), ' = ', qt('tb_event'));
-    sql3 := concat(sql3, ' where (tb_action.session->', qt('id_system'), ')::int = ', systemId);
-	execute trace('SQL3: ', sql3);
-
-    ---
-    --- Prepare JS code
-    ---
-    sql4 := concat(sql4, ' select');
-    sql4 := concat(sql4, ' field->>', qt('id'), ' id');
-    sql4 := concat(sql4, ' ,field->>', qt('code'), ' code');
-    sql4 := concat(sql4, ' from tb_code');
-    sql4 := concat(sql4, ' where (session->', qt('id_system'), ')::int = ', systemId);
-	execute trace('SQL4: ', sql4);
-
-    ---
     --- Page title
     ---
     html := concat(html, '<h3>', get_table(systemId, tableId), '</h3>');
@@ -113,7 +85,7 @@ begin
     html := concat(html, '<table class="w3-table w3-striped w3-hoverable">');
     html := concat(html, '<thead>');
         html := concat(html, '<tr>');
-            html := concat(html, '<td></td>');               
+            html := concat(html, '<td></td>');
             for item2 in execute sql2 loop
                 html := concat(html, '<td>', item2.field_label, '</td>');
             end loop;
@@ -129,7 +101,7 @@ begin
                 resultset := item1.record;
                 recordCount := resultset->>'record_count';
                 fieldName := 'id';
-                html := concat(html, '<td><input type="radio" id="', resultset->>fieldName , '" name="selection" value=""></td>');        
+                html := concat(html, '<td><input type="radio" id="', resultset->>fieldName , '" name="selection" value=""></td>');
                 for item2 in execute sql2 loop
                     fieldName := item2.field_name;
                     html := concat(html, '<td>', resultset->>fieldName, '</td>');
@@ -158,25 +130,23 @@ begin
     ---
     --- Actions (Buttons)
     ---
-    for item3 in execute sql3 loop
-        html := concat(html, ' <input "');
-        html := concat(html, ' type="button"');
-        html := concat(html, ' class="w3-button w3-blue"');
-        html := concat(html, ' id=', dbqt(item3.id));
-        html := concat(html, ' value=', dbqt(item3.caption));
-        html := concat(html, ' ', item3.event_name, ' = ', dbqt(item3.code));
-        html := concat(html, ' >');            
-    end loop;
+    html :=concat(html, get_table_action(systemId, tableId, 1));
 
     ---
     --- Javascript
     ---
+    sql4 := concat(sql4, ' select');
+    sql4 := concat(sql4, ' field->>', qt('id'), ' id');
+    sql4 := concat(sql4, ' ,field->>', qt('code'), ' code');
+    sql4 := concat(sql4, ' from tb_code');
+    sql4 := concat(sql4, ' where (session->', qt('id_system'), ')::int = ', systemId);
+	execute trace('SQL4: ', sql4);
+
     html := concat(html, '<script langauage="JavaScript">');    
     for item4 in execute sql4 loop
         html := concat(html, item4.code);
     end loop;
-    html := concat(html, '</script>');    
-
+    html := concat(html, '</script>');
 
     ---
     --- Prepare HTML to return as JSON

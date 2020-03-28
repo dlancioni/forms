@@ -23,12 +23,12 @@
         $jsonUtil = new JsonUtil();
 
         // Requests
-        if ($_GET["id_target"] != null)
-            $targetId = $_GET["id_target"];
-        if ($_GET["id_table"] != null)
-            $tableId = htmlspecialchars($_GET["id_table"]);
-        if ($_GET["page_offset"] != null)
-            $pageOffset = $_GET["page_offset"];
+        if ($_REQUEST["id_target"] != null)
+            $targetId = $_REQUEST["id_target"];
+        if ($_REQUEST["page_offset"] != null)
+            $pageOffset = $_REQUEST["page_offset"];
+        if ($_REQUEST["id_table"] != null)
+            $tableId = htmlspecialchars($_REQUEST["id_table"]);
 
         // Get data for current system and table
         $json = $jsonUtil->setSession($json, "id_system", $systemId);

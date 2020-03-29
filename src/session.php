@@ -13,8 +13,9 @@
     $targetId = 0;
     $systemId = 1;
     $tableId = 2;
+    $userId = 1;
     $viewId = 0;
-    $data = "";
+    $actionId = 1;
     $json = '{"session":{"id_system":0,"id_table":0},"filter":[]}';
 
     try {
@@ -40,8 +41,8 @@
         } else {
             $sql = "call form($1)";
         }
-        $data = $db->Execute($sql, $json);  
 
+        $json = $db->Execute($sql, $json);  
 
     } catch (exception $e) {
         echo "EXCEPTION : " . $e;

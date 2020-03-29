@@ -37,7 +37,7 @@
                 $resultset = pg_query_params($connection, $sql, array($json));
                 while ($row = pg_fetch_row($resultset)) {
                     if ($row[0]) {
-                        $data = json_decode($row[0])->resultset;
+                        $data = json_decode($row[0]);
                     }
                 }
                 $this->set_error("", "");

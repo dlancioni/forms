@@ -69,6 +69,7 @@ begin
 
 		-- Validate input and persist
 		for item in execute concat('select * from vw_table where vw_table.id_table = ', tableId) loop
+
 			-- Keep key information
 			fieldName = trim(item.field_name);
 			fieldType = item.id_type;

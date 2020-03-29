@@ -1,3 +1,3 @@
 <?php
-    echo str_replace('|',"\"",$data->html);
+    echo str_replace('|',"\"",$json->resultset->html);
 ?>   

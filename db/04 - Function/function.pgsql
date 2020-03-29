@@ -181,10 +181,10 @@ $function$;
 /*
 Format numbers based on mask
 
-select get_output(0, 2, 23, 'exception goes here', 'warning goes here', '', '')
-select get_output(0, 0, 0, 'exception goes here', '', '[]')
+select get_output(0, 1, 23, 'exception goes here', 'warning goes here', '')
+select get_output(0, 0, 0, 'exception goes here', '', '')
 select get_output(1, 1, 0, '', '', '[{"id": 1, "url": "-", "name": "system", "id_system": 1, "table_name": "tb_system"}]');
-select get_output(0, 0, 0, 'SQLERRM', '', '[]')::jsonb;
+select get_output(0, 0, 0, 'SQLERRM', '', '[]');
 */
 drop function if exists get_output;
 create or replace function get_output(status integer, actionId integer, id integer, error text, warning text, resultset text)
@@ -195,15 +195,20 @@ declare
     output text := '';
     message text := '';
 begin
+
+    if (resultset = '') then
+        resultset = '[]';
+    end if;    
+
     if (trim(error) = '') then
-        if (actionId = 0) then
+        if actionId = 0 then
             message := ''; -- Query
-        elsif if (actionId = 1) then
-            message := 'Registro INCLUÍDO com sucesso' || '. id: ' || id::text;
+        elsif (actionId = 1) then
+            message := concat('Registro INCLUÍDO com sucesso', '. id: ', id::text);
         elsif (actionId = 2) then
-            message := 'Registro ALTERADO com sucesso' || '. id: ' || id::text;
+            message := concat('Registro ALTERADO com sucesso', '. id: ', id::text);
         elsif (actionId = 3) then
-            message := 'Registro EXCLUÍDO com sucesso' || '. id: ' || id::text;
+            message := concat('Registro EXCLUÍDO com sucesso', '. id: ', id::text);
         else
             message := 'Invalid action';
         end if;
@@ -219,8 +224,9 @@ begin
     output := concat(output, '"warning":', dbqt(warning), ',');
     output := concat(output, '"resultset":', resultset);
     output := concat(output, '}');
-    raise notice '%', output;
+
     return output;
+
 end;
 $function$;
 

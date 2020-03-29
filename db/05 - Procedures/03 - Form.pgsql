@@ -8,7 +8,7 @@ create or replace procedure form(inout data jsonb)
 language plpgsql
 as $procedure$
 declare
-    id int := 1;
+    id int := 0;
     systemId int := 0;
     tableId int := 0;
     fieldFK int := 0;

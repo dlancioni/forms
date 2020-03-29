@@ -21,7 +21,7 @@
         }
 
         // Ajax call    
-        let response = await fetch('execute.php', {method: 'post', body: data})
+        let response = await fetch('../src/execute.php', {method: 'post', body: data})
         if (response.ok) {
             let json = await response.text();
             alert(json);

@@ -505,7 +505,7 @@ begin
     sql1 := concat(sql1, ' ,tb_domain_event.field->>', qt('value'), ' event_name');
     sql1 := concat(sql1, ' from tb_action');
     sql1 := concat(sql1, ' inner join tb_domain tb_domain_event on ');
-    sql1 := concat(sql1, ' (tb_action.field->>', qt('id'), ')::int = (tb_domain_event.field->>', qt('id_domain'), ')::int');
+    sql1 := concat(sql1, ' (tb_action.field->>', qt('id_event'), ')::int = (tb_domain_event.field->>', qt('id_domain'), ')::int');
     sql1 := concat(sql1, ' and tb_domain_event.field->>', qt('domain'), ' = ', qt('tb_event'));
     sql1 := concat(sql1, ' where (tb_action.session->', qt('id_system'), ')::int = ', systemId);
     sql1 := concat(sql1, ' and (tb_action.field->', qt('id_table'), ')::int = ', tableId);
@@ -515,6 +515,7 @@ begin
     ---
     --- Actions (Buttons)
     ---
+    html := concat(html, '<center>');
     for item1 in execute sql1 loop
         html := concat(html, '<input');
         html := concat(html, ' type=', dbqt('button'));
@@ -523,8 +524,9 @@ begin
         html := concat(html, ' value=', dbqt(item1.caption));
         html := concat(html, ' ', item1.event_name, ' = ', dbqt(item1.code));
         html := concat(html, ' >');            
+        html := concat(html, ' &nbsp;');  
     end loop;    
-
+    html := concat(html, '</center>');
     ---
     --- return buttons as html
     ---

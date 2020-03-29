@@ -18,7 +18,6 @@
     <div class="w3-row">
         <div class="w3-col l2">&nbsp;</div>
         <div class="w3-col l8">
-
         <?php
         switch ($targetId) {
             case 1: // table
@@ -34,6 +33,7 @@
         <div class="w3-col l2">&nbsp;</div>
     </div>
     <!-- PAGE FOOTER-->    
+    <?php include "js.php";?>
     <?php include "footer.php";?>
 </form>
 </body>

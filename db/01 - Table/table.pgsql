@@ -104,7 +104,8 @@ update tb_domain set session = '{"id_system":1,"id_table":4,"id_user":1,"id_acti
 drop table if exists tb_action cascade;
 create table if not exists tb_action (id serial, session jsonb, field jsonb);
 insert into tb_action (field) values ('{"id":1,"id_table":1,"id_target":1,"label":"Novo","id_event":1,"code":"go(document.getElementById(''id_table'').value)"}');
-insert into tb_action (field) values ('{"id":2,"id_table":1,"id_target":2,"label":"Voltar","id_event":1,"code":"back(document.getElementById(''id_table'').value)"}');
+insert into tb_action (field) values ('{"id":2,"id_table":1,"id_target":2,"label":"Salvar","id_event":1,"code":"execute()"}');
+insert into tb_action (field) values ('{"id":3,"id_table":1,"id_target":2,"label":"Voltar","id_event":1,"code":"back(document.getElementById(''id_table'').value)"}');
 update tb_action set session = '{"id_system":1,"id_table":5,"id_user":1,"id_action":1}';
 
 -- -----------------------------------------------------
@@ -120,6 +121,5 @@ update tb_event_field set session = '{"id_system":1,"id_table":6,"id_user":1,"id
 -- -----------------------------------------------------
 drop table if exists tb_code cascade;
 create table if not exists tb_code (id serial, session jsonb, field jsonb);
-insert into tb_code (field) values ('{"id":1,"code":"function go(tableId) {document.form1.method = ''post'';document.form1.action = ''index.php?id_table=''+ tableId; document.form1.submit();}"}');
-insert into tb_code (field) values ('{"id":2,"code":"function back() {history.go(-1);}"}');
+insert into tb_code (field) values ('{"id":1,"code":""}');
 update tb_code set session = '{"id_system":1,"id_table":7,"id_user":1,"id_action":1}';

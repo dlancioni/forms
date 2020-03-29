@@ -87,6 +87,7 @@ begin
             html := concat(html, ' <input ');
             html := concat(html, ' class=', dbqt('w3-input w3-border'));
             html := concat(html, ' id=', dbqt(fieldName));
+            html := concat(html, ' name=', dbqt(fieldName));            
             html := concat(html, ' type=', dbqt('text'));
             html := concat(html, ' value=', dbqt(resultset->>fieldName));
             html := concat(html, ' >');
@@ -94,6 +95,7 @@ begin
             html := concat(html, ' <select ');
             html := concat(html, ' class=', dbqt('w3-input w3-border'));
             html := concat(html, ' id=', dbqt(fieldName));
+            html := concat(html, ' name=', dbqt(fieldName));            
             html := concat(html, ' >');
 
             -- Empty item    

@@ -485,10 +485,10 @@ $function$;
 
 /*
 Set value between double quote
-select get_table_action(1, 1, 1);
+select get_event(1, 1, 2);
 */
-drop function if exists get_table_action;
-create or replace function get_table_action(systemId int, tableId int, targetId int)
+drop function if exists get_event;
+create or replace function get_event(systemId int, tableId int, targetId int)
 returns text
 language plpgsql
 as $function$
@@ -502,20 +502,20 @@ begin
     --- Prepare query to get actions (buttons)
     ---
     sql1 := concat(sql1, ' select');
-    sql1 := concat(sql1, ' tb_action.field->>', qt('id'), ' id');
-    sql1 := concat(sql1, ' ,tb_action.field->>', qt('id_table'), ' id_table');
-    sql1 := concat(sql1, ' ,tb_action.field->>', qt('id_target'), ' id_target' );
-    sql1 := concat(sql1, ' ,tb_action.field->>', qt('label'), ' caption');
-    sql1 := concat(sql1, ' ,tb_action.field->>', qt('id_event'), ' id_event');
-    sql1 := concat(sql1, ' ,tb_action.field->>', qt('code'), ' code');
+    sql1 := concat(sql1, ' tb_event.field->>', qt('id'), ' id');
+    sql1 := concat(sql1, ' ,tb_event.field->>', qt('id_table'), ' id_table');
+    sql1 := concat(sql1, ' ,tb_event.field->>', qt('id_target'), ' id_target' );
+    sql1 := concat(sql1, ' ,tb_event.field->>', qt('display'), ' display');
+    sql1 := concat(sql1, ' ,tb_event.field->>', qt('id_event'), ' id_event');
+    sql1 := concat(sql1, ' ,tb_event.field->>', qt('code'), ' code');
     sql1 := concat(sql1, ' ,tb_domain_event.field->>', qt('value'), ' event_name');
-    sql1 := concat(sql1, ' from tb_action');
+    sql1 := concat(sql1, ' from tb_event');
     sql1 := concat(sql1, ' inner join tb_domain tb_domain_event on ');
-    sql1 := concat(sql1, ' (tb_action.field->>', qt('id_event'), ')::int = (tb_domain_event.field->>', qt('id_domain'), ')::int');
+    sql1 := concat(sql1, ' (tb_event.field->>', qt('id_event'), ')::int = (tb_domain_event.field->>', qt('id_domain'), ')::int');
     sql1 := concat(sql1, ' and tb_domain_event.field->>', qt('domain'), ' = ', qt('tb_event'));
-    sql1 := concat(sql1, ' where (tb_action.session->', qt('id_system'), ')::int = ', systemId);
-    sql1 := concat(sql1, ' and (tb_action.field->', qt('id_table'), ')::int = ', tableId);
-    sql1 := concat(sql1, ' and (tb_action.field->', qt('id_target'), ')::int = ', targetId);
+    sql1 := concat(sql1, ' where (tb_event.session->', qt('id_system'), ')::int = ', systemId);
+    sql1 := concat(sql1, ' and (tb_event.field->', qt('id_table'), ')::int = ', tableId);
+    sql1 := concat(sql1, ' and (tb_event.field->', qt('id_target'), ')::int = ', targetId);
 	execute trace('sql1: ', sql1);
 
     ---
@@ -527,7 +527,7 @@ begin
         html := concat(html, ' type=', dbqt('button'));
         html := concat(html, ' class=', dbqt('w3-button w3-blue'));
         html := concat(html, ' id=', dbqt(item1.id));
-        html := concat(html, ' value=', dbqt(item1.caption));
+        html := concat(html, ' value=', dbqt(item1.display));
         html := concat(html, ' ', item1.event_name, ' = ', dbqt(item1.code));
         html := concat(html, ' >');            
         html := concat(html, ' &nbsp;');  

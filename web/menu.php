@@ -9,9 +9,8 @@
       <a href="index.php?id_table=2&id_target=1&page_offset=0" class="w3-bar-item w3-button w3-mobile">Table</a>
       <a href="index.php?id_table=3&id_target=1&page_offset=0" class="w3-bar-item w3-button w3-mobile">Field</a>
       <a href="index.php?id_table=4&id_target=1&page_offset=0" class="w3-bar-item w3-button w3-mobile">Domain</a>
-      <a href="index.php?id_table=5&id_target=1&page_offset=0" class="w3-bar-item w3-button w3-mobile">Action</a>
-      <a href="index.php?id_table=6&id_target=1&page_offset=0" class="w3-bar-item w3-button w3-mobile">Event</a>      
-      <a href="index.php?id_table=7&id_target=1&page_offset=0" class="w3-bar-item w3-button w3-mobile">Code</a>      
+      <a href="index.php?id_table=5&id_target=1&page_offset=0" class="w3-bar-item w3-button w3-mobile">Event</a>      
+      <a href="index.php?id_table=6&id_target=1&page_offset=0" class="w3-bar-item w3-button w3-mobile">Code</a>      
     </div>
   </div>
 

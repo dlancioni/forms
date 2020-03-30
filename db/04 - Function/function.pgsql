@@ -128,13 +128,13 @@ begin
     for item in execute sql loop
         if (item.id_fk = 4) then
             -- TB_DOMAIN
-            tableAlias = concat('tb_', replace(item.field_name, 'id_', ''));
+            tableAlias = concat('tb_', replace(item.field_name, 'id_', 'fk_'));
             output := concat(output, 'inner join ', item.table_name , ' ', tableAlias,  ' on ');
             output := concat(output, '(', item.base_table, '.field->>', qt(item.field_name), ')::int = (', tableAlias, '.field->>', qt('id_domain'), ')::int');
             output := concat(output, ' and (', tableAlias, '.field->>', qt('domain'), ')::text = ', qt(item.domain_name));
         else
             -- FKs
-            tableAlias = concat('tb_', replace(item.field_name, 'id_', ''));
+            tableAlias = concat('tb_', replace(item.field_name, 'id_', 'fk_'));
             output := concat(output, 'left join ', item.table_name , ' ', tableAlias,  ' on ');
             output := concat(output, '(', item.base_table, '.field->>', qt(item.field_name), ')::int = ', tableAlias, '.id');
         end if;
@@ -460,11 +460,11 @@ begin
             
             if (item1.id_fk = 4) then
                 -- Domain
-                tableName = concat('tb_', replace(item1.field_name, 'id_', ''));
+                tableName = concat('tb_', replace(item1.field_name, 'id_', 'fk_'));
                 output := concat(output, sql_column(tableName, 'value', 3, item1.field_mask, item1.field_name), ',');                
             else
                 -- Other foreign keys
-                tableName = concat('tb_', replace(item1.field_name, 'id_', ''));                
+                tableName = concat('tb_', replace(item1.field_name, 'id_', 'fk_'));                
                 sql2 := '';
                 sql2 := concat(sql2, ' select field_name, id_type, field_mask from vw_table');
                 sql2 := concat(sql2, ' where id_system = ', systemId);

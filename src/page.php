@@ -47,7 +47,7 @@
         } else {
             $sql = "call form($1)";
         }
-echo $json;
+
         $json = $db->Execute($sql, $json);  
 
     } catch (exception $e) {

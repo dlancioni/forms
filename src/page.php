@@ -12,7 +12,7 @@
     $systemId = 1;    
     $targetId = 1; // 1-report 2-form
     $tableId = 1;    
-    $recordId = 0;
+    $recordId = 1;
 
     $userId = 1;    
     $viewId = 0;
@@ -31,7 +31,7 @@
             $targetId = $_REQUEST["id_target"];
         if ($_REQUEST["id_table"])
             $tableId = $_REQUEST["id_table"];
-        if ($_REQUEST["id_table"])
+        if ($_REQUEST["id_record"])
             $recordId = $_REQUEST["id_record"];
         if ($_REQUEST["page_offset"])
             $pageOffset = $_REQUEST["page_offset"];
@@ -40,14 +40,14 @@
         $json = $jsonUtil->setSession($json, "id_system", $systemId);
         $json = $jsonUtil->setSession($json, "id_table", $tableId);
         $json = $jsonUtil->setSession($json, "page_offset", $pageOffset);
-        $json = $jsonUtil->setField($json, "id", $recordId);
+        $json = $jsonUtil->setSession($json, "id", $recordId);
         
         if ($targetId == 1) {
             $sql = "call report($1)";
         } else {
             $sql = "call form($1)";
         }
-
+echo $json;
         $json = $db->Execute($sql, $json);  
 
     } catch (exception $e) {

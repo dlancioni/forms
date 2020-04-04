@@ -42,6 +42,7 @@ begin
     ---
     --- Session related information
     ---
+    id := data::jsonb->'session'->>'id';
     systemId := data::jsonb->'session'->>'id_system';
     tableId := data::jsonb->'session'->>'id_table';    
     tableName := get_table(systemId, tableId);

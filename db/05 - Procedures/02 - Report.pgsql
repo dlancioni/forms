@@ -101,7 +101,7 @@ begin
                 resultset := item1.record;
                 recordCount := resultset->>'record_count';
                 fieldName := 'id';
-                html := concat(html, '<td><input type="radio" id="', resultset->>fieldName , '" name="selection" value=""></td>');
+                html := concat(html, '<td><input type="radio" id="', resultset->>fieldName , '" name="id" value=""></td>');
                 for item2 in execute sql2 loop
                     fieldName := item2.field_name;
                     html := concat(html, '<td>', resultset->>fieldName, '</td>');
@@ -121,7 +121,7 @@ begin
     if (pageCount > 1) then
         for i in 0..pageCount-1 loop
             pageOffset = i * PAGE_SIZE;
-            html := concat(html, '<a href="index.php?id_target=1&id_table=', tableId, '&page_offset=', pageOffset, '"> ', i+1, '</a>');
+            html := concat(html, '<a href="index.php?id_target=1&id_table=', tableId, '&page_offset=', pageOffset, '&id_record=0"> ', i+1, '</a>');
         end loop;
     end if;
     html := concat(html, '</center>');

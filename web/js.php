@@ -1,15 +1,32 @@
 <script language="JavaScript">
 
     // Navigate to page
-    function go(tableId) {
+    function go(targetId, tableId, recordId) {
+
+        // Set values
+        setValue('id_target', targetId);
+        setValue('id_table', tableId);
+        setValue('id_record', recordId);
+
+        // Submit data
         document.form1.method = 'post';
-        document.form1.action = 'index.php?id_table='+ tableId; 
+        document.form1.action = 'index.php';
         document.form1.submit();
     }
 
-    // Got to previous page
-    function back() {
-        history.go(-1);
+    // IDs to navigate
+    function getTarget() {
+        return document.getElementById('id_target').value;
+    }
+    function getTable() {
+        return document.getElementById('id_table').value;
+    }
+    function getId() {
+        return document.getElementById('id_record').value;
+    }
+
+    function setValue(field, value) {
+        return document.getElementById(field).value = value;
     }    
 
     // Execute URL and return data
@@ -26,7 +43,7 @@
             let json = await response.text();
             alert(json);
         } else {
-            //alert("HTTP-Error: " + response.status);
+            alert("HTTP-Error: " + response.status);
         }
     }
 

@@ -1,40 +1,46 @@
 <?php
+    // Start session
+    session_start();
+
     // Include dependencies
     include "constants.php";
     include "exception.php";
     include "db.php";
     include "util.php";
-
-    // Start session
-    session_start();
    
     // General Declaration
-    $pageOffset = 0;
-    $targetId = 0;
-    $systemId = 1;
-    $tableId = 2;
-    $userId = 1;
+    $systemId = 1;    
+    $targetId = 1; // 1-report 2-form
+    $tableId = 1;    
+    $recordId = 0;
+
+    $userId = 1;    
     $viewId = 0;
     $actionId = 1;
-    $json = '{"session":{"id_system":0,"id_table":0},"filter":[]}';
+    $pageOffset = 0;    
+    $json = '';
 
     try {
+
         // Instantiate objects
         $db = new Db();
         $jsonUtil = new JsonUtil();
 
-        // Requests
-        if ($_REQUEST["id_target"] != null)
+        // Request data  
+        if ($_REQUEST["id_target"])
             $targetId = $_REQUEST["id_target"];
-        if ($_REQUEST["page_offset"] != null)
+        if ($_REQUEST["id_table"])
+            $tableId = $_REQUEST["id_table"];
+        if ($_REQUEST["id_table"])
+            $recordId = $_REQUEST["id_record"];
+        if ($_REQUEST["page_offset"])
             $pageOffset = $_REQUEST["page_offset"];
-        if ($_REQUEST["id_table"] != null)
-            $tableId = htmlspecialchars($_REQUEST["id_table"]);
 
         // Get data for current system and table
         $json = $jsonUtil->setSession($json, "id_system", $systemId);
         $json = $jsonUtil->setSession($json, "id_table", $tableId);
         $json = $jsonUtil->setSession($json, "page_offset", $pageOffset);
+        $json = $jsonUtil->setField($json, "id", $recordId);
         
         if ($targetId == 1) {
             $sql = "call report($1)";

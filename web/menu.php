@@ -5,12 +5,12 @@
   <div class="w3-dropdown-hover w3-mobile">
     <button class="w3-button">Report<i class="fa fa-caret-down"></i></button>
     <div class="w3-dropdown-content w3-bar-block w3-dark-grey">
-      <a href="index.php?id_table=1&id_target=1&page_offset=0" class="w3-bar-item w3-button w3-mobile">System</a>
-      <a href="index.php?id_table=2&id_target=1&page_offset=0" class="w3-bar-item w3-button w3-mobile">Table</a>
-      <a href="index.php?id_table=3&id_target=1&page_offset=0" class="w3-bar-item w3-button w3-mobile">Field</a>
-      <a href="index.php?id_table=4&id_target=1&page_offset=0" class="w3-bar-item w3-button w3-mobile">Domain</a>
-      <a href="index.php?id_table=5&id_target=1&page_offset=0" class="w3-bar-item w3-button w3-mobile">Event</a>      
-      <a href="index.php?id_table=6&id_target=1&page_offset=0" class="w3-bar-item w3-button w3-mobile">Code</a>      
+      <a class="w3-bar-item w3-button w3-mobile" onClick="go(1,1,0)">System</a>
+      <a class="w3-bar-item w3-button w3-mobile" onClick="go(1,2,0)">Table</a>
+      <a class="w3-bar-item w3-button w3-mobile" onClick="go(1,3,0)">Field</a>
+      <a class="w3-bar-item w3-button w3-mobile" onClick="go(1,4,0)">Domain</a>
+      <a class="w3-bar-item w3-button w3-mobile" onClick="go(1,5,0)">Event</a>
+      <a class="w3-bar-item w3-button w3-mobile" onClick="go(1,6,0)">Code</a>
     </div>
   </div>
 

@@ -3,18 +3,18 @@
     // Navigate to page
     function go(targetId, tableId, recordId, eventId) {
 
-        // New asks to copy record    
-        if (eventId == 1) {
-            if (confirm("Would you like to use selected record as template?")) {
-                setValue('id_record', 0);
-            }
-        }
-
         // Set values
         setValue('id_target', targetId);
         setValue('id_table', tableId);
         setValue('id_record', recordId);
         setValue('id_event', eventId);
+
+        // New asks to copy record    
+        if (eventId == 1) {
+            if (confirm("Would you like to use selected record as template?") == false) {
+                setValue('id_record', '0');             
+            }
+        }
 
         // Submit data
         document.form1.method = 'post';
@@ -42,7 +42,7 @@
 
     // Used to set information above
     function setValue(field, value) {
-        return document.getElementById(field).value = value;
+        document.getElementById(field).value = value;
     }    
 
     // Execute URL and return data

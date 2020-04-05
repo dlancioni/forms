@@ -45,9 +45,9 @@ begin
     ---
     --- Session related information
     ---
-    systemId := data::jsonb->'session'->>'id_system';
-    tableId := data::jsonb->'session'->>'id_table';
-    id := data::jsonb->'session'->>'id';
+    systemId := (data::jsonb->'session'->>'id_system')::int;
+    tableId := (data::jsonb->'session'->>'id_table')::int;
+    id := (data::jsonb->'session'->>'id')::int;
     pageOffset := data::jsonb->'session'->>'page_offset';
     tableName := get_table(systemId, tableId);
 
@@ -113,8 +113,12 @@ begin
                 html := concat(html, ' name=', dbqt('selection'));
                 html := concat(html, ' onClick=', dbqt('setValue(''id_record'', this.value)'));
 
-                if ((resultset->>fieldName)::int = (id)::int) then
-                    html := concat(html, ' checked ');
+                if (id = 0) then
+                    html := concat(html, ' checked '); id = -1;
+                else                    
+                    if ((resultset->>fieldName)::int = id) then
+                        html := concat(html, ' checked ');
+                    end if;
                 end if;
 
                 html := concat(html, '>');

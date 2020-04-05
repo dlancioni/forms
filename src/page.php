@@ -11,8 +11,8 @@
     // General Declaration
     $systemId = 1;    
     $targetId = 1; // 1-report 2-form
-    $tableId = 1;    
-    $recordId = 1;
+    $tableId = 1;
+    $recordId = 0;
     $eventId = 0; // from tb_events (new, edit, delete, etc)
 
     $userId = 1;    
@@ -45,6 +45,9 @@
         $json = $jsonUtil->setSession($json, "id", $recordId);
         $json = $jsonUtil->setSession($json, "id_event", $eventId);
         $json = $jsonUtil->setSession($json, "page_offset", $pageOffset);
+
+        // Debug point to check what is been sent to bd
+        //echo $json;
         
         if ($targetId == 1) {
             $sql = "call report($1)";

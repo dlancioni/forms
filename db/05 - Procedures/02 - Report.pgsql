@@ -13,6 +13,7 @@ as $procedure$
 declare
     systemId int := 0;
     tableId int := 0;
+    id int := 0;
     pageOffset int := 0;
     html text := '';
     sql1 text := '';
@@ -46,6 +47,7 @@ begin
     ---
     systemId := data::jsonb->'session'->>'id_system';
     tableId := data::jsonb->'session'->>'id_table';
+    id := data::jsonb->'session'->>'id';
     pageOffset := data::jsonb->'session'->>'page_offset';
     tableName := get_table(systemId, tableId);
 
@@ -86,12 +88,7 @@ begin
     html := concat(html, '<thead>');
         html := concat(html, '<tr>');
             html := concat(html, '<td>');
-                html := concat(html, '<input ');
-                html := concat(html, ' type=', dbqt('radio'));
-                html := concat(html, ' value=', '0');
-                html := concat(html, ' name=', dbqt('selection'));
-                html := concat(html, ' onClick=', dbqt('setValue(''id_record'', this.value)'));
-                html := concat(html, ' checked>');
+            -- radio button for header - nothing
             html := concat(html, '</td>');
             for item2 in execute sql2 loop
                 html := concat(html, '<td>', item2.field_label, '</td>');
@@ -115,6 +112,11 @@ begin
                 html := concat(html, ' value=', resultset->>fieldName);
                 html := concat(html, ' name=', dbqt('selection'));
                 html := concat(html, ' onClick=', dbqt('setValue(''id_record'', this.value)'));
+
+                if ((resultset->>fieldName)::int = (id)::int) then
+                    html := concat(html, ' checked ');
+                end if;
+
                 html := concat(html, '>');
                 html := concat(html, '</td>');
 

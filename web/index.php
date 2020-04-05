@@ -19,10 +19,10 @@
         <?php
         switch ($targetId) {
             case 1: // table
-                include "grid.php";
+                include "report.php";
                 break;
             case 2: // form
-                include "field.php";
+                include "form.php";
                 break;
             default:
         }

@@ -3,6 +3,13 @@
     // Navigate to page
     function go(targetId, tableId, recordId, eventId) {
 
+        // New asks to copy record    
+        if (eventId == 1) {
+            if (confirm("Would you like to use selected record as template?")) {
+                setValue('id_record', 0);
+            }
+        }
+
         // Set values
         setValue('id_target', targetId);
         setValue('id_table', tableId);

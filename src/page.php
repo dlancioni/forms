@@ -12,7 +12,7 @@
     $systemId = 1;    
     $targetId = 1; // 1-report 2-form
     $tableId = 1;    
-    $recordId = 0;
+    $recordId = 1;
     $eventId = 0; // from tb_events (new, edit, delete, etc)
 
     $userId = 1;    

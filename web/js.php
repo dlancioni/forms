@@ -1,12 +1,13 @@
 <script language="JavaScript">
 
     // Navigate to page
-    function go(targetId, tableId, recordId) {
+    function go(targetId, tableId, recordId, eventId) {
 
         // Set values
         setValue('id_target', targetId);
         setValue('id_table', tableId);
         setValue('id_record', recordId);
+        setValue('id_event', eventId);
 
         // Submit data
         document.form1.method = 'post';
@@ -15,6 +16,10 @@
     }
 
     // IDs to navigate
+    // Target -> report or form
+    // Table -> current transaction
+    // Id -> the record we are changing or delte
+    // Event -> New, Edit, Delete, Copy. Used to display buttons like Save, Delete or Filter
     function getTarget() {
         return document.getElementById('id_target').value;
     }
@@ -24,7 +29,11 @@
     function getId() {
         return document.getElementById('id_record').value;
     }
+    function getEvent() {
+        return document.getElementById('id_event').value;
+    }    
 
+    // Used to set information above
     function setValue(field, value) {
         return document.getElementById(field).value = value;
     }    

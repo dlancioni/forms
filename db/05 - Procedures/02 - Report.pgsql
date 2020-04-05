@@ -85,7 +85,14 @@ begin
     html := concat(html, '<table class="w3-table w3-striped w3-hoverable">');
     html := concat(html, '<thead>');
         html := concat(html, '<tr>');
-            html := concat(html, '<td></td>');
+            html := concat(html, '<td>');
+                html := concat(html, '<input ');
+                html := concat(html, ' type=', dbqt('radio'));
+                html := concat(html, ' value=', '0');
+                html := concat(html, ' name=', dbqt('selection'));
+                html := concat(html, ' onClick=', dbqt('setValue(''id_record'', this.value)'));
+                html := concat(html, ' checked>');
+            html := concat(html, '</td>');
             for item2 in execute sql2 loop
                 html := concat(html, '<td>', item2.field_label, '</td>');
             end loop;
@@ -95,18 +102,28 @@ begin
     ---
     --- Table body
     ---
-    html := concat(html, '<tbody>');    
+    html := concat(html, '<tbody>');
         for item1 in execute sql1 loop
-            html := concat(html, '<tr>');            
+            html := concat(html, '<tr>');
                 resultset := item1.record;
                 recordCount := resultset->>'record_count';
                 fieldName := 'id';
-                html := concat(html, '<td><input type="radio" id="', resultset->>fieldName , '" name="id" value=""></td>');
+
+                html := concat(html, '<td>');                
+                html := concat(html, '<input ');
+                html := concat(html, ' type=', dbqt('radio'));
+                html := concat(html, ' value=', resultset->>fieldName);
+                html := concat(html, ' name=', dbqt('selection'));
+                html := concat(html, ' onClick=', dbqt('setValue(''id_record'', this.value)'));
+                html := concat(html, '>');
+                html := concat(html, '</td>');
+
                 for item2 in execute sql2 loop
                     fieldName := item2.field_name;
                     html := concat(html, '<td>', resultset->>fieldName, '</td>');
                 end loop;
-            html := concat(html, '</tr>');                
+
+            html := concat(html, '</tr>');
         end loop;
     html := concat(html, '</tbody>');
     html := concat(html, '</table>');

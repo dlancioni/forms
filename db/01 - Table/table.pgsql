@@ -107,12 +107,12 @@ update tb_domain set session = '{"id_system":1,"id_table":4,"id_user":1,"id_acti
 -- -----------------------------------------------------
 drop table if exists tb_event cascade;
 create table if not exists tb_event (id serial, session jsonb, field jsonb);
-insert into tb_event (field) values ('{"id":1,"id_target":1,"id_table":1,"id_field":0,"id_event":1,"id_event_type":2,"display":"New","code":"go(getTarget(), getTable(), getId())"}');
-insert into tb_event (field) values ('{"id":2,"id_target":1,"id_table":1,"id_field":0,"id_event":1,"id_event_type":2,"display":"Edit","code":"go(getTarget(), getTable(), getId())"}');
-insert into tb_event (field) values ('{"id":3,"id_target":1,"id_table":1,"id_field":0,"id_event":1,"id_event_type":2,"display":"Copy","code":"go(getTarget(), getTable(), getId())"}');
-insert into tb_event (field) values ('{"id":4,"id_target":1,"id_table":1,"id_field":0,"id_event":1,"id_event_type":2,"display":"Delete","code":"go(getTarget(), getTable(), getId())"}');
-insert into tb_event (field) values ('{"id":5,"id_target":2,"id_table":1,"id_field":0,"id_event":1,"id_event_type":2,"display":"Save","code":"execute()"}');
-insert into tb_event (field) values ('{"id":6,"id_target":2,"id_table":1,"id_field":0,"id_event":1,"id_event_type":2,"display":"Back","code":"go(getTarget(), getTable(), getId())"}');
+insert into tb_event (field) values ('{"id":1,"id_target":1,"id_table":1,"id_field":0,"id_event":1,"id_event_type":2,"display":"New","code":"go(getTarget(), getTable(), getId(), 1);"}');
+insert into tb_event (field) values ('{"id":2,"id_target":1,"id_table":1,"id_field":0,"id_event":1,"id_event_type":2,"display":"Edit","code":"go(getTarget(), getTable(), getId(), 2);"}');
+insert into tb_event (field) values ('{"id":3,"id_target":1,"id_table":1,"id_field":0,"id_event":1,"id_event_type":2,"display":"Delete","code":"go(getTarget(), getTable(), getId(), 3);"}');
+insert into tb_event (field) values ('{"id":4,"id_target":2,"id_table":1,"id_field":0,"id_event":1,"id_event_type":2,"display":"Save","code":"execute()"}');
+insert into tb_event (field) values ('{"id":5,"id_target":2,"id_table":1,"id_field":0,"id_event":1,"id_event_type":2,"display":"Filter","code":"go(getTarget(), getTable(), getId(), 5);"}');
+insert into tb_event (field) values ('{"id":6,"id_target":2,"id_table":1,"id_field":0,"id_event":1,"id_event_type":2,"display":"Back","code":"go(getTarget(), getTable(), getId(), 6);"}');
 update tb_event set session = '{"id_system":1,"id_table":5,"id_user":1,"id_action":1}';
 
 -- -----------------------------------------------------

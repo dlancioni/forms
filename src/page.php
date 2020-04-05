@@ -12,7 +12,8 @@
     $systemId = 1;    
     $targetId = 1; // 1-report 2-form
     $tableId = 1;    
-    $recordId = 1;
+    $recordId = 0;
+    $eventId = 0; // from tb_events (new, edit, delete, etc)
 
     $userId = 1;    
     $viewId = 0;
@@ -33,14 +34,17 @@
             $tableId = $_REQUEST["id_table"];
         if ($_REQUEST["id_record"])
             $recordId = $_REQUEST["id_record"];
+        if ($_REQUEST["id_event"])
+            $eventId = $_REQUEST["id_event"];
         if ($_REQUEST["page_offset"])
             $pageOffset = $_REQUEST["page_offset"];
 
         // Get data for current system and table
         $json = $jsonUtil->setSession($json, "id_system", $systemId);
         $json = $jsonUtil->setSession($json, "id_table", $tableId);
-        $json = $jsonUtil->setSession($json, "page_offset", $pageOffset);
         $json = $jsonUtil->setSession($json, "id", $recordId);
+        $json = $jsonUtil->setSession($json, "id_event", $eventId);
+        $json = $jsonUtil->setSession($json, "page_offset", $pageOffset);
         
         if ($targetId == 1) {
             $sql = "call report($1)";

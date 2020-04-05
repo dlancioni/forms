@@ -10,6 +10,7 @@ echo var_dump($_REQUEST);
     <input name="id_table" type="text" value="1">
     <input name="id_target" type="text" value="1">
     <input name="id_record" type="text" value="0">
+    <input name="id_event" type="text" value="0">
     <input id="login" type="button" value="Login" onClick="go();">
 </form>
 

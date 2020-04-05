@@ -11,6 +11,7 @@ declare
     id int := 0;
     systemId int := 0;
     tableId int := 0;
+    eventId int := 0;
     fieldFK int := 0;
     sql1 text := '';
     sql2 text := '';
@@ -44,7 +45,8 @@ begin
     ---
     id := data::jsonb->'session'->>'id';
     systemId := data::jsonb->'session'->>'id_system';
-    tableId := data::jsonb->'session'->>'id_table';    
+    tableId := data::jsonb->'session'->>'id_table';
+    eventId := data::jsonb->'session'->>'id_event';
     tableName := get_table(systemId, tableId);
 
     ---
@@ -74,7 +76,7 @@ begin
     for item1 in execute sql1 loop
 
         fieldLabel = trim(item1.field_label);
-        fieldName = trim(item1.field_name);
+        fieldName = trim(lower(item1.field_name));
         fieldType = item1.id_type;
         fieldMask = trim(item1.field_mask);
         fieldFK = item1.id_fk;
@@ -90,7 +92,31 @@ begin
             html := concat(html, ' id=', dbqt(fieldName));
             html := concat(html, ' name=', dbqt(fieldName));            
             html := concat(html, ' type=', dbqt('text'));
-            html := concat(html, ' value=', dbqt(resultset->>fieldName));
+
+            -- Filter must allow users enter the ID, cannot disable
+            if (fieldName = 'id') then
+
+                if (eventId = 1) then
+                    -- NEW: set zero and disable
+                    html := concat(html, ' value=', dbqt('0'));
+                    html := concat(html, ' disabled ');
+                elsif (eventId = 6) then
+                    -- FILTER: set zero and allow enter data
+                    html := concat(html, ' value=', dbqt('0'));
+                elsif (eventId = 3) then -- COPY
+                    -- COPY: set zero and disable
+                    html := concat(html, ' value=', dbqt('0'));
+                    html := concat(html, ' disabled ');
+                else
+                    -- All other situation just disable
+                    html := concat(html, ' value=', dbqt(resultset->>fieldName));                    
+                    html := concat(html, ' disabled ');
+                end if;
+
+            else
+                html := concat(html, ' value=', dbqt(resultset->>fieldName));
+            end if;
+
             html := concat(html, ' >');
         else
             html := concat(html, ' <select ');

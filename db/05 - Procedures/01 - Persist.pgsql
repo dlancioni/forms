@@ -72,7 +72,6 @@ begin
 		sql := concat(sql, ' select * from vw_table');
 		sql := concat(sql, ' where id_system = ', systemId);
 		sql := concat(sql, ' and id_table = ', tableId);
-		sql := concat(sql, ' and field_name <> ', qt('id'));
 		execute trace('SQL: ', sql);
 
 		for item in execute sql loop
@@ -157,7 +156,6 @@ begin
 		sql := concat(sql, ' select * from vw_table');
 		sql := concat(sql, ' where id_system = ', systemId);
 		sql := concat(sql, ' and id_table = ', tableId);
-		sql := concat(sql, ' and field_name <> ', qt('id'));
 		execute trace('SQL: ', sql);
 
 		for item in execute sql loop

@@ -59,7 +59,7 @@
             // Must set 0 if ID is not informed    
             if (trim($fieldName) == "id_record") {
                 if ($actionId != 1) {
-                    $json = $jsonUtil->setField($json, "id", $fieldValue);
+                    $json = $jsonUtil->setField($json, "id", intval($fieldValue));
                 } else {
                     $json = $jsonUtil->setField($json, "id", 0);                    
                 }

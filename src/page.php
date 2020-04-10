@@ -28,15 +28,15 @@
         $jsonUtil = new JsonUtil();
 
         // Request data  
-        if ($_REQUEST["id_target"])
+        if ($_REQUEST["id_target"] != null)
             $targetId = $_REQUEST["id_target"];
-        if ($_REQUEST["id_table"])
+        if ($_REQUEST["id_table"] != null)
             $tableId = $_REQUEST["id_table"];
-        if ($_REQUEST["id_record"])
+        if ($_REQUEST["id_record"] != null)
             $recordId = $_REQUEST["id_record"];
-        if ($_REQUEST["id_event"])
+        if ($_REQUEST["id_event"] != null)
             $eventId = $_REQUEST["id_event"];
-        if ($_REQUEST["page_offset"])
+        if ($_REQUEST["page_offset"] != null)
             $pageOffset = $_REQUEST["page_offset"];
 
         // Get data for current system and table
@@ -47,7 +47,7 @@
         $json = $jsonUtil->setSession($json, "page_offset", $pageOffset);
 
         // Debug point to check what is been sent to bd
-        //echo $json;
+        // echo $json;
         
         if ($targetId == 1) {
             $sql = "call report($1)";

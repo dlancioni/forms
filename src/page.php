@@ -12,12 +12,12 @@
     $systemId = 1;    
     $targetId = 1; // 1-report 2-form
     $tableId = 1;
-    $recordId = 0;
+    $recordId = 1;
     $eventId = 0; // from tb_events (new, edit, delete, etc)
 
     $userId = 1;    
     $viewId = 0;
-    $actionId = 1;
+    $actionId = 0;
     $pageOffset = 0;    
     $json = '';
 

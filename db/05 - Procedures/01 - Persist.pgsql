@@ -1,7 +1,7 @@
 /* 
 call persist('{"session":{"id_system":1,"id_table":1,"id_action":1},"field":{"id":0,"name":"lancioni it","expire_date":"31/12/2021","price":1200}}'); 
 call persist('{"session":{"id_system":1,"id_table":1,"id_action":2},"field":{"id":1,"name":"Lancioni IT","expire_date":"31/12/2021","price":1200}}'); 
-call persist('{"session":{"id_system":1,"id_table":1,"id_action":3},"field":{"id":1}}'); 
+call persist('{"session":{"id_system":1,"id_table":1,"id_action":3},"field":{"id":8}}'); 
 */
 drop procedure if exists persist;
 create or replace procedure persist(INOUT data jsonb)
@@ -63,12 +63,19 @@ begin
 	------------------------------------------------ INSERT
 	------------------------------------------------
 	if (actionId = 1) then
-	
+
 		-- Before insert
 		execute trace('Validating before INSERT: ', actionId::text);
 
 		-- Validate input and persist
-		for item in execute concat('select * from vw_table where vw_table.id_table = ', tableId) loop
+		sql := '';		
+		sql := concat(sql, ' select * from vw_table');
+		sql := concat(sql, ' where id_system = ', systemId);
+		sql := concat(sql, ' and id_table = ', tableId);
+		sql := concat(sql, ' and field_name <> ', qt('id'));
+		execute trace('SQL: ', sql);
+
+		for item in execute sql loop
 
 			-- Keep key information
 			fieldName = trim(item.field_name);
@@ -146,8 +153,13 @@ begin
 		execute trace('json new: ', jsonf::text);
 
 		-- validate if json changed
-		sql := concat('select * from vw_table where id_table = ', tableId);
-		execute trace('Get table structure: ', sql);
+		sql := '';
+		sql := concat(sql, ' select * from vw_table');
+		sql := concat(sql, ' where id_system = ', systemId);
+		sql := concat(sql, ' and id_table = ', tableId);
+		sql := concat(sql, ' and field_name <> ', qt('id'));
+		execute trace('SQL: ', sql);
+
 		for item in execute sql loop
 
 			-- Collect data
@@ -224,6 +236,8 @@ begin
 		sql = concat(sql, ' from vw_table');
 		sql = concat(sql, ' where id_system = ', systemId);
 		sql = concat(sql, ' and id_fk = ', tableId);
+		execute trace('SQL: ', sql);
+		
 		for item in execute sql loop
 			-- Check if dependency has data
 			sql = '';
@@ -231,7 +245,8 @@ begin
 			sql = concat(sql, qt(item.table_name), ' table_name');
 			sql = concat(sql, ' from ', item.table_name);
 			sql = concat(sql, ' where (session->', qt('id_system'), ')::int = ', systemId);
-			sql = concat(sql, ' and (field->', '->>', qt(item.field_name), ')::int = ', id);
+			sql = concat(sql, ' and (field->>', qt(item.field_name), ')::int = ', id);
+			execute trace('SQL: ', sql);			
 			for item in execute sql loop
 				raise exception 'Registro não pode ser excluído, existem dependencias em %', item.table_name;
 			end loop;

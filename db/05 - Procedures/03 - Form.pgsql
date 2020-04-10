@@ -103,10 +103,6 @@ begin
                 elsif (eventId = 6) then
                     -- FILTER: set zero and allow enter data
                     html := concat(html, ' value=', dbqt('0'));
-                elsif (eventId = 3) then -- COPY
-                    -- COPY: set zero and disable
-                    html := concat(html, ' value=', dbqt('0'));
-                    html := concat(html, ' disabled ');
                 else
                     -- All other situation just disable
                     html := concat(html, ' value=', dbqt(resultset->>fieldName));                    

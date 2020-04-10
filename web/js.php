@@ -47,7 +47,8 @@
 
     // Execute URL and return data
     async function execute() {
-    
+
+        // Read fields in the form
         var data = new URLSearchParams();
         for (const pair of new FormData(form1)) {
             data.append(pair[0], pair[1]);

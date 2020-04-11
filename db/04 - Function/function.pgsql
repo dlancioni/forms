@@ -75,28 +75,35 @@ declare
     data text;
 begin
 
+    -- Mandatory input parameter
     systemId := json->'session'->>'id_system';
     tableId := json->'session'->>'id_table';
     data := qt(json_extract_path(json::json, 'filter')::text);
+    execute trace('Data: ', data::text);
 
     if (data != '') then
+
+        -- Discard fields not related to current table
         sql := concat(sql, ' select x.field_name, x.operator, x.field_value::text, v.id_type field_type');
         sql := concat(sql, ' from json_to_recordset(', data, ') as x(field_name text, operator text, field_value text)');
         sql := concat(sql, ' inner join vw_table v on x.field_name = v.field_name');
         sql := concat(sql, ' where v.id_system = ', systemId);
         sql := concat(sql, ' and v.id_table = ', tableId);
+        execute trace('SQL: ', sql);
 
-        for item in execute sql
-        loop
+        -- Concatenate output conditions
+        for item in execute sql loop
             output := concat(output, sql_condition(item.field_name, item.field_type, item.operator, item.field_value), ' and');
         end loop;
 
+        -- Crop last and
         if (trim(output) != '') then
             output := ' and ' || crop(output, ' and');
         end if;
 
     end if;
 
+    -- Return final condition
     return output;
 end;
 $function$;

@@ -100,9 +100,9 @@ begin
                     -- NEW: set zero and disable
                     html := concat(html, ' value=', dbqt('0'));
                     html := concat(html, ' disabled ');
-                elsif (eventId = 6) then
-                    -- FILTER: set zero and allow enter data
-                    html := concat(html, ' value=', dbqt('0'));
+                elsif (eventId = 5) then
+                    -- FILTER: set empty and allow enter data
+                    html := concat(html, ' value=', dbqt(''));
                 else
                     -- All other situation just disable
                     html := concat(html, ' value=', dbqt(resultset->>fieldName));                    

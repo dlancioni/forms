@@ -19,7 +19,9 @@
     $viewId = 0;
     $actionId = 0;
     $pageOffset = 0;    
-    $json = '';
+    $json = "";
+    $filter = [];
+    $item = "";
 
     try {
 
@@ -46,8 +48,21 @@
         $json = $jsonUtil->setSession($json, "id_event", $eventId);
         $json = $jsonUtil->setSession($json, "page_offset", $pageOffset);
 
+        // Filter logic
+        if ($eventId = 6) {
+            foreach($_REQUEST as $key => $val) {               
+                $fieldName = trim($key);
+                $fieldValue = trim($val);
+                if ($fieldValue != "") {
+                    $item = ["field_name" => $fieldName, "operator" => "=", "field_value" => $fieldValue];
+                    array_push($filter, $item);
+                }                
+            }
+            $json = $jsonUtil->setFilter($json, $filter);
+        }        
+
         // Debug point to check what is been sent to bd
-        // echo $json;
+        echo $json;
         
         if ($targetId == 1) {
             $sql = "call report($1)";

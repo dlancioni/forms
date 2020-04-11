@@ -30,7 +30,16 @@ class JsonUtil {
         $json['field'][$field] = $value;
         $json = json_encode($json);
         return $json;
-    }    
+    }
+
+    function setFilter($json, $filter) {
+        $json = json_decode($json, true);
+        $json['filter'] = $filter;
+        $json = json_encode($json);
+        return $json;
+    }
+
 }
+
 
 ?>

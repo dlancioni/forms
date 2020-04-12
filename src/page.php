@@ -49,7 +49,7 @@
         $json = $jsonUtil->setSession($json, "page_offset", $pageOffset);
 
         // Filter logic
-        if ($eventId = 6) {
+        if ($eventId == 6) {
             foreach($_REQUEST as $key => $val) {               
                 $fieldName = trim($key);
                 $fieldValue = trim($val);
@@ -62,7 +62,7 @@
         }        
 
         // Debug point to check what is been sent to bd
-        //echo $json;
+        // echo $json;
         
         if ($targetId == 1) {
             $sql = "call report($1)";

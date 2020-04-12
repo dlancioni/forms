@@ -16,6 +16,11 @@
             }
         }
 
+        // Filter requires empty form
+        if (eventId == 5) {
+            setValue('id_record', '0');
+        }
+
         // Submit data
         document.form1.method = 'post';
         document.form1.action = 'index.php';

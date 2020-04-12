@@ -84,7 +84,7 @@ begin
     if (data != '') then
 
         -- Discard fields not related to current table
-        sql := concat(sql, ' select x.field_name, x.operator, x.field_value::text, v.id_type field_type');
+        sql := concat(sql, ' select x.field_name, x.operator, x.field_value::text, v.id_type field_type, v.field_mask');
         sql := concat(sql, ' from json_to_recordset(', data, ') as x(field_name text, operator text, field_value text)');
         sql := concat(sql, ' inner join vw_table v on x.field_name = v.field_name');
         sql := concat(sql, ' where v.id_system = ', systemId);
@@ -93,7 +93,7 @@ begin
 
         -- Concatenate output conditions
         for item in execute sql loop
-            output := concat(output, sql_condition(item.field_name, item.field_type, item.operator, item.field_value), ' and');
+            output := concat(output, sql_condition(item.field_name, item.field_type, item.operator, item.field_value, item.field_mask), ' and');
         end loop;
 
         -- Crop last and
@@ -260,7 +260,7 @@ begin
     sql = concat(sql, sql_column('tb_table', 'table_name', 3, '', ''));
     sql = concat(sql, ' from tb_table');
     sql = concat(sql, ' where id = ', tableId);
-    sql = concat(sql, ' and ', sql_condition('id_system', 1, '=', systemId::text));
+    sql = concat(sql, ' and ', sql_condition('id_system', 1, '=', systemId::text, ''));
     for item in execute sql loop
     return item.table_name;
     end loop;
@@ -284,7 +284,7 @@ declare
 begin
     sql = concat(sql, ' select * from ', tableName);
     sql = concat(sql, ' where (session->>', qt('id_system'), ')::int = ', systemId);
-    sql = concat(sql, ' and ', sql_condition(fieldName, 3, '=', fieldValue));
+    sql = concat(sql, ' and ', sql_condition(fieldName, 3, '=', fieldValue, ''));
     for item in execute sql loop
         return false;
     end loop;
@@ -392,9 +392,10 @@ $function$;
 
 /*
 target: 
+select sql_condition('expire_date', 4, '=', '31/12/2014', 'dd/mm/yyyy');
 */
 drop function if exists sql_condition;
-create or replace function sql_condition(fieldName text, fieldType integer, fieldOperator text, fieldValue text)
+create or replace function sql_condition(fieldName text, fieldType integer, fieldOperator text, fieldValue text, fieldMask text)
 returns text
 language plpgsql
 as $function$
@@ -402,7 +403,11 @@ declare
     output text := '';
 begin
     -- Note: apply single quote on data and string
-    output = concat(output , ' (field', '->>', qt(fieldName));
+    if (fieldType = 4) then
+        output = concat(output , ' (to_date(field', '->>', qt(fieldName), ', ', fieldMask, ')');
+    else
+        output = concat(output , ' (field', '->>', qt(fieldName));
+    end if;
 
     if (fieldType = 1) then
         output = concat(output, ')::int');
@@ -413,7 +418,7 @@ begin
         fieldValue := qt(fieldValue);
     elsif (fieldType = 4) then
         output = concat(output, ')::date');
-        fieldValue := qt(fieldValue);
+        fieldValue := concat('to_date(', qt(fieldValue), ', ', qt(fieldMask), ')';
     end if;
 
     output = concat(output, ' ', fieldOperator);

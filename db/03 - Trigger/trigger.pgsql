@@ -4,7 +4,7 @@
 */
 create or replace function fn_ai_table() returns trigger as $$
 declare
-    id_record jsonb := (new.field->>'id')::int;
+    id_record jsonb;
     systemId jsonb := (new.session->>'id_system')::int;
     tableId jsonb := (new.session->>'id_table')::int;
     userId jsonb := (new.session->>'id_user')::int;
@@ -19,6 +19,9 @@ begin
 
     -- Once a table is created, default events are create too
     if (tg_op = 'INSERT') then
+
+        -- ID create in tb_table for current record
+        id_record := currval(pg_get_serial_sequence('tb_table', 'id'));
 
         -- Delete existing events
         delete from tb_event
@@ -83,7 +86,7 @@ begin
         -- Define the field with new button [Filter]
         jsonf := '{}';
         jsonf := jsonb_set(jsonf, '{"id"}', '5');
-        jsonf := jsonb_set(jsonf, '{"id_target"}', '2');
+        jsonf := jsonb_set(jsonf, '{"id_target"}', '1');
         jsonf := jsonb_set(jsonf, '{"id_table"}', id_record);
         jsonf := jsonb_set(jsonf, '{"id_field"}', '0');                
         jsonf := jsonb_set(jsonf, '{"id_event"}', '1');

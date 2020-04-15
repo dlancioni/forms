@@ -19,7 +19,8 @@ begin
     if (tg_op = 'INSERT') then
 
         -- Get template for event table
-        json := get_json(systemId, TABLE_EVENT, userId, actionId);
+        --json := get_json(systemId, TABLE_EVENT, userId, actionId);
+        json := get_json(1, TABLE_EVENT, 1, 1);
         execute trace('Empty json: ', json::text);
 
         -- Create button [New]

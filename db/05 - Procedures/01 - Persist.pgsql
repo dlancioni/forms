@@ -52,11 +52,18 @@ begin
 	end if;
 
 	-- Must figure out table name
-    select 
-	(field->>'table_name')::text into tableName from tb_table
-	where (field->>'id_system')::int = systemId and tb_table.id = tableId;	
+	sql := '';		
+	sql := concat(sql, ' select * from vw_table');
+	sql := concat(sql, ' where id_system = ', systemId);
+	sql := concat(sql, ' and id_table = ', tableId);
+	execute trace('SQL: ', sql);
+	for item in execute sql loop
+		tableName = item.table_name;
+	end loop;
+
 	if (tableName = null or tableName = '') then
-	    raise exception 'Table name not found for table id %', tableId;
+	    -- raise exception 'Table name not found for table id %', tableId;
+		tableName = "tb_event";
     end if;
 
 	execute trace('Current table: ', tableName);

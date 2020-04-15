@@ -176,11 +176,15 @@ begin
 
     -- Create record
     field = concat(field, dbqt('field'), ':', '{');
-    sql := concat(sql, ' select field_name from vw_table');
+    sql := concat(sql, ' select field_name, id_type from vw_table');
     sql := concat(sql, ' where id_system = ', systemId);
     sql := concat(sql, ' and id_table = ', tableId);
     for item in execute sql loop
-        field = concat(field, dbqt(item.field_name), ':', dbqt(''), ',');
+        if (item.id_type = 1) then
+            field = concat(field, dbqt(item.field_name), ':', '0', ',');        
+        else
+            field = concat(field, dbqt(item.field_name), ':', dbqt(''), ',');
+        end if;
     end loop;
     field := concat(crop(field, ','), '}');
 

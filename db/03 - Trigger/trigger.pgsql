@@ -4,101 +4,35 @@
 */
 create or replace function fn_ai_table() returns trigger as $$
 declare
-    json jsonb;
     systemId int := (new.session->>'id_system')::int;
     tableId int := (new.field->>'id_table')::int;
     userId int := (new.session->>'id_user')::int;
     actionId int := (new.session->>'id_action')::int;
-
-declare
     TABLE_EVENT int = 5;
-
+    json jsonb;    
+    jsons jsonb;
+    jsonf jsonb;
 begin
 
-    -- Update table according to the action
+    -- Once a table is created, default events are create too
     if (tg_op = 'INSERT') then
 
-        -- Get template for event table
-        --json := get_json(systemId, TABLE_EVENT, userId, actionId);
-        json := get_json(1, TABLE_EVENT, 1, 1);
-        execute trace('Empty json: ', json::text);
+        -- Template for TB_EVENT
+        json := get_json(systemId, TABLE_EVENT, userId, actionId)::jsonb;
+
+        -- Get session
+        jsons := json->'session';
+        jsonf := json->'field';
 
         -- Create button [New]
-        json := jsonb_set(json, '{"field", "id_target"}', '1'::jsonb);
-        json := jsonb_set(json, '{"field", "id_table"}', '1'::jsonb);
-        json := jsonb_set(json, '{"field", "id_field"}', '0'::jsonb);
-        json := jsonb_set(json, '{"field", "id_event"}', '1'::jsonb);
-        json := jsonb_set(json, '{"field", "id_event_type"}', '2'::jsonb);
-        json := jsonb_set(json, '{"field", "display"}', dbqt('New')::jsonb);
-        json := jsonb_set(json, '{"field", "code"}', dbqt('go(getTarget(), getTable(), getId(), 1);')::jsonb);
-        execute trace('Next json: ', json::text);
-        call persist(json); 
-
-        -- Create button [Edit]
-        json := jsonb_set(json, '{"field", "id_target"}', '1'::jsonb);
-        json := jsonb_set(json, '{"field", "id_table"}', '1'::jsonb);
-        json := jsonb_set(json, '{"field", "id_field"}', '0'::jsonb);
-        json := jsonb_set(json, '{"field", "id_event"}', '1'::jsonb);
-        json := jsonb_set(json, '{"field", "id_event_type"}', '2'::jsonb);
-        json := jsonb_set(json, '{"field", "display"}', dbqt('Edit')::jsonb);
-        json := jsonb_set(json, '{"field", "code"}', dbqt('go(getTarget(), getTable(), getId(), 1);')::jsonb);
-        execute trace('Next json: ', json::text);
-        call persist(json); 
- 
-         -- Create button [Delete]
-        json := jsonb_set(json, '{"field", "id_target"}', '1'::jsonb);
-        json := jsonb_set(json, '{"field", "id_table"}', '1'::jsonb);
-        json := jsonb_set(json, '{"field", "id_field"}', '0'::jsonb);
-        json := jsonb_set(json, '{"field", "id_event"}', '1'::jsonb);
-        json := jsonb_set(json, '{"field", "id_event_type"}', '2'::jsonb);
-        json := jsonb_set(json, '{"field", "display"}', dbqt('Delete')::jsonb);
-        json := jsonb_set(json, '{"field", "code"}', dbqt('go(getTarget(), getTable(), getId(), 1);')::jsonb);
-        execute trace('Next json: ', json::text);
-        call persist(json); 
-
-         -- Create button [Save]
-        json := jsonb_set(json, '{"field", "id_target"}', '2'::jsonb);
-        json := jsonb_set(json, '{"field", "id_table"}', '1'::jsonb);
-        json := jsonb_set(json, '{"field", "id_field"}', '0'::jsonb);
-        json := jsonb_set(json, '{"field", "id_event"}', '1'::jsonb);
-        json := jsonb_set(json, '{"field", "id_event_type"}', '2'::jsonb);
-        json := jsonb_set(json, '{"field", "display"}', dbqt('Save')::jsonb);
-        json := jsonb_set(json, '{"field", "code"}', dbqt('execute()')::jsonb);
-        execute trace('Next json: ', json::text);
-        call persist(json);
-
-         -- Create button [Filter]
-        json := jsonb_set(json, '{"field", "id_target"}', '1'::jsonb);
-        json := jsonb_set(json, '{"field", "id_table"}', '1'::jsonb);
-        json := jsonb_set(json, '{"field", "id_field"}', '0'::jsonb);
-        json := jsonb_set(json, '{"field", "id_event"}', '1'::jsonb);
-        json := jsonb_set(json, '{"field", "id_event_type"}', '2'::jsonb);
-        json := jsonb_set(json, '{"field", "display"}', dbqt('Filter')::jsonb);
-        json := jsonb_set(json, '{"field", "code"}', dbqt('go(getTarget(), getTable(), getId(), 1);')::jsonb);
-        execute trace('Next json: ', json::text);
-        call persist(json);   
-
-         -- Create button [Filter]
-        json := jsonb_set(json, '{"field", "id_target"}', '2'::jsonb);
-        json := jsonb_set(json, '{"field", "id_table"}', '1'::jsonb);
-        json := jsonb_set(json, '{"field", "id_field"}', '0'::jsonb);
-        json := jsonb_set(json, '{"field", "id_event"}', '1'::jsonb);
-        json := jsonb_set(json, '{"field", "id_event_type"}', '2'::jsonb);
-        json := jsonb_set(json, '{"field", "display"}', dbqt('Filter')::jsonb);
-        json := jsonb_set(json, '{"field", "code"}', dbqt('go(getTarget(), getTable(), getId(), 1);')::jsonb);
-        execute trace('Next json: ', json::text);
-        call persist(json);
-
-         -- Create button [Back]
-        json := jsonb_set(json, '{"field", "id_target"}', '2'::jsonb);
-        json := jsonb_set(json, '{"field", "id_table"}', '1'::jsonb);
-        json := jsonb_set(json, '{"field", "id_field"}', '0'::jsonb);
-        json := jsonb_set(json, '{"field", "id_event"}', '1'::jsonb);
-        json := jsonb_set(json, '{"field", "id_event_type"}', '2'::jsonb);
-        json := jsonb_set(json, '{"field", "display"}', dbqt('Back')::jsonb);
-        json := jsonb_set(json, '{"field", "code"}', dbqt('go(getTarget(), getTable(), getId(), 1);')::jsonb);
-        execute trace('Next json: ', json::text);
-        call persist(json);
+        jsonf := jsonb_set(jsonf, '{"id"}', '1');
+        jsonf := jsonb_set(jsonf, '{"id_target"}', '1');
+        jsonf := jsonb_set(jsonf, '{"id_table"}', '1');        
+        jsonf := jsonb_set(jsonf, '{"id_event"}', '1');
+        jsonf := jsonb_set(jsonf, '{"id_event_type"}', '2');
+        jsonf := jsonb_set(jsonf, '{"display"}', dbqt('New')::jsonb);
+        jsonf := jsonb_set(jsonf, '{"field", "code"}', dbqt('go(getTarget(), getTable(), getId(), 1);')::jsonb);
+        insert into tb_event (session, field) values (jsons, jsonf);
 
         -- Finish
         return new;
@@ -110,4 +44,3 @@ $$ language plpgsql;
 drop trigger if exists tg_ai_table on tb_table;
 create trigger tg_ai_table after insert on tb_table
 for each row execute procedure fn_ai_table();
-

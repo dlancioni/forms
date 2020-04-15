@@ -17,23 +17,97 @@ begin
     -- Once a table is created, default events are create too
     if (tg_op = 'INSERT') then
 
-        -- Template for TB_EVENT
-        json := get_json(systemId, TABLE_EVENT, userId, actionId)::jsonb;
+        -- Define the Session
+        jsonf := '{}';        
+        jsons := jsonb_set(jsons, '{"id_system"}', systemId);
+        jsons := jsonb_set(jsons, '{"id_table"}', tableId);
+        jsons := jsonb_set(jsons, '{"id_user"}', userId);
+        jsons := jsonb_set(jsons, '{"id_action"}', actionId);
 
-        -- Get session
-        jsons := json->'session';
-        jsonf := json->'field';
-
-        -- Create button [New]
+        -- Define the field with new button [New]
+        jsonf := '{}';
         jsonf := jsonb_set(jsonf, '{"id"}', '1');
         jsonf := jsonb_set(jsonf, '{"id_target"}', '1');
         jsonf := jsonb_set(jsonf, '{"id_table"}', '1');        
+        jsonf := jsonb_set(jsonf, '{"id_field"}', '0');
         jsonf := jsonb_set(jsonf, '{"id_event"}', '1');
         jsonf := jsonb_set(jsonf, '{"id_event_type"}', '2');
         jsonf := jsonb_set(jsonf, '{"display"}', dbqt('New')::jsonb);
         jsonf := jsonb_set(jsonf, '{"field", "code"}', dbqt('go(getTarget(), getTable(), getId(), 1);')::jsonb);
         insert into tb_event (session, field) values (jsons, jsonf);
+/*
+        -- Define the field with new button [Edit]
+        jsonf := '';        
+        jsonf := jsonb_set(jsonf, '{"id"}', '2');
+        jsonf := jsonb_set(jsonf, '{"id_target"}', '1');
+        jsonf := jsonb_set(jsonf, '{"id_table"}', '1');
+        jsonf := jsonb_set(jsonf, '{"id_field"}', '0');                
+        jsonf := jsonb_set(jsonf, '{"id_event"}', '1');
+        jsonf := jsonb_set(jsonf, '{"id_event_type"}', '2');
+        jsonf := jsonb_set(jsonf, '{"display"}', dbqt('Edit')::jsonb);
+        jsonf := jsonb_set(jsonf, '{"field", "code"}', dbqt('go(getTarget(), getTable(), getId(), 2);')::jsonb);
+        insert into tb_event (session, field) values (jsons, jsonf);
 
+        -- Define the field with new button [Delete]
+        jsonf := '';        
+        jsonf := jsonb_set(jsonf, '{"id"}', '3');
+        jsonf := jsonb_set(jsonf, '{"id_target"}', '1');
+        jsonf := jsonb_set(jsonf, '{"id_table"}', '1');
+        jsonf := jsonb_set(jsonf, '{"id_field"}', '0');                
+        jsonf := jsonb_set(jsonf, '{"id_event"}', '1');
+        jsonf := jsonb_set(jsonf, '{"id_event_type"}', '2');
+        jsonf := jsonb_set(jsonf, '{"display"}', dbqt('Delete')::jsonb);
+        jsonf := jsonb_set(jsonf, '{"field", "code"}', dbqt('go(getTarget(), getTable(), getId(), 3);')::jsonb);
+        insert into tb_event (session, field) values (jsons, jsonf);
+
+        -- Define the field with new button [Save]
+        jsonf := '';
+        jsonf := jsonb_set(jsonf, '{"id"}', '4');
+        jsonf := jsonb_set(jsonf, '{"id_target"}', '2');
+        jsonf := jsonb_set(jsonf, '{"id_table"}', '1');
+        jsonf := jsonb_set(jsonf, '{"id_field"}', '0');                
+        jsonf := jsonb_set(jsonf, '{"id_event"}', '1');
+        jsonf := jsonb_set(jsonf, '{"id_event_type"}', '2');
+        jsonf := jsonb_set(jsonf, '{"display"}', dbqt('Save')::jsonb);
+        jsonf := jsonb_set(jsonf, '{"field", "code"}', dbqt('execute();')::jsonb);
+        insert into tb_event (session, field) values (jsons, jsonf); 
+
+        -- Define the field with new button [Filter]
+        jsonf := '';        
+        jsonf := jsonb_set(jsonf, '{"id"}', '5');
+        jsonf := jsonb_set(jsonf, '{"id_target"}', '2');
+        jsonf := jsonb_set(jsonf, '{"id_table"}', '1');
+        jsonf := jsonb_set(jsonf, '{"id_field"}', '0');                
+        jsonf := jsonb_set(jsonf, '{"id_event"}', '1');
+        jsonf := jsonb_set(jsonf, '{"id_event_type"}', '2');
+        jsonf := jsonb_set(jsonf, '{"display"}', dbqt('Filter')::jsonb);
+        jsonf := jsonb_set(jsonf, '{"field", "code"}', dbqt('go(getTarget(), getTable(), getId(), 5);')::jsonb);
+        insert into tb_event (session, field) values (jsons, jsonf);
+
+        -- Define the field with new button [Filter]
+        jsonf := '';
+        jsonf := jsonb_set(jsonf, '{"id"}', '6');
+        jsonf := jsonb_set(jsonf, '{"id_target"}', '2');
+        jsonf := jsonb_set(jsonf, '{"id_table"}', '1');
+        jsonf := jsonb_set(jsonf, '{"id_field"}', '0');                
+        jsonf := jsonb_set(jsonf, '{"id_event"}', '1');
+        jsonf := jsonb_set(jsonf, '{"id_event_type"}', '2');
+        jsonf := jsonb_set(jsonf, '{"display"}', dbqt('Filter')::jsonb);
+        jsonf := jsonb_set(jsonf, '{"field", "code"}', dbqt('go(getTarget(), getTable(), getId(), 6);')::jsonb);
+        insert into tb_event (session, field) values (jsons, jsonf);        
+
+        -- Define the field with new button [Back]
+        jsonf := '';        
+        jsonf := jsonb_set(jsonf, '{"id"}', '7');
+        jsonf := jsonb_set(jsonf, '{"id_target"}', '2');
+        jsonf := jsonb_set(jsonf, '{"id_table"}', '1');
+        jsonf := jsonb_set(jsonf, '{"id_field"}', '0');                
+        jsonf := jsonb_set(jsonf, '{"id_event"}', '1');
+        jsonf := jsonb_set(jsonf, '{"id_event_type"}', '2');
+        jsonf := jsonb_set(jsonf, '{"display"}', dbqt('Back')::jsonb);
+        jsonf := jsonb_set(jsonf, '{"field", "code"}', dbqt('go(getTarget(), getTable(), getId(), 7);')::jsonb);
+        insert into tb_event (session, field) values (jsons, jsonf);  
+*/
         -- Finish
         return new;
     end if;

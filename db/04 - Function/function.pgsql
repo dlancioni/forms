@@ -418,7 +418,7 @@ begin
         fieldValue := qt(fieldValue);
     elsif (fieldType = 4) then
         output = concat(output, ')::date');
-        fieldValue := concat('to_date(', qt(fieldValue), ', ', qt(fieldMask), ')';
+        fieldValue := concat('to_date(', qt(fieldValue), ', ', qt(fieldMask), ')');
     end if;
 
     output = concat(output, ' ', fieldOperator);

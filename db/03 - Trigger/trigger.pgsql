@@ -4,7 +4,7 @@
 */
 create or replace function fn_ai_table() returns trigger as $$
 declare
-    id_record jsonb;
+    tableEventId jsonb;
     systemId jsonb := (new.session->>'id_system')::int;
     tableId jsonb := (new.session->>'id_table')::int;
     userId jsonb := (new.session->>'id_user')::int;
@@ -21,12 +21,12 @@ begin
     if (tg_op = 'INSERT') then
 
         -- ID create in tb_table for current record
-        id_record := currval(pg_get_serial_sequence('tb_table', 'id'));
+        tableEventId := currval(pg_get_serial_sequence('tb_table', 'id'));
 
         -- Delete existing events
         delete from tb_event
         where (session->>'id_system')::int = systemId::int
-        and (field->>'id_table')::int = id_record::int;
+        and (field->>'id_table')::int = tableEventId::int;
 
         -- Define the Session
         jsons := '{}';        
@@ -39,7 +39,7 @@ begin
         jsonf := '{}';
         jsonf := jsonb_set(jsonf, '{"id"}', systemId);
         jsonf := jsonb_set(jsonf, '{"id_target"}', '1');
-        jsonf := jsonb_set(jsonf, '{"id_table"}', id_record);
+        jsonf := jsonb_set(jsonf, '{"id_table"}', tableEventId);
         jsonf := jsonb_set(jsonf, '{"id_field"}', '0');
         jsonf := jsonb_set(jsonf, '{"id_event"}', '1');
         jsonf := jsonb_set(jsonf, '{"id_event_type"}', '2');
@@ -51,7 +51,7 @@ begin
         jsonf := '{}';
         jsonf := jsonb_set(jsonf, '{"id"}', '2');
         jsonf := jsonb_set(jsonf, '{"id_target"}', '1');
-        jsonf := jsonb_set(jsonf, '{"id_table"}', id_record);
+        jsonf := jsonb_set(jsonf, '{"id_table"}', tableEventId);
         jsonf := jsonb_set(jsonf, '{"id_field"}', '0');                
         jsonf := jsonb_set(jsonf, '{"id_event"}', '1');
         jsonf := jsonb_set(jsonf, '{"id_event_type"}', '2');
@@ -63,7 +63,7 @@ begin
         jsonf := '{}';
         jsonf := jsonb_set(jsonf, '{"id"}', '3');
         jsonf := jsonb_set(jsonf, '{"id_target"}', '1');
-        jsonf := jsonb_set(jsonf, '{"id_table"}', id_record);
+        jsonf := jsonb_set(jsonf, '{"id_table"}', tableEventId);
         jsonf := jsonb_set(jsonf, '{"id_field"}', '0');                
         jsonf := jsonb_set(jsonf, '{"id_event"}', '1');
         jsonf := jsonb_set(jsonf, '{"id_event_type"}', '2');
@@ -75,7 +75,7 @@ begin
         jsonf := '{}';
         jsonf := jsonb_set(jsonf, '{"id"}', '4');
         jsonf := jsonb_set(jsonf, '{"id_target"}', '2');
-        jsonf := jsonb_set(jsonf, '{"id_table"}', id_record);
+        jsonf := jsonb_set(jsonf, '{"id_table"}', tableEventId);
         jsonf := jsonb_set(jsonf, '{"id_field"}', '0');                
         jsonf := jsonb_set(jsonf, '{"id_event"}', '1');
         jsonf := jsonb_set(jsonf, '{"id_event_type"}', '2');
@@ -87,7 +87,7 @@ begin
         jsonf := '{}';
         jsonf := jsonb_set(jsonf, '{"id"}', '5');
         jsonf := jsonb_set(jsonf, '{"id_target"}', '1');
-        jsonf := jsonb_set(jsonf, '{"id_table"}', id_record);
+        jsonf := jsonb_set(jsonf, '{"id_table"}', tableEventId);
         jsonf := jsonb_set(jsonf, '{"id_field"}', '0');                
         jsonf := jsonb_set(jsonf, '{"id_event"}', '1');
         jsonf := jsonb_set(jsonf, '{"id_event_type"}', '2');
@@ -99,7 +99,7 @@ begin
         jsonf := '{}';
         jsonf := jsonb_set(jsonf, '{"id"}', '6');
         jsonf := jsonb_set(jsonf, '{"id_target"}', '2');
-        jsonf := jsonb_set(jsonf, '{"id_table"}', id_record);
+        jsonf := jsonb_set(jsonf, '{"id_table"}', tableEventId);
         jsonf := jsonb_set(jsonf, '{"id_field"}', '0');                
         jsonf := jsonb_set(jsonf, '{"id_event"}', '1');
         jsonf := jsonb_set(jsonf, '{"id_event_type"}', '2');
@@ -111,7 +111,7 @@ begin
         jsonf := '{}';
         jsonf := jsonb_set(jsonf, '{"id"}', '7');
         jsonf := jsonb_set(jsonf, '{"id_target"}', '2');
-        jsonf := jsonb_set(jsonf, '{"id_table"}', id_record);
+        jsonf := jsonb_set(jsonf, '{"id_table"}', tableEventId);
         jsonf := jsonb_set(jsonf, '{"id_field"}', '0');                
         jsonf := jsonb_set(jsonf, '{"id_event"}', '1');
         jsonf := jsonb_set(jsonf, '{"id_event_type"}', '2');

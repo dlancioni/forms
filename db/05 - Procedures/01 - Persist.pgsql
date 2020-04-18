@@ -147,6 +147,7 @@ begin
 		execute trace('Validating before UPDATE: ', actionId::text);
 
 		-- Figure out existing data		
+		sql := '';
 		sql := concat(sql, ' select field jsone from ', tableName);
 		sql := concat(sql, ' where (session', '->>', qt('id_system'), ')::int = ', systemId);
 		sql := concat(sql, ' and (field', '->>', qt('id'), ')::int = ', id);

@@ -1,4 +1,8 @@
+<!-- Mandatory functions -->
 <script language="JavaScript">
+
+    // Mandatory on form load
+    setValue('id_record', document.getElementById("selection").value);
 
     // Navigate to page
     function go(targetId, tableId, recordId, eventId) {
@@ -11,8 +15,10 @@
 
         // New asks to copy record    
         if (eventId == 1) {
-            if (confirm("Would you like to use selected record as template?") == false) {
-                setValue('id_record', '0');
+            if (getId() > 0) {
+                if (confirm("Would you like to use selected record as template?") == false) {
+                    setValue('id_record', '0');
+                }
             }
         }
 

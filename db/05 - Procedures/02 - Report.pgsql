@@ -110,6 +110,7 @@ begin
                 html := concat(html, '<input ');
                 html := concat(html, ' type=', dbqt('radio'));
                 html := concat(html, ' value=', resultset->>fieldName);
+                html := concat(html, ' id=', dbqt('selection'));
                 html := concat(html, ' name=', dbqt('selection'));
                 html := concat(html, ' onClick=', dbqt('setValue(''id_record'', this.value)'));
 

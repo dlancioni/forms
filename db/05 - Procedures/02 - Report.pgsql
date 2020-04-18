@@ -154,7 +154,7 @@ begin
     ---
     --- Actions (Buttons)
     ---
-    html :=concat(html, get_event(systemId, tableId, 1));
+    html :=concat(html, get_event(systemId, tableId, 1, recordCount::int));
 
     ---
     --- Javascript

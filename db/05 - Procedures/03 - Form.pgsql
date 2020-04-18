@@ -176,7 +176,7 @@ begin
     ---
     --- Actions (Buttons)
     ---
-    html :=concat(html, get_event(systemId, tableId, 2));
+    html :=concat(html, get_event(systemId, tableId, 2, 1));
 
     ---
     --- Javascript

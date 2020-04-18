@@ -509,7 +509,7 @@ Set value between double quote
 select get_event(1, 1, 2);
 */
 drop function if exists get_event;
-create or replace function get_event(systemId int, tableId int, targetId int)
+create or replace function get_event(systemId int, tableId int, targetId int, recordCount int)
 returns text
 language plpgsql
 as $function$
@@ -537,6 +537,12 @@ begin
     sql1 := concat(sql1, ' where (tb_event.session->', qt('id_system'), ')::int = ', systemId);
     sql1 := concat(sql1, ' and (tb_event.field->', qt('id_table'), ')::int = ', tableId);
     sql1 := concat(sql1, ' and (tb_event.field->', qt('id_target'), ')::int = ', targetId);
+
+    -- No records, only [New] is presented
+    if (targetId = 1 and recordCount = 0) then
+        sql1 := concat(sql1, ' and (tb_event.field->>', qt('id'), ')::int = 1');
+    end if;
+
 	execute trace('sql1: ', sql1);
 
     ---

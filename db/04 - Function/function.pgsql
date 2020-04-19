@@ -506,10 +506,10 @@ $function$;
 
 /*
 Set value between double quote
-select get_event(1, 1, 2);
+select get_event(1, 1, 2, 0);
 */
 drop function if exists get_event;
-create or replace function get_event(systemId int, tableId int, targetId int, recordCount int)
+create or replace function get_event(systemId int, tableId int, eventId int, targetId int, recordCount int)
 returns text
 language plpgsql
 as $function$
@@ -522,7 +522,7 @@ begin
     ---
     --- Prepare query to get actions (buttons)
     ---
-    sql1 := concat(sql1, ' select');
+    sql1 := concat(sql1, ' select distinct');
     sql1 := concat(sql1, ' tb_event.field->>', qt('id'), ' id');
     sql1 := concat(sql1, ' ,tb_event.field->>', qt('id_table'), ' id_table');
     sql1 := concat(sql1, ' ,tb_event.field->>', qt('id_target'), ' id_target' );
@@ -531,9 +531,18 @@ begin
     sql1 := concat(sql1, ' ,tb_event.field->>', qt('code'), ' code');
     sql1 := concat(sql1, ' ,tb_domain_event.field->>', qt('value'), ' event_name');
     sql1 := concat(sql1, ' from tb_event');
+    
     sql1 := concat(sql1, ' inner join tb_domain tb_domain_event on ');
     sql1 := concat(sql1, ' (tb_event.field->>', qt('id_event'), ')::int = (tb_domain_event.field->>', qt('id_domain'), ')::int');
     sql1 := concat(sql1, ' and tb_domain_event.field->>', qt('domain'), ' = ', qt('tb_event'));
+
+    if (targetId = 2) then
+        sql1 := concat(sql1, ' inner join tb_domain tb_rel_event on ');
+        sql1 := concat(sql1, ' (tb_event.field->>', qt('id'), ')::int = (tb_rel_event.field->>', qt('value'), ')::int');
+        sql1 := concat(sql1, ' and tb_rel_event.field->>', qt('domain'), ' = ', qt('tb_rel_event'));
+        sql1 := concat(sql1, ' and (tb_rel_event.field->>', qt('id_domain'), ')::int = ', eventId);
+    end if;
+
     sql1 := concat(sql1, ' where (tb_event.session->', qt('id_system'), ')::int = ', systemId);
     sql1 := concat(sql1, ' and (tb_event.field->', qt('id_table'), ')::int = ', tableId);
     sql1 := concat(sql1, ' and (tb_event.field->', qt('id_target'), ')::int = ', targetId);

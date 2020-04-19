@@ -13,7 +13,9 @@ as $procedure$
 declare
     systemId int := 0;
     tableId int := 0;
+    eventId int := 0;
     id int := 0;
+    targetId int := 1;
     pageOffset int := 0;
     html text := '';
     sql1 text := '';
@@ -45,9 +47,9 @@ begin
     ---
     --- Session related information
     ---
+    id := (data::jsonb->'session'->>'id')::int;    
     systemId := (data::jsonb->'session'->>'id_system')::int;
     tableId := (data::jsonb->'session'->>'id_table')::int;
-    id := (data::jsonb->'session'->>'id')::int;
     pageOffset := data::jsonb->'session'->>'page_offset';
     tableName := get_table(systemId, tableId);
 
@@ -154,7 +156,7 @@ begin
     ---
     --- Actions (Buttons)
     ---
-    html :=concat(html, get_event(systemId, tableId, 1, recordCount::int));
+    html :=concat(html, get_event(systemId, tableId, 1, targetId, recordCount::int));
 
     ---
     --- Javascript

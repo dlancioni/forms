@@ -25,6 +25,8 @@ declare
     fieldType int := 0;
     fieldMask text := '';
     domainName text := '';
+    targetId int = 2; -- const
+    recordCount float := 0;
     html text := '';
     item1 record;
     item2 record;
@@ -75,6 +77,7 @@ begin
     ---
     for item1 in execute sql1 loop
 
+        recordCount = recordCount + 1;
         fieldLabel = trim(item1.field_label);
         fieldName = trim(lower(item1.field_name));
         fieldType = item1.id_type;
@@ -176,7 +179,7 @@ begin
     ---
     --- Actions (Buttons)
     ---
-    html :=concat(html, get_event(systemId, tableId, 2, 1));
+    html :=concat(html, get_event(systemId, tableId, eventId, targetId, recordCount::int));
 
     ---
     --- Javascript

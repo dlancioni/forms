@@ -6,12 +6,14 @@ ALTER ROLE qqbzxiqr IN DATABASE qqbzxiqr SET search_path TO system;
 -- -----------------------------------------------------
 -- table tb_system
 -- -----------------------------------------------------
+delete from tb_system;
 insert into tb_system (field) values ('{"id":1,"name":"forms","expire_date":"31/12/2020","price":"100.00"}');
 update tb_system set session = '{"id_system":1,"id_table":1,"id_user":1,"id_action":1}';
 
 -- -----------------------------------------------------
 -- table tb_table
 -- -----------------------------------------------------
+delete from tb_table;
 insert into tb_table (session, field) values ('{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":1,"id_system":1,"name":"system","url":"index.php?id_layout=1&id_table=1&page_offset=0","table_name":"tb_system"}');
 insert into tb_table (session, field) values ('{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":2,"id_system":1,"name":"table","url":"index.php?id_layout=1&id_table=2&page_offset=0","table_name":"tb_table"}');
 insert into tb_table (session, field) values ('{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":3,"id_system":1,"name":"field","url":"index.php?id_layout=1&id_table=3&page_offset=0","table_name":"tb_field"}');
@@ -22,6 +24,7 @@ insert into tb_table (session, field) values ('{"id_system":1,"id_table":2,"id_u
 -- -----------------------------------------------------
 -- table tb_field
 -- -----------------------------------------------------
+delete from tb_field;
 -- tb_system
 insert into tb_field (field) values ('{"id":1,"id_system":1,"id_table":1,"label":"Id","name":"id","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":0,"domain":""}');
 insert into tb_field (field) values ('{"id":2,"id_system":1,"id_table":1,"label":"Name","name":"name","id_type":3,"size":50,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":0,"domain":""}');
@@ -68,26 +71,38 @@ update tb_field set session = '{"id_system":1,"id_table":3,"id_user":1,"id_actio
 -- -----------------------------------------------------
 -- table tb_domain
 -- -----------------------------------------------------
+delete from tb_domain;
+-- tb_bool
 insert into tb_domain (field) values ('{"id":1,"id_system":1,"id_domain":1,"value":"Yes","domain":"tb_bool"}');
 insert into tb_domain (field) values ('{"id":2,"id_system":1,"id_domain":0,"value":"No","domain":"tb_bool"}');
-
+-- tb_field_type
 insert into tb_domain (field) values ('{"id":3,"id_system":1,"id_domain":1,"value":"Integer","domain":"tb_field_type"}');
 insert into tb_domain (field) values ('{"id":4,"id_system":1,"id_domain":2,"value":"Decimal","domain":"tb_field_type"}');
 insert into tb_domain (field) values ('{"id":5,"id_system":1,"id_domain":3,"value":"String","domain":"tb_field_type"}');
 insert into tb_domain (field) values ('{"id":6,"id_system":1,"id_domain":4,"value":"Date","domain":"tb_field_type"}');
 insert into tb_domain (field) values ('{"id":7,"id_system":1,"id_domain":5,"value":"Boolean","domain":"tb_field_type"}');
 insert into tb_domain (field) values ('{"id":8,"id_system":1,"id_domain":6,"value":"Text","domain":"tb_field_type"}');
-
+-- tb_target
 insert into tb_domain (field) values ('{"id":9,"id_system":1,"id_domain":1,"value":"Report","domain":"tb_target"}');
 insert into tb_domain (field) values ('{"id":10,"id_system":1,"id_domain":2,"value":"Form","domain":"tb_target"}');
-
+-- tb_event
 insert into tb_domain (field) values ('{"id":11,"id_system":1,"id_domain":1,"value":"OnClick","domain":"tb_event"}');
 insert into tb_domain (field) values ('{"id":12,"id_system":1,"id_domain":2,"value":"OnFocus","domain":"tb_event"}');
 insert into tb_domain (field) values ('{"id":13,"id_system":1,"id_domain":3,"value":"OnBlur","domain":"tb_event"}');
-
+-- tb_event_type
 insert into tb_domain (field) values ('{"id":11,"id_system":1,"id_domain":1,"value":"None","domain":"tb_event_type"}');
 insert into tb_domain (field) values ('{"id":12,"id_system":1,"id_domain":2,"value":"Caption","domain":"tb_event_type"}');
 insert into tb_domain (field) values ('{"id":13,"id_system":1,"id_domain":3,"value":"Image","domain":"tb_event_type"}');
+-- tb_rel_event
+insert into tb_domain (field) values ('{"id":14,"id_system":1,"id_domain":1,"value":"4","domain":"tb_rel_event"}');
+insert into tb_domain (field) values ('{"id":15,"id_system":1,"id_domain":1,"value":"7","domain":"tb_rel_event"}');
+insert into tb_domain (field) values ('{"id":14,"id_system":1,"id_domain":2,"value":"4","domain":"tb_rel_event"}');
+insert into tb_domain (field) values ('{"id":15,"id_system":1,"id_domain":2,"value":"7","domain":"tb_rel_event"}');
+insert into tb_domain (field) values ('{"id":14,"id_system":1,"id_domain":3,"value":"4","domain":"tb_rel_event"}');
+insert into tb_domain (field) values ('{"id":15,"id_system":1,"id_domain":3,"value":"7","domain":"tb_rel_event"}');
+insert into tb_domain (field) values ('{"id":14,"id_system":1,"id_domain":5,"value":"6","domain":"tb_rel_event"}');
+insert into tb_domain (field) values ('{"id":15,"id_system":1,"id_domain":5,"value":"7","domain":"tb_rel_event"}');
+-- set the session
 update tb_domain set session = '{"id_system":1,"id_table":4,"id_user":1,"id_action":1}';
 
 -- -----------------------------------------------------
@@ -97,5 +112,6 @@ update tb_domain set session = '{"id_system":1,"id_table":4,"id_user":1,"id_acti
 -- -----------------------------------------------------
 -- table tb_code
 -- -----------------------------------------------------
+delete from tb_code;
 insert into tb_code (field) values ('{"id":1,"code":"function helloWorld() {alert(''Hello World'');}"}');
 update tb_code set session = '{"id_system":1,"id_table":6,"id_user":1,"id_action":1}';

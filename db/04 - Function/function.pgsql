@@ -1,6 +1,6 @@
 /*
 Crop data from string 
-select crop('id,name, ', ',' );
+select crop('id,name, ', ',');
 */
 drop function if exists crop;
 create or replace function crop(text text, value text)
@@ -514,7 +514,7 @@ returns text
 language plpgsql
 as $function$
 declare
-    sql1 text := '';
+    sql text := '';
     html text := '';  
     item1 record;  
 begin
@@ -522,43 +522,45 @@ begin
     ---
     --- Prepare query to get actions (buttons)
     ---
-    sql1 := concat(sql1, ' select distinct');
-    sql1 := concat(sql1, ' tb_event.field->>', qt('id'), ' id');
-    sql1 := concat(sql1, ' ,tb_event.field->>', qt('id_table'), ' id_table');
-    sql1 := concat(sql1, ' ,tb_event.field->>', qt('id_target'), ' id_target' );
-    sql1 := concat(sql1, ' ,tb_event.field->>', qt('display'), ' display');
-    sql1 := concat(sql1, ' ,tb_event.field->>', qt('id_event'), ' id_event');
-    sql1 := concat(sql1, ' ,tb_event.field->>', qt('code'), ' code');
-    sql1 := concat(sql1, ' ,tb_domain_event.field->>', qt('value'), ' event_name');
-    sql1 := concat(sql1, ' from tb_event');
+    sql := concat(sql, ' select ');
+
+    sql := concat(sql, sql_field('tb_event', 'id'));
+    sql := concat(sql, sql_field('tb_event', 'id_table'));
+    sql := concat(sql, sql_field('tb_event', 'id_target'));
+    sql := concat(sql, sql_field('tb_event', 'display'));
+    sql := concat(sql, sql_field('tb_event', 'id_event'));
+    sql := concat(sql, sql_field('tb_event', 'code'));
+    sql := concat(sql, sql_field('tb_domain_event', 'value', 'event_name'));
+
+    sql := concat(sql_from(sql, 'tb_event'));
     
-    sql1 := concat(sql1, ' inner join tb_domain tb_domain_event on ');
-    sql1 := concat(sql1, ' (tb_event.field->>', qt('id_event'), ')::int = (tb_domain_event.field->>', qt('id_domain'), ')::int');
-    sql1 := concat(sql1, ' and tb_domain_event.field->>', qt('domain'), ' = ', qt('tb_event'));
+    sql := concat(sql, ' inner join tb_domain tb_domain_event on ');
+    sql := concat(sql, ' (tb_event.field->>', qt('id_event'), ')::int = (tb_domain_event.field->>', qt('id_domain'), ')::int');
+    sql := concat(sql, ' and tb_domain_event.field->>', qt('domain'), ' = ', qt('tb_event'));
 
     if (targetId = 2) then
-        sql1 := concat(sql1, ' inner join tb_domain tb_rel_event on ');
-        sql1 := concat(sql1, ' (tb_event.field->>', qt('id'), ')::int = (tb_rel_event.field->>', qt('value'), ')::int');
-        sql1 := concat(sql1, ' and tb_rel_event.field->>', qt('domain'), ' = ', qt('tb_rel_event'));
-        sql1 := concat(sql1, ' and (tb_rel_event.field->>', qt('id_domain'), ')::int = ', eventId);
+        sql := concat(sql, ' inner join tb_domain tb_rel_event on ');
+        sql := concat(sql, ' (tb_event.field->>', qt('id'), ')::int = (tb_rel_event.field->>', qt('value'), ')::int');
+        sql := concat(sql, ' and tb_rel_event.field->>', qt('domain'), ' = ', qt('tb_rel_event'));
+        sql := concat(sql, ' and (tb_rel_event.field->>', qt('id_domain'), ')::int = ', eventId);
     end if;
 
-    sql1 := concat(sql1, ' where (tb_event.session->', qt('id_system'), ')::int = ', systemId);
-    sql1 := concat(sql1, ' and (tb_event.field->', qt('id_table'), ')::int = ', tableId);
-    sql1 := concat(sql1, ' and (tb_event.field->', qt('id_target'), ')::int = ', targetId);
+    sql := concat(sql, ' where (tb_event.session->', qt('id_system'), ')::int = ', systemId);
+    sql := concat(sql, ' and (tb_event.field->', qt('id_table'), ')::int = ', tableId);
+    sql := concat(sql, ' and (tb_event.field->', qt('id_target'), ')::int = ', targetId);
 
     -- No records, only [New] is presented
     if (targetId = 1 and recordCount = 0) then
-        sql1 := concat(sql1, ' and (tb_event.field->>', qt('id'), ')::int = 1');
+        sql := concat(sql, ' and (tb_event.field->>', qt('id'), ')::int = 1');
     end if;
 
-	execute trace('sql1: ', sql1);
+	execute trace('sql: ', sql);
 
     ---
     --- Actions (Buttons)
     ---
     html := concat(html, '<center>');
-    for item1 in execute sql1 loop
+    for item1 in execute sql loop
         html := concat(html, '<input');
         html := concat(html, ' type=', dbqt('button'));
         html := concat(html, ' class=', dbqt('w3-button w3-blue'));
@@ -574,5 +576,109 @@ begin
     ---
     return html;
 
+end;
+$function$;
+
+
+/*
+    Return sql code to select fields
+    select sql_field('tb_client', 'name', 'client_name')
+    select sql_field('tb_client', 'name')
+ */
+drop function if exists sql_field;
+create or replace function sql_field(tableName text, fieldName text, fieldAlias text default '')
+returns text
+language plpgsql
+as $function$
+declare
+    sql varchar := '';
+begin
+
+    if (fieldAlias = '') then
+        fieldAlias = fieldName;
+    end if;
+
+    sql := concat(sql, tableName, '.field->>', qt(fieldName), ' ', fieldAlias, ', ');
+    return sql;
+end;
+$function$;
+
+/*
+    Mandatory condition for all queries
+    select sql_where(1)
+ */
+drop function if exists sql_where;
+create or replace function sql_where(systemId integer)
+returns text
+language plpgsql
+as $function$
+declare
+    sql varchar := '';
+begin
+    sql = concat(sql, ' where (session->>', qt('id_system'), ')::int = ', systemId);
+    return sql;
+end;
+$function$;
+
+/*
+    Mandatory condition for all queries
+    select sql_and('tb_rel_event', 'id_domain', 1)
+ */
+drop function if exists sql_and;
+create or replace function sql_and(tableName text, fieldName text, fieldValue int)
+returns text
+language plpgsql
+as $function$
+declare
+    sql varchar := '';
+begin
+    sql := concat(sql, ' and (',tableName, '.field->>', qt(fieldName), ')::int = ', fieldValue);    
+    return sql;
+end;
+$function$;
+
+/*
+    Return sql code to join tables
+    select sql_join('tb_client', 'id_address', 'tb_address', 'id')
+    select sql_join('tb_event', 'id_event', 'tb_domain_event', 'id_domain', 'tb_event')
+ */
+drop function if exists sql_join;
+create or replace function sql_join(baseTable text, baseField text, joinTable text, joinField text, domainName text default '')
+returns text
+language plpgsql
+as $function$
+declare
+    sql varchar := '';
+begin
+
+    if (domainName != '')  then
+        sql := concat(sql, ' inner join tb_domain ', joinTable, ' on');
+        sql := concat(sql, ' (', baseTable, '.field->>', qt(baseField), ')::int = (', joinTable, '.field->>', qt(joinField), ')::int');
+        sql := concat(sql, ' and ', joinTable, '.field->>', qt('domain'), ' = ', qt(domainName));
+    else
+        sql := concat(sql, ' inner join ', joinTable, ' on');
+        sql := concat(sql, ' (', baseTable, '.field->>', qt(baseField), ')::int = (', joinTable, '.field->>', qt(joinField), ')::int');
+    end if;
+
+    return sql;
+end;
+$function$;
+
+
+/*
+    Return sql from and remove last comma
+    select sql_from('id, name, ', 'tb_rel_event')
+ */
+drop function if exists sql_from;
+create or replace function sql_from(fieldList text, tableName text)
+returns text
+language plpgsql
+as $function$
+declare
+    sql varchar := '';
+begin
+    sql := concat(sql, crop(fieldList, ','));
+    sql := concat(sql, ' from ', tableName); 
+    return sql;
 end;
 $function$;

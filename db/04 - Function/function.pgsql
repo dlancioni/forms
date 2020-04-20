@@ -61,7 +61,7 @@ begin
     if (data != '') then
 
         -- Discard fields not related to current table
-        sql := concat(sql, ' select x.field_name, x.operator, x.field_value::text, v.id_type field_type, v.field_mask');
+        sql := concat(sql, ' select v.table_name, x.field_name, x.operator, x.field_value::text, v.id_type field_type, v.field_mask');
         sql := concat(sql, ' from json_to_recordset(', data, ') as x(field_name text, operator text, field_value text)');
         sql := concat(sql, ' inner join vw_table v on x.field_name = v.field_name');
         sql := concat(sql, ' where v.id_system = ', systemId);
@@ -70,7 +70,7 @@ begin
 
         -- Concatenate output conditions
         for item in execute sql loop
-            output := concat(output, sql_condition(item.field_name, item.field_type, item.operator, item.field_value, item.field_mask), ' and');
+            output := concat(output, sql_condition(item.table_name, item.field_name, item.field_type, item.operator, item.field_value, item.field_mask));
         end loop;
 
         -- Crop last and
@@ -237,13 +237,15 @@ declare
     sql text;
     item record;
 begin
-    sql = concat(sql, 'select');
-    sql = concat(sql, sql_column('tb_table', 'table_name', 3, '', ''));
-    sql = concat(sql, ' from tb_table');
-    sql = concat(sql, ' where id = ', tableId);
-    sql = concat(sql, ' and ', sql_condition('id_system', 1, '=', systemId::text, ''));
+
+    sql := concat(sql, 'select ');
+    sql := concat(sql, sql_field('tb_table', 'table_name'));
+    sql := concat(sql_from(sql, 'tb_table'));
+    sql := concat(sql, sql_where('tb_table', systemId));
+    sql := concat(sql, sql_and('tb_table', 'id', tableId));
+
     for item in execute sql loop
-    return item.table_name;
+        return item.table_name;
     end loop;
     raise exception 'tabela nao encontrada para codigo de sistema (%) e tabela (%)', systemId, tableId;
 end;
@@ -251,8 +253,8 @@ $function$;
 
 /*
 Check if the record is unique at the table
-select is_unique(1,'tb_system', 'name', 'formsss') -- true, dont exists
-select is_unique(1,'tb_system', 'name', 'forms') -- false, already exists 
+select is_unique(1, 'tb_system', 'name', 'formsss') -- true, dont exists
+select is_unique(1, 'tb_system', 'name', 'forms') -- false, already exists 
 */
 drop function if exists is_unique;
 create or replace function is_unique(systemId integer, tableName text, fieldName text, fieldValue text)
@@ -263,9 +265,19 @@ declare
     sql varchar := '';
     item record;
 begin
+
+
     sql = concat(sql, ' select * from ', tableName);
     sql = concat(sql, ' where (session->>', qt('id_system'), ')::int = ', systemId);
-    sql = concat(sql, ' and ', sql_condition(fieldName, 3, '=', fieldValue, ''));
+    sql = concat(sql, sql_condition(tableName, fieldName, 3, '=', fieldValue, ''));
+/*
+    sql := concat(sql, 'select ');
+    sql := concat(sql, sql_field(tableName, 'id'));
+    sql := concat(sql_from(sql, tableName));
+    sql := concat(sql, sql_where(tableName, systemId));    
+    sql := concat(sql, sql_and('tb_table', 'id', tableId));
+    sql := concat(sql, sql_condition(fieldName, 3, '=', fieldValue, ''));
+*/
     for item in execute sql loop
         return false;
     end loop;
@@ -368,45 +380,6 @@ begin
     field = concat(field, ' as ', fieldAlias);
 
     return field;
-end;
-$function$;
-
-/*
-target: 
-select sql_condition('expire_date', 4, '=', '31/12/2014', 'dd/mm/yyyy');
-*/
-drop function if exists sql_condition;
-create or replace function sql_condition(fieldName text, fieldType integer, fieldOperator text, fieldValue text, fieldMask text)
-returns text
-language plpgsql
-as $function$
-declare
-    output text := '';
-begin
-    -- Note: apply single quote on data and string
-    if (fieldType = 4) then
-        output = concat(output , ' (to_date(field', '->>', qt(fieldName), ', ', fieldMask, ')');
-    else
-        output = concat(output , ' (field', '->>', qt(fieldName));
-    end if;
-
-    if (fieldType = 1) then
-        output = concat(output, ')::int');
-    elsif (fieldType = 2) then
-        output = concat(output, ')::float');
-    elsif (fieldType = 3) then
-        output = concat(output, ')::text');
-        fieldValue := qt(fieldValue);
-    elsif (fieldType = 4) then
-        output = concat(output, ')::date');
-        fieldValue := concat('to_date(', qt(fieldValue), ', ', qt(fieldMask), ')');
-    end if;
-
-    output = concat(output, ' ', fieldOperator);
-    output = concat(output, ' ', fieldValue);
-    output = concat(output, ' ');
-
-    return output;
 end;
 $function$;
 
@@ -545,9 +518,9 @@ $function$;
 
 
 /*
-    Return sql code to select fields
-    select sql_field('tb_client', 'name', 'client_name')
-    select sql_field('tb_client', 'name')
+Return sql code to select fields
+select sql_field('tb_client', 'name', 'client_name')
+select sql_field('tb_client', 'name')
  */
 drop function if exists sql_field;
 create or replace function sql_field(tableName text, fieldName text, fieldAlias text default '')
@@ -630,8 +603,8 @@ $function$;
 
 
 /*
-    Return sql from and remove last comma
-    select sql_from('id, name, ', 'tb_rel_event')
+Return sql from and remove last comma
+select sql_from('id, name, ', 'tb_rel_event')
  */
 drop function if exists sql_from;
 create or replace function sql_from(fieldList text, tableName text)
@@ -644,5 +617,47 @@ begin
     sql := concat(sql, crop(fieldList, ','));
     sql := concat(sql, ' from ', tableName); 
     return sql;
+end;
+$function$;
+
+/*
+Return sql that creates dynamic conditions
+select sql_condition('tb1', 'id', 1, '=', '1');
+select sql_condition('tb1', 'amount', 2, '>', '10.99');
+select sql_condition('tb1', 'name', 3, '=', 'David');
+select sql_condition('tb1', 'expire_date', 4, '=', '31/12/2014', 'dd/mm/yyyy');
+*/
+drop function if exists sql_condition;
+create or replace function sql_condition(tableName text, fieldName text, fieldType integer, fieldOperator text, fieldValue text, fieldMask text default '')
+returns text
+language plpgsql
+as $function$
+declare
+    output text := ' and ';
+begin
+    -- Note: apply single quote on data and string
+    if (fieldType = 4) then
+        output = concat(output , ' (to_date(', tableName, '.field', '->>', qt(fieldName), ', ', fieldMask, ')');
+    else
+        output = concat(output , ' (', tableName, '.field', '->>', qt(fieldName));
+    end if;
+
+    if (fieldType = 1) then
+        output = concat(output, ')::int');
+    elsif (fieldType = 2) then
+        output = concat(output, ')::float');
+    elsif (fieldType = 3) then
+        output = concat(output, ')::text');
+        fieldValue := qt(fieldValue);
+    elsif (fieldType = 4) then
+        output = concat(output, ')::date');
+        fieldValue := concat('to_date(', qt(fieldValue), ', ', qt(fieldMask), ')');
+    end if;
+
+    output = concat(output, ' ', fieldOperator);
+    output = concat(output, ' ', fieldValue);
+    output = concat(output, ' ');
+
+    return output;
 end;
 $function$;

@@ -34,29 +34,6 @@ end;
 $function$;
 
 /*
-Format numbers based on mask
-*/
-drop function if exists format_number;
-create or replace function format_number(number numeric, mask text)
-returns text
-language plpgsql
-as $function$
-declare output text := '';
-begin
-    -- select format_number1(1000, '999.999'); -- 1.000
-    if (trim(mask) = '') then
-        raise exception 'mascara [%] invalida', mask;
-    end if;
-    -- revert mask to en-us format
-    mask := replace(replace(replace(mask, ',', '?'), '.', ','), '?', '.');
-    -- apply mask to value 
-    output := replace(replace(replace(to_char(number, mask), ',', '?'), '.', ','), '?', '.');
-    -- just return it
-    return output;
-end;
-$function$;
-
-/*
 Get dynamic and condition
 select get_condition('{"session":{"id_system":1,"id_table":1,"id_action":1},"filter":[{"field_name":"name", "operator":"=", "field_value":"1"}]}')
 select get_condition('{"session":{"id_system":1,"id_table":1,"id_action":1}}')
@@ -518,12 +495,10 @@ declare
     html text := '';  
     item1 record;  
 begin
-
     ---
     --- Prepare query to get actions (buttons)
     ---
     sql := concat(sql, ' select ');
-
     sql := concat(sql, sql_field('tb_event', 'id'));
     sql := concat(sql, sql_field('tb_event', 'id_table'));
     sql := concat(sql, sql_field('tb_event', 'id_target'));
@@ -531,29 +506,18 @@ begin
     sql := concat(sql, sql_field('tb_event', 'id_event'));
     sql := concat(sql, sql_field('tb_event', 'code'));
     sql := concat(sql, sql_field('tb_domain_event', 'value', 'event_name'));
-
     sql := concat(sql_from(sql, 'tb_event'));
-    
-    sql := concat(sql, ' inner join tb_domain tb_domain_event on ');
-    sql := concat(sql, ' (tb_event.field->>', qt('id_event'), ')::int = (tb_domain_event.field->>', qt('id_domain'), ')::int');
-    sql := concat(sql, ' and tb_domain_event.field->>', qt('domain'), ' = ', qt('tb_event'));
-
+    sql := concat(sql, sql_join('tb_event', 'id_event', 'tb_domain_event', 'id_domain', 'tb_event'));   
     if (targetId = 2) then
-        sql := concat(sql, ' inner join tb_domain tb_rel_event on ');
-        sql := concat(sql, ' (tb_event.field->>', qt('id'), ')::int = (tb_rel_event.field->>', qt('value'), ')::int');
-        sql := concat(sql, ' and tb_rel_event.field->>', qt('domain'), ' = ', qt('tb_rel_event'));
-        sql := concat(sql, ' and (tb_rel_event.field->>', qt('id_domain'), ')::int = ', eventId);
-    end if;
-
-    sql := concat(sql, ' where (tb_event.session->', qt('id_system'), ')::int = ', systemId);
-    sql := concat(sql, ' and (tb_event.field->', qt('id_table'), ')::int = ', tableId);
-    sql := concat(sql, ' and (tb_event.field->', qt('id_target'), ')::int = ', targetId);
-
+        sql := concat(sql, sql_join('tb_event', 'id', 'tb_rel_event', 'value', 'tb_rel_event'));
+    end if;    
+    sql := concat(sql, sql_where('tb_event', systemId));
+    sql := concat(sql, sql_and('tb_event', 'id_table', tableId));
+    sql := concat(sql, sql_and('tb_event', 'id_target', targetId));    
     -- No records, only [New] is presented
     if (targetId = 1 and recordCount = 0) then
-        sql := concat(sql, ' and (tb_event.field->>', qt('id'), ')::int = 1');
+        sql := concat(sql, sql_and('tb_event', 'id', 1));
     end if;
-
 	execute trace('sql: ', sql);
 
     ---
@@ -608,14 +572,14 @@ $function$;
     select sql_where(1)
  */
 drop function if exists sql_where;
-create or replace function sql_where(systemId integer)
+create or replace function sql_where(tableName text, systemId integer)
 returns text
 language plpgsql
 as $function$
 declare
     sql varchar := '';
 begin
-    sql = concat(sql, ' where (session->>', qt('id_system'), ')::int = ', systemId);
+    sql = concat(sql, ' where (', tableName, '.session->>', qt('id_system'), ')::int = ', systemId);
     return sql;
 end;
 $function$;

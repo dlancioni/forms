@@ -698,3 +698,41 @@ begin
 
 end;
 $function$;
+
+
+---------------------------------------------------------------------------------
+-- HTML function
+---------------------------------------------------------------------------------
+/*
+Get an html input element (hidden, text, select)
+select html_input('text', 'id_order', 'ir_order', '123456', '', '', 'onclick=alert(123)');
+ */
+drop function if exists html_input;
+create or replace function html_input(htmlType text, id text, fieldName text, fieldValue text, disabled text, checked text, events text)
+returns text
+language plpgsql
+as $function$
+declare
+    html varchar := '';
+begin
+
+    html := concat(html, ' <input ');
+    html := concat(html, ' type=', dbqt(htmlType));    
+    html := concat(html, ' id=', dbqt(fieldName));
+    html := concat(html, ' name=', dbqt(fieldName));
+    html := concat(html, ' value=', dbqt(fieldValue));
+    html := concat(html, ' ', events);
+
+    if (htmlType = 'text') then
+        html := concat(html, ' class=', dbqt('w3-input w3-border'));
+    end if;    
+
+    if (htmlType = 'radio') then
+        html := concat(html, ' ', checked);
+    end if;
+
+    html := concat(html, '>');
+
+    return html;
+end;
+$function$;

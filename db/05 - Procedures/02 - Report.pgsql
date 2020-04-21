@@ -24,6 +24,9 @@ declare
     sql4 text := '';        
     tableName text := '';
     fieldName text := '';    
+    checked text := '';
+    disabled text := '';
+    events text := '';
     item1 record;
     item2 record;
     item3 record;    
@@ -60,21 +63,18 @@ begin
     sql1 := concat(sql1, get_field_list(systemId, tableId));
     sql1 := concat(sql1, ' from ', tableName, ' ');
     sql1 := concat(sql1, get_join(systemId, tableId));
-    sql1 := concat(sql1, ' where (', tableName, '.session->', qt('id_system'), ')::int = ', systemId);
+    sql1 := concat(sql1, sql_where(tableName, systemId));
     sql1 := concat(sql1, get_condition(data::jsonb));
     sql1 := concat(sql1, ' order by ', tableName, '.id');
     sql1 := concat('select to_jsonb(r)::text as record from (', sql1, ') r');
     sql1 := concat(sql1, ' limit ', PAGE_SIZE);
     sql1 := concat(sql1, ' offset ', pageOffset);
-	execute trace('SQL: ', sql1);
+	execute trace('SQL1: ', sql1);
 
     ---
     --- Prepare query to get table structure
     ---
-    sql2 := concat(sql2, ' select * from vw_table');
-    sql2 := concat(sql2, ' where id_system = ', systemId);
-    sql2 := concat(sql2, ' and id_table = ', tableId);
-	execute trace('SQL2: ', sql2);
+    sql2 := get_struct(systemId, tableId);
 
     ---
     --- Page title
@@ -102,38 +102,35 @@ begin
     --- Table body
     ---
     html := concat(html, '<tbody>');
-        for item1 in execute sql1 loop
-            html := concat(html, '<tr>');
-                resultset := item1.record;
-                recordCount := resultset->>'record_count';
-                fieldName := 'id';
+    for item1 in execute sql1 loop
+        fieldName := 'id';
+        resultset := item1.record;
+        recordCount := resultset->>'record_count';
+        events = 'onClick="setValue(''id_record'', this.value);"';
 
-                html := concat(html, '<td>');                
-                html := concat(html, '<input ');
-                html := concat(html, ' type=', dbqt('radio'));
-                html := concat(html, ' value=', resultset->>fieldName);
-                html := concat(html, ' id=', dbqt('selection'));
-                html := concat(html, ' name=', dbqt('selection'));
-                html := concat(html, ' onClick=', dbqt('setValue(''id_record'', this.value)'));
+        checked := '';
+        if (id = 0) then
+            checked := ' checked '; 
+            id = -1;
+        else                    
+            if ((resultset->>fieldName)::int = id) then
+                checked := ' checked '; 
+            end if;
+        end if;
 
-                if (id = 0) then
-                    html := concat(html, ' checked '); id = -1;
-                else                    
-                    if ((resultset->>fieldName)::int = id) then
-                        html := concat(html, ' checked ');
-                    end if;
-                end if;
+        html := concat(html, '<tr>');
+            html := concat(html, '<td>');
+            html := concat (html, html_input('radio', 'selection', 'selection', resultset->>fieldName, disabled, checked, events));
+            html := concat(html, '</td>');
 
-                html := concat(html, '>');
-                html := concat(html, '</td>');
+            for item2 in execute sql2 loop
+                fieldName := item2.field_name;
+                html := concat(html, '<td>', resultset->>fieldName, '</td>');
+            end loop;
 
-                for item2 in execute sql2 loop
-                    fieldName := item2.field_name;
-                    html := concat(html, '<td>', resultset->>fieldName, '</td>');
-                end loop;
+        html := concat(html, '</tr>');
+    end loop;
 
-            html := concat(html, '</tr>');
-        end loop;
     html := concat(html, '</tbody>');
     html := concat(html, '</table>');
     html := concat(html, '</div">');    

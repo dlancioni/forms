@@ -1,7 +1,7 @@
 <!-- Mandatory functions -->
 <script language="JavaScript">
 
-    // Mandatory on form load
+    // Mandatory on form load on report
     setValue('id_record', document.getElementById("selection").value);
 
     // Navigate to page

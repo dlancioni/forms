@@ -54,18 +54,23 @@ begin
     ---
     --- Get table structure
     ---
-    sql1 := concat(sql1, ' select * from vw_table');
-    sql1 := concat(sql1, ' where id_system = ', systemId);
-    sql1 := concat(sql1, ' and id_table = ', tableId);
-	execute trace('SQL1: ', sql1);
+    sql1 := get_struct(systemId, tableId);
+
+    ---
+    --- Page title
+    ---
+    html := concat(html, '<h3>', get_table(systemId, tableId), '</h3>');
+    html := concat(html, '<br>');    
 
     ---
     --- Get the record
     ---
     if (id > 0) then
-        sql2 := concat(sql2, ' select field from ', tableName);
-        sql2 := concat(sql2, ' where (session->>', qt('id_system'), ')::int = ', systemId);
-        sql2 := concat(sql2, ' and (field->>', qt('id'), ')::int = ', id);
+        sql2 := '';
+        sql2 := concat(sql2, ' select field');
+        sql2 := concat(sql2, sql_from(tableName));
+        sql2 := concat(sql2, sql_where(tableName, systemId));
+        sql2 := concat(sql2, sql_and(tableName, 'id', id));
         execute trace('SQL2: ', sql2);
         for item2 in execute sql2 loop
             resultset := item2.field;

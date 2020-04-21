@@ -276,7 +276,13 @@ begin
     if (data != '') then
 
         -- Discard fields not related to current table
-        sql := concat(sql, ' select v.table_name, x.field_name, x.operator, x.field_value::text, v.id_type field_type, v.field_mask');
+        sql := concat(sql, ' select');
+        sql := concat(sql, ' v.table_name,');
+        sql := concat(sql, ' x.field_name,');
+        sql := concat(sql, ' x.operator,');
+        sql := concat(sql, ' x.field_value::text,');
+        sql := concat(sql, ' v.id_type field_type,');
+        sql := concat(sql, ' v.field_mask');
         sql := concat(sql, ' from json_to_recordset(', data, ') as x(field_name text, operator text, field_value text)');
         sql := concat(sql, ' inner join vw_table v on x.field_name = v.field_name');
         sql := concat(sql, ' where v.id_system = ', systemId);
@@ -301,47 +307,10 @@ end;
 $function$;
 
 
-create or replace function get_json(systemId integer, tableId integer, userId integer, actionId integer)
-returns jsonb
-language plpgsql
-as $function$
-declare
-    sql text := '';
-    session text := '';
-    field text := '';
-    item record;
-begin
-    -- Create session
-    session = concat(session, dbqt('session'), ':', '{');
-    session = concat(session, dbqt('id_system'), ':', systemId, ',');
-    session = concat(session, dbqt('id_table'), ':', tableId, ',');
-    session = concat(session, dbqt('id_user'), ':', userId, ',');
-    session = concat(session, dbqt('id_action'), ':', actionId);
-    session = concat(session, '}');
 
-    -- Create record
-    field = concat(field, dbqt('field'), ':', '{');
-    sql := concat(sql, ' select field_name, id_type from vw_table');
-    sql := concat(sql, ' where id_system = ', systemId);
-    sql := concat(sql, ' and id_table = ', tableId);
-    for item in execute sql loop
-        if (item.id_type = 1) then
-            field = concat(field, dbqt(item.field_name), ':', '0', ',');        
-        else
-            field = concat(field, dbqt(item.field_name), ':', dbqt(''), ',');
-        end if;
-    end loop;
-    field := concat(crop(field, ','), '}');
-
-    -- Create final JSONB
-    return concat('{', session, ',', field, '}');
-
-end;
-$function$;
 
 /*
 Format numbers based on mask
-
 select get_output(0, 1, 23, 'exception goes here', 'warning goes here', '')
 select get_output(0, 0, 0, 'exception goes here', '', '')
 select get_output(1, 1, 0, '', '', '[{"id": 1, "url": "-", "name": "system", "id_system": 1, "table_name": "tb_system"}]');
@@ -684,3 +653,48 @@ begin
 end;
 $function$;
 
+-------------------------------------------------------------
+-- CONFIRM IF NECESSARY
+-------------------------------------------------------------
+/*
+Get json related to given table
+select get_json(1, 1, 1, 1)
+*/
+drop function if exists get_json;
+create or replace function get_json(systemId int, tableId int, userId int, actionId int)
+returns jsonb
+language plpgsql
+as $function$
+declare
+    sql text := '';
+    session text := '';
+    field text := '';
+    item record;
+begin
+    -- Create session
+    session = concat(session, dbqt('session'), ':', '{');
+    session = concat(session, dbqt('id_system'), ':', systemId, ',');
+    session = concat(session, dbqt('id_table'), ':', tableId, ',');
+    session = concat(session, dbqt('id_user'), ':', userId, ',');
+    session = concat(session, dbqt('id_action'), ':', actionId);
+    session = concat(session, '}');
+
+    -- Create record
+    field = concat(field, dbqt('field'), ':', '{');
+
+    sql := get_struct(systemId, tableId);
+
+    for item in execute sql loop
+        if (item.id_type = 1) then
+            field = concat(field, dbqt(item.field_name), ':', '0', ',');        
+        else
+            field = concat(field, dbqt(item.field_name), ':', dbqt(''), ',');
+        end if;
+    end loop;
+    field := concat(crop(field, ','), '}');
+
+    -- Create final JSONB
+    return concat('{', session, ',', field, '}');
+
+end;
+$function$;

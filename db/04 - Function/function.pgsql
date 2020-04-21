@@ -178,17 +178,11 @@ begin
 
     for item in execute sql loop
         if (item.id_fk = 4) then
-            -- TB_DOMAIN
             tableAlias = concat('tb_', replace(item.field_name, 'id_', 'fk_'));
-            -- output := concat(output, 'inner join ', item.table_name , ' ', tableAlias,  ' on ');
-            -- output := concat(output, '(', item.base_table, '.field->>', qt(item.field_name), ')::int = (', tableAlias, '.field->>', qt('id_domain'), ')::int');
-            -- output := concat(output, ' and (', tableAlias, '.field->>', qt('domain'), ')::text = ', qt(item.domain_name));
             output := concat(output, sql_join(item.base_table, item.field_name, item.table_name, tableAlias, 'id_domain', item.domain_name));
         else
             -- FKs
             tableAlias = concat('tb_', replace(item.field_name, 'id_', 'fk_')); 
-            -- output := concat(output, 'left join ', item.table_name , ' ', tableAlias,  ' on ');
-            -- output := concat(output, '(', item.base_table, '.field->>', qt(item.field_name), ')::int = ', tableAlias, '.id');
             output := concat(output, sql_join(item.base_table, item.field_name, item.table_name, tableAlias, 'id'));
         end if;
         output := concat(output, ' ');

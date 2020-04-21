@@ -266,21 +266,16 @@ declare
     item record;
 begin
 
-
-    sql = concat(sql, ' select * from ', tableName);
-    sql = concat(sql, ' where (session->>', qt('id_system'), ')::int = ', systemId);
-    sql = concat(sql, sql_condition(tableName, fieldName, 3, '=', fieldValue, ''));
-/*
     sql := concat(sql, 'select ');
     sql := concat(sql, sql_field(tableName, 'id'));
     sql := concat(sql_from(sql, tableName));
-    sql := concat(sql, sql_where(tableName, systemId));    
-    sql := concat(sql, sql_and('tb_table', 'id', tableId));
-    sql := concat(sql, sql_condition(fieldName, 3, '=', fieldValue, ''));
-*/
+    sql := concat(sql, sql_where(tableName, systemId));
+    sql := concat(sql, sql_condition(tableName, fieldName, 3, '=', fieldValue, ''));
+
     for item in execute sql loop
         return false;
     end loop;
+
     return true;
 end;
 $function$;
@@ -442,6 +437,7 @@ begin
                 sql2 := concat(sql2, ' and id_table = ', item1.id_fk);
                 sql2 := concat(sql2, ' and id_type = ', 3);
                 sql2 := concat(sql2, ' limit 1');
+                
                 for item2 in execute sql2 loop
                     output := concat(output, sql_column(tableName, item2.field_name, item2.id_type, item2.field_mask, item1.field_name), ',');
                 end loop;

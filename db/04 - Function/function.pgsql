@@ -708,7 +708,7 @@ Get an html input element (hidden, text, select)
 select html_input('text', 'id_order', 'ir_order', '123456', '', '', 'onclick=alert(123)');
  */
 drop function if exists html_input;
-create or replace function html_input(htmlType text, id text, fieldName text, fieldValue text, disabled text, checked text, events text)
+create or replace function html_input(htmlType text, fieldName text, fieldValue text, disabled text, checked text, events text)
 returns text
 language plpgsql
 as $function$
@@ -721,6 +721,8 @@ begin
     html := concat(html, ' id=', dbqt(fieldName));
     html := concat(html, ' name=', dbqt(fieldName));
     html := concat(html, ' value=', dbqt(fieldValue));
+
+    html := concat(html, ' ', disabled);
     html := concat(html, ' ', events);
 
     if (htmlType = 'text') then

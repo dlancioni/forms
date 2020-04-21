@@ -21,12 +21,16 @@ declare
     tableName text := '';
     tableFk text := '';
     fieldName text := '';
+    fieldValue text := '';
     fieldLabel text := '';
     fieldType int := 0;
     fieldMask text := '';
     domainName text := '';
     targetId int = 2; -- const
     recordCount float := 0;
+    checked text := '';
+    disabled text := '';
+    events text := '';    
     html text := '';
     item1 record;
     item2 record;
@@ -89,39 +93,35 @@ begin
         fieldMask = trim(item1.field_mask);
         fieldFK = item1.id_fk;
         domainName := trim(item1.domain_name);
+        fieldValue := '';
+        disabled := '';
 
         --html := concat(html, '<div class="w3-half">');
         html := concat(html, '<div class="">');
         html := concat(html, '<label>', fieldLabel, '</label>');        
 
         if (fieldFK = 0) then
-            html := concat(html, ' <input ');
-            html := concat(html, ' class=', dbqt('w3-input w3-border'));
-            html := concat(html, ' id=', dbqt(fieldName));
-            html := concat(html, ' name=', dbqt(fieldName));            
-            html := concat(html, ' type=', dbqt('text'));
 
             -- Filter must allow users enter the ID, cannot disable
             if (fieldName = 'id') then
-
                 if (eventId = 1) then
                     -- NEW: set zero and disable
-                    html := concat(html, ' value=', dbqt('0'));
-                    html := concat(html, ' disabled ');
+                    fieldValue := '0';
+                    disabled := ' disabled ';
                 elsif (eventId = 5) then
                     -- FILTER: set empty and allow enter data
-                    html := concat(html, ' value=', dbqt(''));
+                    fieldValue := '';
                 else
                     -- All other situation just disable
-                    html := concat(html, ' value=', dbqt(resultset->>fieldName));                    
-                    html := concat(html, ' disabled ');
+                    fieldValue := resultset->>fieldName;
+                    disabled := ' disabled ';
                 end if;
-
             else
-                html := concat(html, ' value=', dbqt(resultset->>fieldName));
+                fieldValue := resultset->>fieldName;
             end if;
 
-            html := concat(html, ' >');
+            html := concat (html, html_input('text', fieldName, fieldValue, disabled, checked, events));
+
         else
             html := concat(html, ' <select ');
             html := concat(html, ' class=', dbqt('w3-input w3-border'));
@@ -184,7 +184,7 @@ begin
     ---
     --- Actions (Buttons)
     ---
-    html :=concat(html, get_event(systemId, tableId, eventId, targetId, recordCount::int));
+    html := concat(html, get_event(systemId, tableId, eventId, targetId, recordCount::int));
 
     ---
     --- Javascript

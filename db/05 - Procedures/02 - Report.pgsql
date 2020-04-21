@@ -93,7 +93,7 @@ begin
             -- radio button for header - nothing
             html := concat(html, '</td>');
             for item2 in execute sql2 loop
-                html := concat(html, '<td>', item2.field_label, '</td>');
+                html := concat(html, '<td><b>', item2.field_label, '</b></td>');
             end loop;
         html := concat(html, '</tr>');
     html := concat(html, '</thead>');
@@ -119,16 +119,18 @@ begin
         end if;
 
         html := concat(html, '<tr>');
+
             html := concat(html, '<td>');
-            html := concat (html, html_input('radio', 'selection', 'selection', resultset->>fieldName, disabled, checked, events));
+            html := concat (html, html_input('radio', 'selection', resultset->>fieldName, disabled, checked, events));
             html := concat(html, '</td>');
 
             for item2 in execute sql2 loop
                 fieldName := item2.field_name;
                 html := concat(html, '<td>', resultset->>fieldName, '</td>');
-            end loop;
+            end loop;  
 
         html := concat(html, '</tr>');
+
     end loop;
 
     html := concat(html, '</tbody>');

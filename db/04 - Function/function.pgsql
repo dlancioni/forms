@@ -1,3 +1,224 @@
+-----------------------------------------------------------------
+-- FUNCTION TO MANIPULATE SQL
+-----------------------------------------------------------------
+/*
+Return sql code to select fields
+select sql_field('tb_client', 'name', 'client_name')
+select sql_field('tb_client', 'name')
+ */
+drop function if exists sql_field;
+create or replace function sql_field(tableName text, fieldName text, fieldAlias text default '')
+returns text
+language plpgsql
+as $function$
+declare
+    sql varchar := '';
+begin
+    if (fieldAlias = '') then
+        fieldAlias = fieldName;
+    end if;
+
+    sql := concat(sql, tableName, '.field->>', qt(fieldName), ' ', fieldAlias);
+    return sql;
+end;
+$function$;
+
+/*
+Return sql from and remove last comma
+select sql_from('tb_rel_event')
+ */
+drop function if exists sql_from;
+create or replace function sql_from(tableName text)
+returns text
+language plpgsql
+as $function$
+declare
+    sql varchar := '';
+begin
+    sql := concat(sql, ' from ', tableName); 
+    return sql;
+end;
+$function$;
+
+/*
+Mandatory condition for all queries
+select sql_where(1)
+ */
+drop function if exists sql_where;
+create or replace function sql_where(tableName text, systemId integer)
+returns text
+language plpgsql
+as $function$
+declare
+    sql varchar := '';
+begin
+    sql = concat(sql, ' where (', tableName, '.session->>', qt('id_system'), ')::int = ', systemId);
+    return sql;
+end;
+$function$;
+
+/*
+Mandatory condition for all queries
+select sql_and('tb_rel_event', 'id_domain', 1)
+ */
+drop function if exists sql_and;
+create or replace function sql_and(tableName text, fieldName text, fieldValue int)
+returns text
+language plpgsql
+as $function$
+declare
+    sql varchar := '';
+begin
+    sql := concat(sql, ' and (', tableName, '.field->>', qt(fieldName), ')::int = ', fieldValue);    
+    return sql;
+end;
+$function$;
+
+/*
+Return sql that creates dynamic conditions
+select sql_condition('tb1', 'id', 1, '=', '1');
+select sql_condition('tb1', 'amount', 2, '>', '10.99');
+select sql_condition('tb1', 'name', 3, '=', 'David');
+select sql_condition('tb1', 'expire_date', 4, '=', '31/12/2014', 'dd/mm/yyyy');
+*/
+drop function if exists sql_condition;
+create or replace function sql_condition(tableName text, fieldName text, fieldType integer, fieldOperator text, fieldValue text, fieldMask text default '')
+returns text
+language plpgsql
+as $function$
+declare
+    output text := ' and ';
+begin
+    -- Note: apply single quote on data and string
+    if (fieldType = 4) then
+        output = concat(output , ' (to_date(', tableName, '.field', '->>', qt(fieldName), ', ', fieldMask, ')');
+    else
+        output = concat(output , ' (', tableName, '.field', '->>', qt(fieldName));
+    end if;
+
+    if (fieldType = 1) then
+        output = concat(output, ')::int');
+    elsif (fieldType = 2) then
+        output = concat(output, ')::float');
+    elsif (fieldType = 3) then
+        output = concat(output, ')::text');
+        fieldValue := qt(fieldValue);
+    elsif (fieldType = 4) then
+        output = concat(output, ')::date');
+        fieldValue := concat('to_date(', qt(fieldValue), ', ', qt(fieldMask), ')');
+    end if;
+
+    output = concat(output, ' ', fieldOperator);
+    output = concat(output, ' ', fieldValue);
+    output = concat(output, ' ');
+
+    return output;
+end;
+$function$;
+
+/*
+Return sql code to join tables
+select sql_join('tb_client', 'id_address', 'tb_address', 'address', 'id')
+select sql_join('tb_client', 'id_address', 'tb_domain', 'tb_domain_event', 'id_domain', 'tb_event')
+ */
+drop function if exists sql_join;
+create or replace function sql_join(baseTable text, baseField text, joinTable text, joinTableAlias text, joinField text, domainName text default '')
+returns text
+language plpgsql
+as $function$
+declare
+    sql varchar := '';
+begin
+
+    if (domainName != '')  then
+        sql := concat(sql, ' inner join ', joinTable, ' ', joinTableAlias, ' on');
+        sql := concat(sql, ' (', baseTable, '.field->>', qt(baseField), ')::int = (', joinTableAlias, '.field->>', qt(joinField), ')::int');
+        sql := concat(sql, ' and ', joinTableAlias, '.field->>', qt('domain'), ' = ', qt(domainName));
+    else
+        sql := concat(sql, ' left join ', joinTable, ' ', joinTableAlias, ' on');
+        sql := concat(sql, ' (', baseTable, '.field->>', qt(baseField), ')::int = (', joinTableAlias, '.field->>', qt(joinField), ')::int');
+    end if;
+
+    return sql;
+end;
+$function$;
+
+
+-----------------------------------------------------------------
+-- OTHER FUNCTIONS
+-----------------------------------------------------------------
+/*
+Get join
+select get_join(1,1) -- No join
+select get_join(1,2) -- Simple join
+select get_join(1,3) -- Complex join (domain)
+*/
+drop function if exists get_join;
+create or replace function get_join(systemId int, tableId int)
+returns text
+language plpgsql
+as $function$
+declare
+    item record;
+    sql text := '';
+    tableAlias text := '';
+    output text := '';
+begin
+    -- select row_to_json(tb_table)::text from tb_table
+    sql := concat(sql, ' select');
+    sql := concat(sql, ' t1.table_name base_table,');
+    sql := concat(sql, ' t1.field_name,');
+    sql := concat(sql, ' t1.id_fk,');
+    sql := concat(sql, ' t1.domain_name,');
+    sql := concat(sql, sql_column('t2','table_name', 3, '', ''));
+    sql := concat(sql, ' from vw_table t1');
+    sql := concat(sql, ' inner join tb_table t2 on t1.id_fk = t2.id'); 
+    sql := concat(sql, ' where id_system = ', systemId);
+    sql := concat(sql, ' and id_table = ', tableId);
+
+    for item in execute sql loop
+        if (item.id_fk = 4) then
+            -- TB_DOMAIN
+            tableAlias = concat('tb_', replace(item.field_name, 'id_', 'fk_'));
+            -- output := concat(output, 'inner join ', item.table_name , ' ', tableAlias,  ' on ');
+            -- output := concat(output, '(', item.base_table, '.field->>', qt(item.field_name), ')::int = (', tableAlias, '.field->>', qt('id_domain'), ')::int');
+            -- output := concat(output, ' and (', tableAlias, '.field->>', qt('domain'), ')::text = ', qt(item.domain_name));
+            output := concat(output, sql_join(item.base_table, item.field_name, item.table_name, tableAlias, 'id_domain', item.domain_name));
+        else
+            -- FKs
+            tableAlias = concat('tb_', replace(item.field_name, 'id_', 'fk_')); 
+            -- output := concat(output, 'left join ', item.table_name , ' ', tableAlias,  ' on ');
+            -- output := concat(output, '(', item.base_table, '.field->>', qt(item.field_name), ')::int = ', tableAlias, '.id');
+            output := concat(output, sql_join(item.base_table, item.field_name, item.table_name, tableAlias, 'id'));
+        end if;
+        output := concat(output, ' ');
+    end loop;
+    return output;
+end;
+$function$;
+
+
+/*
+Get table structure
+select get_struct(1,1);
+*/
+drop function if exists get_struct;
+create or replace function get_struct(systemId int, tableId int)
+returns text
+language plpgsql
+as $function$
+declare sql text := '';
+begin
+	sql := '';		
+	sql := concat(sql, ' select * from vw_table');
+	sql := concat(sql, ' where id_system = ', systemId);
+	sql := concat(sql, ' and id_table = ', tableId);
+
+    return sql;
+end;
+$function$;
+
+
 /*
 Crop data from string 
 select crop('id,name, ', ',');
@@ -85,53 +306,6 @@ begin
 end;
 $function$;
 
-/*
-Get join
-select get_join(1,1) -- No join
-select get_join(1,2) -- Simple join
-select get_join(1,3) -- Complex join (domain)
-*/
-drop function if exists get_join;
-create or replace function get_join(systemId int, tableId int)
-returns text
-language plpgsql
-as $function$
-declare
-    item record;
-    sql text := '';
-    tableAlias text := '';
-    output text := '';
-begin
-    -- select row_to_json(tb_table)::text from tb_table
-    sql := concat(sql, ' select');
-    sql := concat(sql, ' t1.table_name base_table,');
-    sql := concat(sql, ' t1.field_name,');
-    sql := concat(sql, ' t1.id_fk,');
-    sql := concat(sql, ' t1.domain_name,');
-    sql := concat(sql, sql_column('t2','table_name', 3, '', ''));
-    sql := concat(sql, ' from vw_table t1');
-    sql := concat(sql, ' inner join tb_table t2 on t1.id_fk = t2.id'); 
-    sql := concat(sql, ' where id_system = ', systemId);
-    sql := concat(sql, ' and id_table = ', tableId);
-
-    for item in execute sql loop
-        if (item.id_fk = 4) then
-            -- TB_DOMAIN
-            tableAlias = concat('tb_', replace(item.field_name, 'id_', 'fk_'));
-            output := concat(output, 'inner join ', item.table_name , ' ', tableAlias,  ' on ');
-            output := concat(output, '(', item.base_table, '.field->>', qt(item.field_name), ')::int = (', tableAlias, '.field->>', qt('id_domain'), ')::int');
-            output := concat(output, ' and (', tableAlias, '.field->>', qt('domain'), ')::text = ', qt(item.domain_name));
-        else
-            -- FKs
-            tableAlias = concat('tb_', replace(item.field_name, 'id_', 'fk_'));
-            output := concat(output, 'left join ', item.table_name , ' ', tableAlias,  ' on ');
-            output := concat(output, '(', item.base_table, '.field->>', qt(item.field_name), ')::int = ', tableAlias, '.id');
-        end if;
-        output := concat(output, ' ');
-    end loop;
-    return output;
-end;
-$function$;
 
 create or replace function get_json(systemId integer, tableId integer, userId integer, actionId integer)
 returns jsonb
@@ -240,7 +414,7 @@ begin
 
     sql := concat(sql, 'select ');
     sql := concat(sql, sql_field('tb_table', 'table_name'));
-    sql := concat(sql_from(sql, 'tb_table'));
+    sql := concat(sql, sql_from('tb_table'));
     sql := concat(sql, sql_where('tb_table', systemId));
     sql := concat(sql, sql_and('tb_table', 'id', tableId));
 
@@ -268,7 +442,7 @@ begin
 
     sql := concat(sql, 'select ');
     sql := concat(sql, sql_field(tableName, 'id'));
-    sql := concat(sql_from(sql, tableName));
+    sql := concat(sql, sql_from(tableName));
     sql := concat(sql, sql_where(tableName, systemId));
     sql := concat(sql, sql_condition(tableName, fieldName, 3, '=', fieldValue, ''));
 
@@ -414,7 +588,8 @@ declare
     fieldName text := '';    
     output text := '';
 begin
-    sql1 = concat('select * from vw_table where id_system = ', systemId, ' and id_table = ', tableId);
+    sql1 := get_struct(systemId, tableId);
+
     for item1 in execute sql1 loop
         if (item1.id_fk = 0) then
             -- Same tables
@@ -431,16 +606,15 @@ begin
             else
                 -- Other foreign keys
                 tableName = concat('tb_', replace(item1.field_name, 'id_', 'fk_'));                
-                sql2 := '';
-                sql2 := concat(sql2, ' select field_name, id_type, field_mask from vw_table');
-                sql2 := concat(sql2, ' where id_system = ', systemId);
-                sql2 := concat(sql2, ' and id_table = ', item1.id_fk);
+                sql2 := '';               
+                sql2 = get_struct(systemId, item1.id_fk);
                 sql2 := concat(sql2, ' and id_type = ', 3);
                 sql2 := concat(sql2, ' limit 1');
-                
+
                 for item2 in execute sql2 loop
                     output := concat(output, sql_column(tableName, item2.field_name, item2.id_type, item2.field_mask, item1.field_name), ',');
                 end loop;
+
             end if;
         end if;
     end loop;
@@ -452,7 +626,7 @@ $function$;
 
 /*
 Set value between double quote
-select get_event(1, 1, 2, 0);
+select get_event(1, 1, 1, 2, 0);
 */
 drop function if exists get_event;
 create or replace function get_event(systemId int, tableId int, eventId int, targetId int, recordCount int)
@@ -468,21 +642,25 @@ begin
     --- Prepare query to get actions (buttons)
     ---
     sql := concat(sql, ' select ');
-    sql := concat(sql, sql_field('tb_event', 'id'));
-    sql := concat(sql, sql_field('tb_event', 'id_table'));
-    sql := concat(sql, sql_field('tb_event', 'id_target'));
-    sql := concat(sql, sql_field('tb_event', 'display'));
-    sql := concat(sql, sql_field('tb_event', 'id_event'));
-    sql := concat(sql, sql_field('tb_event', 'code'));
+    sql := concat(sql, sql_field('tb_event', 'id'), ',');
+    sql := concat(sql, sql_field('tb_event', 'id_table'), ',');
+    sql := concat(sql, sql_field('tb_event', 'id_target'), ',');
+    sql := concat(sql, sql_field('tb_event', 'display'), ',');
+    sql := concat(sql, sql_field('tb_event', 'id_event'), ',');
+    sql := concat(sql, sql_field('tb_event', 'code'), ',');
     sql := concat(sql, sql_field('tb_domain_event', 'value', 'event_name'));
-    sql := concat(sql_from(sql, 'tb_event'));
-    sql := concat(sql, sql_join('tb_event', 'id_event', 'tb_domain_event', 'id_domain', 'tb_event'));   
+    sql := concat(sql, sql_from('tb_event'));
+    sql := concat(sql, sql_join('tb_event', 'id_event', 'tb_domain', 'tb_domain_event', 'id_domain', 'tb_event'));   
+
     if (targetId = 2) then
-        sql := concat(sql, sql_join('tb_event', 'id', 'tb_rel_event', 'value', 'tb_rel_event'));
+        sql := concat(sql, sql_join('tb_event', 'id', 'tb_domain', 'tb_rel_event', 'value', 'tb_rel_event'));
+        sql := concat(sql, sql_and('tb_rel_event', 'id_domain', eventId));  
     end if;    
-    sql := concat(sql, sql_where('tb_event', systemId));
+
+    sql := concat(sql, sql_where('tb_event', systemId));    
     sql := concat(sql, sql_and('tb_event', 'id_table', tableId));
     sql := concat(sql, sql_and('tb_event', 'id_target', targetId));    
+
     -- No records, only [New] is presented
     if (targetId = 1 and recordCount = 0) then
         sql := concat(sql, sql_and('tb_event', 'id', 1));
@@ -512,148 +690,3 @@ begin
 end;
 $function$;
 
-
-/*
-Return sql code to select fields
-select sql_field('tb_client', 'name', 'client_name')
-select sql_field('tb_client', 'name')
- */
-drop function if exists sql_field;
-create or replace function sql_field(tableName text, fieldName text, fieldAlias text default '')
-returns text
-language plpgsql
-as $function$
-declare
-    sql varchar := '';
-begin
-
-    if (fieldAlias = '') then
-        fieldAlias = fieldName;
-    end if;
-
-    sql := concat(sql, tableName, '.field->>', qt(fieldName), ' ', fieldAlias, ', ');
-    return sql;
-end;
-$function$;
-
-/*
-    Mandatory condition for all queries
-    select sql_where(1)
- */
-drop function if exists sql_where;
-create or replace function sql_where(tableName text, systemId integer)
-returns text
-language plpgsql
-as $function$
-declare
-    sql varchar := '';
-begin
-    sql = concat(sql, ' where (', tableName, '.session->>', qt('id_system'), ')::int = ', systemId);
-    return sql;
-end;
-$function$;
-
-/*
-    Mandatory condition for all queries
-    select sql_and('tb_rel_event', 'id_domain', 1)
- */
-drop function if exists sql_and;
-create or replace function sql_and(tableName text, fieldName text, fieldValue int)
-returns text
-language plpgsql
-as $function$
-declare
-    sql varchar := '';
-begin
-    sql := concat(sql, ' and (',tableName, '.field->>', qt(fieldName), ')::int = ', fieldValue);    
-    return sql;
-end;
-$function$;
-
-/*
-    Return sql code to join tables
-    select sql_join('tb_client', 'id_address', 'tb_address', 'id')
-    select sql_join('tb_event', 'id_event', 'tb_domain_event', 'id_domain', 'tb_event')
- */
-drop function if exists sql_join;
-create or replace function sql_join(baseTable text, baseField text, joinTable text, joinField text, domainName text default '')
-returns text
-language plpgsql
-as $function$
-declare
-    sql varchar := '';
-begin
-
-    if (domainName != '')  then
-        sql := concat(sql, ' inner join tb_domain ', joinTable, ' on');
-        sql := concat(sql, ' (', baseTable, '.field->>', qt(baseField), ')::int = (', joinTable, '.field->>', qt(joinField), ')::int');
-        sql := concat(sql, ' and ', joinTable, '.field->>', qt('domain'), ' = ', qt(domainName));
-    else
-        sql := concat(sql, ' inner join ', joinTable, ' on');
-        sql := concat(sql, ' (', baseTable, '.field->>', qt(baseField), ')::int = (', joinTable, '.field->>', qt(joinField), ')::int');
-    end if;
-
-    return sql;
-end;
-$function$;
-
-
-/*
-Return sql from and remove last comma
-select sql_from('id, name, ', 'tb_rel_event')
- */
-drop function if exists sql_from;
-create or replace function sql_from(fieldList text, tableName text)
-returns text
-language plpgsql
-as $function$
-declare
-    sql varchar := '';
-begin
-    sql := concat(sql, crop(fieldList, ','));
-    sql := concat(sql, ' from ', tableName); 
-    return sql;
-end;
-$function$;
-
-/*
-Return sql that creates dynamic conditions
-select sql_condition('tb1', 'id', 1, '=', '1');
-select sql_condition('tb1', 'amount', 2, '>', '10.99');
-select sql_condition('tb1', 'name', 3, '=', 'David');
-select sql_condition('tb1', 'expire_date', 4, '=', '31/12/2014', 'dd/mm/yyyy');
-*/
-drop function if exists sql_condition;
-create or replace function sql_condition(tableName text, fieldName text, fieldType integer, fieldOperator text, fieldValue text, fieldMask text default '')
-returns text
-language plpgsql
-as $function$
-declare
-    output text := ' and ';
-begin
-    -- Note: apply single quote on data and string
-    if (fieldType = 4) then
-        output = concat(output , ' (to_date(', tableName, '.field', '->>', qt(fieldName), ', ', fieldMask, ')');
-    else
-        output = concat(output , ' (', tableName, '.field', '->>', qt(fieldName));
-    end if;
-
-    if (fieldType = 1) then
-        output = concat(output, ')::int');
-    elsif (fieldType = 2) then
-        output = concat(output, ')::float');
-    elsif (fieldType = 3) then
-        output = concat(output, ')::text');
-        fieldValue := qt(fieldValue);
-    elsif (fieldType = 4) then
-        output = concat(output, ')::date');
-        fieldValue := concat('to_date(', qt(fieldValue), ', ', qt(fieldMask), ')');
-    end if;
-
-    output = concat(output, ' ', fieldOperator);
-    output = concat(output, ' ', fieldValue);
-    output = concat(output, ' ');
-
-    return output;
-end;
-$function$;

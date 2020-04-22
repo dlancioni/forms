@@ -744,7 +744,7 @@ Generate HTML option list for dropdown
 select html_option(1, 3, '2');
 */
 drop function if exists html_option;
-create or replace function html_option(systemId integer, tableId int, selectedValue int, domainName text default '')
+create or replace function html_option(systemId integer, tableId int, selectedValue text, domainName text default '')
 returns text
 language plpgsql
 as $function$
@@ -793,7 +793,7 @@ begin
     -- Populate the dropdown
     for item2 in execute sql2 loop
         html := concat(html, '<option value=', dbqt(item2.id));
-        if (selectedValue::text = item2.id::text) then
+        if (trim(selectedValue::text) = (item2.id::text)) then
             html := concat(html, ' selected ');
         end if;
         html := concat(html, '>');

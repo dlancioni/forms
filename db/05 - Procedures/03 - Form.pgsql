@@ -1,6 +1,6 @@
 /*
 -- filtering
-call form('{"session":{"id_system":1,"id_table":2,"id":1}}')
+call form('{"session":{"id_system":1,"id_table":2,"id":1, "id_event":1}}')
 */
 
 drop procedure if exists form;
@@ -16,8 +16,6 @@ declare
     sql1 text := '';
     sql2 text := '';
     sql3 text := '';
-    sql4 text := '';
-    sql5 text := '';
     tableName text := '';
     tableFk text := '';
     fieldName text := '';
@@ -34,8 +32,7 @@ declare
     html text := '';
     item1 record;
     item2 record;
-    item3 record;
-    item4 record;    
+    item3 record;    
     resultset jsonb;
     SUCCESS int := 1;
     FAIL int := 0;
@@ -128,50 +125,8 @@ begin
             html := concat(html, ' id=', dbqt(fieldName));
             html := concat(html, ' name=', dbqt(fieldName));            
             html := concat(html, ' >');
+            html := concat(html, html_option(systemId, tableId, fieldValue, domainName));
 
-            -- Empty item    
-            html := concat(html, '<option value="0">');
-            html := concat(html, 'Selecionar');
-            html := concat(html, '</option>');            
-
-            -- Figure out ID and DS to populate dropdown
-            execute trace('fieldFK: ', fieldFK::text);
-            if (fieldFK = 4) then
-                -- Domain table
-                sql4 := 'select ';
-                sql4 := concat(sql4, 'field->>', qt('id_domain'), ' as id');
-                sql4 := concat(sql4, ', ');
-                sql4 := concat(sql4, 'field->>', qt('value'), ' as ds');
-                sql4 := concat(sql4, ' from tb_domain');
-                sql4 := concat(sql4, ' where (session->>', qt('id_system'), ')::int = ', systemId);
-                sql4 := concat(sql4, ' and (field->>', qt('domain'), ')::text = ', qt(domainName));
-            else
-                -- Other tables
-                sql4 := 'select ';
-                sql3 := concat('select field_name from vw_table where id_system = ', systemId, ' and id_type = ', 1, ' limit 1 ');
-                for item3 in execute sql3 loop
-                    sql4 := concat(sql4, 'field->>', qt(item3.field_name), ' as id', ',');
-                end loop;
-                sql3 := concat('select field_name from vw_table where id_system = ', systemId, ' and id_type = ', 3, ' limit 1 ');        
-                for item3 in execute sql3 loop
-                    sql4 := concat(sql4, 'field->>', qt(item3.field_name), ' as ds');
-                end loop;
-                sql4 := concat(sql4, ' from ', get_table(systemId, fieldFK));
-            end if;
-            execute trace('SQL4: ', sql4);            
-
-            -- Populate the dropdown
-            for item4 in execute sql4 loop
-                html := concat(html, '<option value=', dbqt(item4.id));
-
-                if (resultset->>fieldName = item4.id) then
-                    html := concat(html, ' selected ');
-                end if;
-
-                html := concat(html, '>');
-                html := concat(html, item4.ds);
-                html := concat(html, '</option>');
-            end loop;
 
             html := concat(html, '</select>');            
         end if;
@@ -189,16 +144,16 @@ begin
     ---
     --- Javascript
     ---
-    sql5 := concat(sql5, ' select');
-    sql5 := concat(sql5, ' field->>', qt('id'), ' id');
-    sql5 := concat(sql5, ' ,field->>', qt('code'), ' code');
-    sql5 := concat(sql5, ' from tb_code');
-    sql5 := concat(sql5, ' where (session->', qt('id_system'), ')::int = ', systemId);
-	execute trace('SQL5: ', sql5);
+    sql3 := concat(sql3, ' select');
+    sql3 := concat(sql3, ' field->>', qt('id'), ' id');
+    sql3 := concat(sql3, ' ,field->>', qt('code'), ' code');
+    sql3 := concat(sql3, ' from tb_code');
+    sql3 := concat(sql3, ' where (session->', qt('id_system'), ')::int = ', systemId);
+	execute trace('SQL3: ', sql3);
 
     html := concat(html, '<script langauage="JavaScript">');    
-    for item4 in execute sql5 loop
-        html := concat(html, item4.code);
+    for item3 in execute sql3 loop
+        html := concat(html, item3.code);
     end loop;
     html := concat(html, '</script>');    
 

@@ -738,3 +738,70 @@ begin
     return html;
 end;
 $function$;
+
+/*
+Generate HTML option list for dropdown
+select html_option(1, 3, '2');
+*/
+drop function if exists html_option;
+create or replace function html_option(systemId integer, tableId int, selectedValue int, domainName text default '')
+returns text
+language plpgsql
+as $function$
+declare
+    html text := '';
+    sql1 text := '';
+    sql2 text := '';    
+    item1 record;
+    item2 record;
+begin
+
+    -- Empty item    
+    html := concat(html, '<option value="0">');
+    html := concat(html, 'Selecionar');
+    html := concat(html, '</option>');            
+
+    -- Figure out ID and DS to populate dropdown
+    execute trace('tableId: ', tableId::text);
+    -- Generate query selecting first Int and first String (ID, DS) from each table            
+    if (tableId = 4) then
+        -- Domain table
+        sql2 := 'select ';
+        sql2 := concat(sql2, sql_field('tb_domain', 'id_domain', 'id'), ',');
+        sql2 := concat(sql2, sql_field('tb_domain', 'value', 'ds'));
+        sql2 := concat(sql2, sql_from('tb_domain'));
+        sql2 := concat(sql2, sql_where('tb_domain', systemId));
+        sql2 := concat(sql2, sql_condition('tb_domain', 'domain', 3, '=', domainName));
+    else
+        -- Other tables
+        sql2 := 'select ';
+        
+        sql1 := concat('select field_name from vw_table where id_system = ', systemId, ' and id_type = ', 1, ' limit 1 ');
+        for item1 in execute sql1 loop
+            sql2 := concat(sql2, 'field->>', qt(item1.field_name), ' as id', ',');
+        end loop;
+
+        sql1 := concat('select field_name from vw_table where id_system = ', systemId, ' and id_type = ', 3, ' limit 1 ');        
+        for item1 in execute sql1 loop
+            sql2 := concat(sql2, 'field->>', qt(item1.field_name), ' as ds');
+        end loop;              
+
+        sql2 := concat(sql2, ' from ', get_table(systemId, tableId));
+    end if;
+    execute trace('sql2: ', sql2);            
+
+    -- Populate the dropdown
+    for item2 in execute sql2 loop
+        html := concat(html, '<option value=', dbqt(item2.id));
+        if (selectedValue::text = item2.id::text) then
+            html := concat(html, ' selected ');
+        end if;
+        html := concat(html, '>');
+        html := concat(html, item2.ds);
+        html := concat(html, '</option>');
+    end loop;
+
+    return html;
+
+end;
+$function$;

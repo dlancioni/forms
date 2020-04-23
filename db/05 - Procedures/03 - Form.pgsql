@@ -125,7 +125,7 @@ begin
             html := concat(html, ' id=', dbqt(fieldName));
             html := concat(html, ' name=', dbqt(fieldName));            
             html := concat(html, ' >');
-            html := concat(html, html_option(systemId, tableId, fieldValue, domainName));
+            html := concat(html, html_option(systemId, fieldFK, fieldValue, domainName));
 
 
             html := concat(html, '</select>');            

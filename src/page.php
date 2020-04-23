@@ -53,7 +53,7 @@
             foreach($_REQUEST as $key => $val) {               
                 $fieldName = trim($key);
                 $fieldValue = trim($val);
-                if ($fieldValue != "") {
+                if (trim($fieldValue) != "" && trim($fieldValue) != "0") {
                     $item = ["field_name" => $fieldName, "operator" => "=", "field_value" => $fieldValue];
                     array_push($filter, $item);
                 }                

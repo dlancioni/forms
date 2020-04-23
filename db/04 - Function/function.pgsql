@@ -744,7 +744,7 @@ Generate HTML option list for dropdown
 select html_option(1, 3, '2');
 */
 drop function if exists html_option;
-create or replace function html_option(systemId integer, tableId int, selectedValue text, domainName text default '')
+create or replace function html_option(systemId integer, fkId int, selectedValue text, domainName text default '')
 returns text
 language plpgsql
 as $function$
@@ -762,9 +762,9 @@ begin
     html := concat(html, '</option>');            
 
     -- Figure out ID and DS to populate dropdown
-    execute trace('tableId: ', tableId::text);
+    execute trace('fkId: ', fkId::text);
     -- Generate query selecting first Int and first String (ID, DS) from each table            
-    if (tableId = 4) then
+    if (fkId = 4) then
         -- Domain table
         sql2 := 'select ';
         sql2 := concat(sql2, sql_field('tb_domain', 'id_domain', 'id'), ',');
@@ -786,7 +786,7 @@ begin
             sql2 := concat(sql2, 'field->>', qt(item1.field_name), ' as ds');
         end loop;              
 
-        sql2 := concat(sql2, ' from ', get_table(systemId, tableId));
+        sql2 := concat(sql2, ' from ', get_table(systemId, fkId));
     end if;
     execute trace('sql2: ', sql2);            
 

@@ -45,9 +45,6 @@
         if ($_REQUEST["__offset__"] != null)
             $pageOffset = $_REQUEST["__offset__"];            
 
-        echo $tableId . "<br>";
-
-
         // Get data for current system and table
         $json = $jsonUtil->setSession($json, "id_system", $systemId);
         $json = $jsonUtil->setSession($json, "id_table", $tableId);
@@ -60,7 +57,6 @@
             foreach($_REQUEST as $key => $val) {
                 $fieldName = trim($key);
                 $fieldValue = trim($val);
-                //echo $fieldName . "->" . $fieldValue . "<br>";
                 if (isValid($fieldName) == "true") {
                     if (strpos($fieldName, "_operator") > 0) {
                         $fieldOperator = $fieldValue;
@@ -77,7 +73,7 @@
         }        
 
         // Debug point to check what is been sent to bd
-        echo $json;
+        //echo $json;
         
         if ($targetId == 1) {
             $sql = "call report($1)";

@@ -742,6 +742,7 @@ $function$;
 /*
 Generate HTML option list for dropdown
 select html_option(1, 3, '2');
+select html_option(1, 4, '2', 'tb_operator');
 */
 drop function if exists html_option;
 create or replace function html_option(systemId integer, fkId int, selectedValue text, domainName text default '')
@@ -810,6 +811,7 @@ $function$;
 Return sql code to select fields
 Note: html_option is able to figure out ID and DS
 select html_dropdown(1, 'id_system', 2, '1')
+select html_dropdown(1, 'id_system', 4, '1', 'tb_operator')
  */
 drop function if exists html_dropdown;
 create or replace function html_dropdown(systemId int, fieldName text, fkId int, fieldValue text, domainName text default '')

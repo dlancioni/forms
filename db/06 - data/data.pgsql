@@ -96,12 +96,19 @@ insert into tb_domain (field) values ('{"id":13,"id_system":1,"id_domain":3,"val
 -- tb_rel_event
 insert into tb_domain (field) values ('{"id":14,"id_system":1,"id_domain":1,"value":"4","domain":"tb_rel_event"}');
 insert into tb_domain (field) values ('{"id":15,"id_system":1,"id_domain":1,"value":"7","domain":"tb_rel_event"}');
-insert into tb_domain (field) values ('{"id":14,"id_system":1,"id_domain":2,"value":"4","domain":"tb_rel_event"}');
-insert into tb_domain (field) values ('{"id":15,"id_system":1,"id_domain":2,"value":"7","domain":"tb_rel_event"}');
-insert into tb_domain (field) values ('{"id":14,"id_system":1,"id_domain":3,"value":"4","domain":"tb_rel_event"}');
-insert into tb_domain (field) values ('{"id":15,"id_system":1,"id_domain":3,"value":"7","domain":"tb_rel_event"}');
-insert into tb_domain (field) values ('{"id":14,"id_system":1,"id_domain":5,"value":"6","domain":"tb_rel_event"}');
-insert into tb_domain (field) values ('{"id":15,"id_system":1,"id_domain":5,"value":"7","domain":"tb_rel_event"}');
+insert into tb_domain (field) values ('{"id":16,"id_system":1,"id_domain":2,"value":"4","domain":"tb_rel_event"}');
+insert into tb_domain (field) values ('{"id":17,"id_system":1,"id_domain":2,"value":"7","domain":"tb_rel_event"}');
+insert into tb_domain (field) values ('{"id":18,"id_system":1,"id_domain":3,"value":"4","domain":"tb_rel_event"}');
+insert into tb_domain (field) values ('{"id":19,"id_system":1,"id_domain":3,"value":"7","domain":"tb_rel_event"}');
+insert into tb_domain (field) values ('{"id":20,"id_system":1,"id_domain":5,"value":"6","domain":"tb_rel_event"}');
+insert into tb_domain (field) values ('{"id":21,"id_system":1,"id_domain":5,"value":"7","domain":"tb_rel_event"}');
+-- tb_operator
+insert into tb_domain (field) values ('{"id":22,"id_system":1,"id_domain":"=","value":"=","domain":"tb_operator"}');
+insert into tb_domain (field) values ('{"id":23,"id_system":1,"id_domain":"<>","value":"<>","domain":"tb_operator"}');
+insert into tb_domain (field) values ('{"id":24,"id_system":1,"id_domain":">","value":">","domain":"tb_operator"}');
+insert into tb_domain (field) values ('{"id":25,"id_system":1,"id_domain":">=","value":">=","domain":"tb_operator"}');
+insert into tb_domain (field) values ('{"id":26,"id_system":1,"id_domain":"<","value":"<","domain":"tb_operator"}');
+insert into tb_domain (field) values ('{"id":27,"id_system":1,"id_domain":"<=","value":"<=","domain":"tb_operator"}');
 -- set the session
 update tb_domain set session = '{"id_system":1,"id_table":4,"id_user":1,"id_action":1}';
 

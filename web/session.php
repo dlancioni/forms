@@ -1,6 +1,5 @@
-<input type="hidden" id="id_target" name="id_target" value="<?php if ($targetId==1) {echo "2";} else {echo 1;} ?>">
-<input type="hidden" id="id_table" name="id_table" value="<?php echo $tableId; ?>">
-<input type="hidden" id="id_record" name="id_record" value="<?php echo $recordId; ?>">
-<input type="hidden" id="id_event" name="id_event" value="<?php echo $eventId; ?>">
-
-<input type="hidden" id="page_offset" name="page_offset" value="0">
+<input type="text" id="__target__" name="__target__" value="<?php if ($targetId==1) {echo "2";} else {echo 1;} ?>">
+<input type="text" id="__table__" name="__table__" value="<?php echo $tableId; ?>">
+<input type="text" id="__id__" name="__id__" value="<?php echo $id; ?>">
+<input type="text" id="__event__" name="__event__" value="<?php echo $eventId; ?>">
+<input type="text" id="__offset__" name="__offset__" value="0">

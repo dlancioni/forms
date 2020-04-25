@@ -2,29 +2,29 @@
 <script language="JavaScript">
 
     // Mandatory on form load on report
-    setValue('id_record', document.getElementById("selection").value);
+    setValue('__id__', document.getElementById("selection").value);
 
     // Navigate to page
     function go(targetId, tableId, recordId, eventId) {
 
         // Set values
-        setValue('id_target', targetId);
-        setValue('id_table', tableId);
-        setValue('id_record', recordId);
-        setValue('id_event', eventId);
+        setValue('__target__', targetId);
+        setValue('__table__', tableId);
+        setValue('__id__', recordId);
+        setValue('__event__', eventId);
 
         // New asks to copy record    
         if (eventId == 1) {
             if (getId() > 0) {
                 if (confirm("Would you like to use selected record as template?") == false) {
-                    setValue('id_record', '0');
+                    setValue('__id__', '0');
                 }
             }
         }
 
         // Filter requires empty form
         if (eventId == 5) {
-            setValue('id_record', '0');
+            setValue('__id__', '0');
         }
 
         // Submit data
@@ -39,16 +39,16 @@
     // Id -> the record we are changing or delte
     // Event -> New, Edit, Delete, Copy. Used to display buttons like Save, Delete or Filter
     function getTarget() {
-        return document.getElementById('id_target').value;
+        return document.getElementById('__target__').value;
     }
     function getTable() {
-        return document.getElementById('id_table').value;
+        return document.getElementById('__table__').value;
     }
     function getId() {
-        return document.getElementById('id_record').value;
+        return document.getElementById('__id__').value;
     }
     function getEvent() {
-        return document.getElementById('id_event').value;
+        return document.getElementById('__event__').value;
     }    
 
     // Used to set information above

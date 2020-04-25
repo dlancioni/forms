@@ -36,7 +36,7 @@ declare
     resultset jsonb;
     SUCCESS int := 1;
     FAIL int := 0;
-
+    TB_DOMAIN int := 4;
 begin
     ---
     --- Start processing
@@ -115,14 +115,19 @@ begin
         --html := concat(html, '<div class="w3-half">');
         html := concat(html, '<div class="">');
         html := concat(html, '<label>', fieldLabel, '</label>');
-
         -- Write the form
         if (fieldFK = 0) then
-            html := concat (html, html_input('text', fieldName, fieldValue, disabled, checked, events));
+            -- event:filter | type:int/dec/dat enable checkbox to pick operator
+            if (eventId = 5 and (fieldType = 1 or fieldType = 2 or fieldType = 4)) then 
+                html := concat(html, html_dropdown(systemId, concat(fieldName, '_operator'), TB_DOMAIN, fieldValue, 'tb_operator'));
+                html := concat (html, '</p>');
+                html := concat (html, html_input('text', fieldName, fieldValue, disabled, checked, events));
+            else
+                html := concat (html, html_input('text', fieldName, fieldValue, disabled, checked, events));
+            end if;
         else
             html := concat(html, html_dropdown(systemId, fieldName, fieldFK, fieldValue, domainName));
         end if;
-
         html := concat(html, '<br>');
         html := concat(html, '</div>');
 

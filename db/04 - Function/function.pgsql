@@ -806,8 +806,6 @@ begin
 end;
 $function$;
 
-
-
 /*
 Return sql code to select fields
 Note: html_option is able to figure out ID and DS

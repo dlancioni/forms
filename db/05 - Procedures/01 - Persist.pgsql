@@ -1,7 +1,7 @@
 /* 
 call persist('{"session":{"id_system":1,"id_table":1,"id_action":1,"id_user":1},"field":{"id":0,"name":"lancioni it","expire_date":"31/12/2021","price":1200}}'); 
 call persist('{"session":{"id_system":1,"id_table":1,"id_action":2,"id_user":1},"field":{"id":1,"name":"Lancioni IT","expire_date":"31/12/2021","price":1200}}'); 
-call persist('{"session":{"id_system":1,"id_table":1,"id_action":3,"id_user":1},"field":{"id":8}}'); 
+call persist('{"session":{"id_system":1,"id_table":6,"id_action":3,"id_user":1},"field":{"id":7}}'); 
 
 call persist('{"session":{"id_system":1,"id_table":2,"id_action":1,"id_user":1},"field":{"id_system":1,"id_table":2,"id_action":1, "id_user":1},"field":{"id":0,"id_system":1,"name":"tb_1","url":"index.php?id_layout=1&id_table=33&page_offset=0","table_name":"tb_1"}}'); 
 */

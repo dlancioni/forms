@@ -106,7 +106,7 @@ begin
         fieldName := 'id';
         resultset := item1.record;
         recordCount := resultset->>'record_count';
-        events = 'onClick="setValue(''id_record'', this.value);"';
+        events = 'onClick="setValue(''__id__'', this.value);"';
 
         checked := '';
         if (id = 0) then

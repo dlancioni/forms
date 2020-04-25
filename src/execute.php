@@ -30,8 +30,8 @@
         $jsonUtil = new JsonUtil();
 
         // Request key fields
-        $eventId = $_REQUEST["id_event"];
-        $tableId = $_REQUEST["id_table"];
+        $eventId = $_REQUEST["__event__"];
+        $tableId = $_REQUEST["__table__"];
 
         // Transform the event in action
         switch ($eventId) {
@@ -52,20 +52,24 @@
         // Form contents to standard json
         foreach($_REQUEST as $key => $val) {
 
-            // kEEP THE VALUES
+            // Keep the values
             $fieldName = trim($key);
             $fieldValue = trim($val);
-
-            // Must set 0 if ID is not informed    
-            if (trim($fieldName) == "id_record") {
-                if ($actionId != 1) {
-                    $json = $jsonUtil->setField($json, "id", intval($fieldValue));
-                } else {
-                    $json = $jsonUtil->setField($json, "id", 0);                    
+            //if (isValid($fieldName) == "true") {            
+                // Must set 0 if ID is not informed    
+                if (trim($fieldName) == "__id__") {
+                    if ($actionId != 1) { // new
+                        $json = $jsonUtil->setField($json, "id", intval($fieldValue));
+                    } else {
+                        $json = $jsonUtil->setField($json, "id", 0);                    
+                    }
                 }
-            }
-            $json = $jsonUtil->setField($json, $fieldName, $fieldValue);
+                $json = $jsonUtil->setField($json, $fieldName, $fieldValue);
+            //}
         }
+
+        // Handle single quote
+        $json = str_replace("'", "''", $json);
 
         // Persist it
         $log = $json;
@@ -76,7 +80,8 @@
         echo "EXCEPTION : " . $e;
     }
 
-    //echo $log;
+    // echo $log;
+    //echo db->get_error();
     echo $json->message;
 
 ?>

@@ -97,40 +97,31 @@ begin
         html := concat(html, '<div class="">');
         html := concat(html, '<label>', fieldLabel, '</label>');        
 
-        if (fieldFK = 0) then
-
-            -- Filter must allow users enter the ID, cannot disable
-            if (fieldName = 'id') then
-                if (eventId = 1) then
-                    -- NEW: set zero and disable
-                    fieldValue := '0';
-                    disabled := ' disabled ';
-                elsif (eventId = 5) then
-                    -- FILTER: set empty and allow enter data
-                    fieldValue := '';
-                else
-                    -- All other situation just disable
-                    fieldValue := resultset->>fieldName;
-                    disabled := ' disabled ';
-                end if;
+        -- Filter must allow users enter the ID, cannot disable
+        if (fieldName = 'id') then
+            if (eventId = 1) then
+                -- NEW: set zero and disable
+                fieldValue := '0';
+                disabled := ' disabled ';
+            elsif (eventId = 5) then
+                -- FILTER: set empty and allow enter data
+                fieldValue := '';
             else
+                -- All other situation just disable
                 fieldValue := resultset->>fieldName;
+                disabled := ' disabled ';
             end if;
-
-            html := concat (html, html_input('text', fieldName, fieldValue, disabled, checked, events));
-
         else
-            html := concat(html, ' <select ');
-            html := concat(html, ' class=', dbqt('w3-input w3-border'));
-            html := concat(html, ' id=', dbqt(fieldName));
-            html := concat(html, ' name=', dbqt(fieldName));            
-            html := concat(html, ' >');
-            html := concat(html, html_option(systemId, fieldFK, fieldValue, domainName));
-
-
-            html := concat(html, '</select>');            
+            fieldValue := resultset->>fieldName;
         end if;
 
+        -- Write the form
+        if (fieldFK = 0) then
+            html := concat (html, html_input('text', fieldName, fieldValue, disabled, checked, events));
+        else
+            html := concat(html, html_dropdown(systemId, fieldName, fieldFK, fieldValue, domainName));
+        end if;
+        
         html := concat(html, '<br>');
         html := concat(html, '</div>');
 

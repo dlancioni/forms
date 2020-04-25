@@ -805,3 +805,32 @@ begin
 
 end;
 $function$;
+
+
+
+/*
+Return sql code to select fields
+Note: html_option is able to figure out ID and DS
+select html_dropdown(1, 'id_system', 2, '1')
+ */
+drop function if exists html_dropdown;
+create or replace function html_dropdown(systemId int, fieldName text, fkId int, fieldValue text, domainName text default '')
+returns text
+language plpgsql
+as $function$
+declare
+    html varchar := '';
+begin
+    html := concat(html, ' <select ');
+    html := concat(html, ' class=', dbqt('w3-input w3-border'));
+    html := concat(html, ' id=', dbqt(fieldName));
+    html := concat(html, ' name=', dbqt(fieldName));            
+    html := concat(html, ' >');
+    html := concat(html, html_option(systemId, fkId, fieldValue, domainName));
+    html := concat(html, '</select>');
+
+    return html;
+end;
+$function$;
+
+

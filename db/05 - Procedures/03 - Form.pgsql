@@ -93,10 +93,6 @@ begin
         fieldValue := '';
         disabled := '';
 
-        --html := concat(html, '<div class="w3-half">');
-        html := concat(html, '<div class="">');
-        html := concat(html, '<label>', fieldLabel, '</label>');        
-
         -- Filter must allow users enter the ID, cannot disable
         if (fieldName = 'id') then
             if (eventId = 1) then
@@ -115,13 +111,18 @@ begin
             fieldValue := resultset->>fieldName;
         end if;
 
+
+        --html := concat(html, '<div class="w3-half">');
+        html := concat(html, '<div class="">');
+        html := concat(html, '<label>', fieldLabel, '</label>');
+
         -- Write the form
         if (fieldFK = 0) then
             html := concat (html, html_input('text', fieldName, fieldValue, disabled, checked, events));
         else
             html := concat(html, html_dropdown(systemId, fieldName, fieldFK, fieldValue, domainName));
         end if;
-        
+
         html := concat(html, '<br>');
         html := concat(html, '</div>');
 

@@ -74,7 +74,6 @@
 
         // Debug point to check what is been sent to bd
         //echo $json;
-        
         if ($targetId == 1) {
             $sql = "call report($1)";
         } else {

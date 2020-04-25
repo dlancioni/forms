@@ -80,6 +80,8 @@ select sql_condition('tb1', 'id', 1, '=', '1');
 select sql_condition('tb1', 'amount', 2, '>', '10.99');
 select sql_condition('tb1', 'name', 3, '=', 'David');
 select sql_condition('tb1', 'expire_date', 4, '=', '31/12/2014', 'dd/mm/yyyy');
+
+select sql_condition('tb1', 'id_mandatory', 1, '=', '1');
 */
 drop function if exists sql_condition;
 create or replace function sql_condition(tableName text, fieldName text, fieldType integer, fieldOperator text, fieldValue text, fieldMask text default '')
@@ -106,6 +108,8 @@ begin
     elsif (fieldType = 4) then
         output = concat(output, ')::date');
         fieldValue := concat('to_date(', qt(fieldValue), ', ', qt(fieldMask), ')');
+    elsif (fieldType = 5) then -- bool
+        output = concat(output, ')::int');
     end if;
 
     output = concat(output, ' ', fieldOperator);

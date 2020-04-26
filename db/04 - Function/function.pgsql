@@ -423,6 +423,29 @@ $function$;
 
 /*
 Check if the record is unique at the table
+select parse_int('1'); -- true
+select parse_int('d'); -- false
+select parse_int('10,2'); -- false
+select parse_int('10.2'); -- false
+*/
+drop function if exists parse_int;
+create or replace function parse_int(value text)
+returns text
+language plpgsql
+as $function$
+declare 
+    x int;
+begin
+    x = value::int;
+    return true;
+exception when others then
+    return false;
+end;
+$function$;
+
+
+/*
+Check if the record is unique at the table
 select is_unique(1, 'tb_system', 'name', 'formsss') -- true, dont exists
 select is_unique(1, 'tb_system', 'name', 'forms') -- false, already exists 
 

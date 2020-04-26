@@ -107,6 +107,20 @@ begin
 				end if;
 			end if;
 
+			-- Validate int
+			if (fieldType = 1) then
+				if (parse_int(fieldValue) = false) then
+					raise exception 'Valor inválido [%] no campo %, esperado numerico inteiro', fieldValue, fieldName;
+				end if;
+			end if;
+
+			-- Validate dec
+			if (fieldType = 2) then
+				if (parse_dec(fieldValue) = false) then
+					raise exception 'Valor inválido [%] no campo %, esperado numerico', fieldValue, fieldName;
+				end if;
+			end if;
+
 			-- Validate dates
 			if (fieldType = 4) then
 				if (parse_date(fieldValue, fieldMask) = false) then
@@ -192,6 +206,34 @@ begin
 					raise exception 'Campo % é obrigatorio', field_name;
 				end if;
 			end if;
+
+			-- Validate unique values
+			if (fieldUnique = 1) then
+				if (is_unique(systemId, tableName, fieldName, fieldValue) = false) then
+					raise exception 'Valor [%] ja existe na tabela % campo %', fieldValue, tableName, fieldName;
+				end if;
+			end if;
+
+			-- Validate int
+			if (fieldType = 1) then
+				if (parse_int(fieldValue) = false) then
+					raise exception 'Valor inválido [%] no campo %, esperado numerico inteiro', fieldValue, fieldName;
+				end if;
+			end if;
+
+			-- Validate dec
+			if (fieldType = 2) then
+				if (parse_dec(fieldValue) = false) then
+					raise exception 'Valor inválido [%] no campo %, esperado numerico', fieldValue, fieldName;
+				end if;
+			end if;
+
+			-- Validate dates
+			if (fieldType = 4) then
+				if (parse_date(fieldValue, fieldMask) = false) then
+					raise exception 'Data inváida [%] no campo %', fieldValue, fieldName;
+				end if;
+			end if;			
 
 			-- If changed, validate unique values
 			if (trim(old) != trim(new)) then

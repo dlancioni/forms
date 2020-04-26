@@ -338,11 +338,11 @@ begin
         if actionId = 0 then
             message := ''; -- Query
         elsif (actionId = 1) then
-            message := concat('Registro INCLUÍDO com sucesso', '. id: ', id::text);
+            message := concat('Registro INCLUÍDO com sucesso', ' [', id::text, ']');
         elsif (actionId = 2) then
-            message := concat('Registro ALTERADO com sucesso', '. id: ', id::text);
+            message := concat('Registro ALTERADO com sucesso', ' [', id::text, ']');
         elsif (actionId = 3) then
-            message := concat('Registro EXCLUÍDO com sucesso', '. id: ', id::text);
+            message := concat('Registro EXCLUÍDO com sucesso', ' [', id::text, ']');
         else
             message := 'Invalid action';
         end if;
@@ -396,6 +396,8 @@ $function$;
 Check if the record is unique at the table
 select is_unique(1, 'tb_system', 'name', 'formsss') -- true, dont exists
 select is_unique(1, 'tb_system', 'name', 'forms') -- false, already exists 
+
+select is_unique(1, 'tb_field', 'domain', '') -- false, already exists 
 */
 drop function if exists is_unique;
 create or replace function is_unique(systemId integer, tableName text, fieldName text, fieldValue text)
@@ -407,15 +409,17 @@ declare
     item record;
 begin
 
-    sql := concat(sql, 'select ');
-    sql := concat(sql, sql_field(tableName, 'id'));
-    sql := concat(sql, sql_from(tableName));
-    sql := concat(sql, sql_where(tableName, systemId));
-    sql := concat(sql, sql_condition(tableName, fieldName, 3, '=', fieldValue, ''));
+    if (trim(fieldValue) != '') then
+        sql := concat(sql, 'select ');
+        sql := concat(sql, sql_field(tableName, 'id'));
+        sql := concat(sql, sql_from(tableName));
+        sql := concat(sql, sql_where(tableName, systemId));
+        sql := concat(sql, sql_condition(tableName, fieldName, 3, '=', fieldValue, ''));
 
-    for item in execute sql loop
-        return false;
-    end loop;
+        for item in execute sql loop
+            return false;
+        end loop;
+    end if;
 
     return true;
 end;

@@ -5,7 +5,7 @@ drop view if exists vw_table;
 create or replace view vw_table  as
 select
 tb_field.id id,
-(tb_field.field->>'id_system')::int id_system,
+(tb_field.session->>'id_system')::int id_system,
 (tb_field.field->>'id_table')::int id_table,
 trim(tb_field.field->>'label') field_label,
 trim(tb_field.field->>'name') field_name,

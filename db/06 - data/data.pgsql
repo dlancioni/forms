@@ -14,12 +14,12 @@ update tb_system set session = '{"id_system":1,"id_table":1,"id_user":1,"id_acti
 -- table tb_table
 -- -----------------------------------------------------
 delete from tb_table;
-insert into tb_table (session, field) values ('{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":1,"id_system":1,"name":"system","url":"index.php?id_layout=1&id_table=1&page_offset=0","table_name":"tb_system"}');
-insert into tb_table (session, field) values ('{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":2,"id_system":1,"name":"table","url":"index.php?id_layout=1&id_table=2&page_offset=0","table_name":"tb_table"}');
-insert into tb_table (session, field) values ('{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":3,"id_system":1,"name":"field","url":"index.php?id_layout=1&id_table=3&page_offset=0","table_name":"tb_field"}');
-insert into tb_table (session, field) values ('{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":4,"id_system":1,"name":"domain","url":"index.php?id_layout=1&id_table=4&page_offset=0","table_name":"tb_domain"}');
-insert into tb_table (session, field) values ('{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":5,"id_system":1,"name":"Event","url":"index.php?id_layout=1&id_table=5&page_offset=0","table_name":"tb_event"}');
-insert into tb_table (session, field) values ('{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":6,"id_system":1,"name":"Code","url":"index.php?id_layout=1&id_table=6&page_offset=0","table_name":"tb_code"}');
+insert into tb_table (session, field) values ('{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":1,"id_system":1,"name":"system","caption":"System","table_name":"tb_system"}');
+insert into tb_table (session, field) values ('{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":2,"id_system":1,"name":"table","caption":"Table","table_name":"tb_table"}');
+insert into tb_table (session, field) values ('{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":3,"id_system":1,"name":"field","caption":"Field","table_name":"tb_field"}');
+insert into tb_table (session, field) values ('{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":4,"id_system":1,"name":"domain","caption":"Domain","table_name":"tb_domain"}');
+insert into tb_table (session, field) values ('{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":5,"id_system":1,"name":"Event","caption":"Event", "table_name":"tb_event"}');
+insert into tb_table (session, field) values ('{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":6,"id_system":1,"name":"Code","caption":"Code","table_name":"tb_code"}');
 
 -- -----------------------------------------------------
 -- table tb_field
@@ -34,7 +34,7 @@ insert into tb_field (field) values ('{"id":4,"id_system":1,"id_table":1,"label"
 insert into tb_field (field) values ('{"id":5,"id_system":1,"id_table":2,"label":"Id","name":"id","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":0,"domain":""}');
 insert into tb_field (field) values ('{"id":6,"id_system":1,"id_table":2,"label":"System","name":"id_system","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":2,"id_fk":1,"domain":""}');
 insert into tb_field (field) values ('{"id":7,"id_system":1,"id_table":2,"label":"Name","name":"name","id_type":3,"size":50,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":0,"domain":""}');
-insert into tb_field (field) values ('{"id":8,"id_system":1,"id_table":2,"label":"Link","name":"url","id_type":3,"size":1000,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":0,"domain":""}');
+insert into tb_field (field) values ('{"id":8,"id_system":1,"id_table":2,"label":"Link","name":"caption","id_type":3,"size":50,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":0,"domain":""}');
 insert into tb_field (field) values ('{"id":9,"id_system":1,"id_table":2,"label":"Table Name","name":"table_name","id_type":3,"size":50,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":0,"domain":""}');
 -- tb_field
 insert into tb_field (field) values ('{"id":10,"id_system":1,"id_table":3,"label":"Id","name":"id","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":0,"domain":""}');

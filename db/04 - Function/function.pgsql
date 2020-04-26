@@ -393,6 +393,35 @@ end;
 $function$;
 
 /*
+Get table name
+select get_title(1,1) -- success
+select get_title(1,9) -- fail
+*/
+drop function if exists get_title;
+create or replace function get_title(systemId integer, tableId integer)
+returns text
+language plpgsql
+as $function$
+declare
+    sql text;
+    item record;
+begin
+
+    sql := concat(sql, 'select ');
+    sql := concat(sql, sql_field('tb_table', 'caption'));
+    sql := concat(sql, sql_from('tb_table'));
+    sql := concat(sql, sql_where('tb_table', systemId));
+    sql := concat(sql, sql_and('tb_table', 'id', tableId));
+
+    for item in execute sql loop
+        return item.caption;
+    end loop;
+    raise exception 'tabela nao encontrada para codigo de sistema (%) e tabela (%)', systemId, tableId;
+end;
+$function$;
+
+
+/*
 Check if the record is unique at the table
 select is_unique(1, 'tb_system', 'name', 'formsss') -- true, dont exists
 select is_unique(1, 'tb_system', 'name', 'forms') -- false, already exists 

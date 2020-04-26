@@ -146,7 +146,7 @@ begin
     if (pageCount > 1) then
         for i in 0..pageCount-1 loop
             pageOffset = i * PAGE_SIZE;
-            html := concat(html, '<a href="index.php?id_target=1&id_table=', tableId, '&page_offset=', pageOffset, '&id_record=0"> ', i+1, '</a>');
+            html := concat(html, '<a onClick="page(', pageOffset, ')">', i+1, '</a>&nbsp;&nbsp;');
         end loop;
     end if;
     html := concat(html, '</center>');

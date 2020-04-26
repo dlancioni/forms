@@ -430,7 +430,7 @@ select parse_int('10.2'); -- false
 */
 drop function if exists parse_int;
 create or replace function parse_int(value text)
-returns text
+returns boolean
 language plpgsql
 as $function$
 declare 
@@ -443,6 +443,27 @@ exception when others then
 end;
 $function$;
 
+/*
+Check if the record is unique at the table
+select parse_dec('1'); -- true
+select parse_dec('d'); -- false
+select parse_dec('10,2'); -- false
+select parse_dec('10.2'); -- false
+*/
+drop function if exists parse_dec;
+create or replace function parse_dec(value text)
+returns boolean
+language plpgsql
+as $function$
+declare 
+    x numeric;
+begin
+    x = value::numeric;
+    return true;
+exception when others then
+    return false;
+end;
+$function$;
 
 /*
 Check if the record is unique at the table

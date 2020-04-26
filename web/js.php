@@ -33,6 +33,22 @@
         document.form1.submit();
     }
 
+    // Navigate to page
+    function page(pageOffset) {
+
+        // Set values
+        setValue('__offset__', pageOffset);
+        setValue('__event__', 6); // filter results
+        setValue('__target__', 1); // report
+
+        // Submit data
+        document.form1.method = 'post';
+        document.form1.action = 'index.php';
+        document.form1.submit();
+    }
+
+
+
     // IDs to navigate
     // Target -> report or form
     // Table -> current transaction

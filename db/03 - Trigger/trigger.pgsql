@@ -9,6 +9,7 @@ declare
     tableId jsonb := (new.session->>'id_table')::int;
     userId jsonb := (new.session->>'id_user')::int;
     actionId jsonb := (new.session->>'id_action')::int;
+    tableName text := (new.field->>'table_name')::text;    
 
     TABLE_EVENT jsonb = 5;
     json jsonb;
@@ -22,6 +23,15 @@ begin
 
         -- ID create in tb_table for current record
         tableEventId := currval(pg_get_serial_sequence('tb_table', 'id'));
+
+        -- Create physical table
+        if not exists (
+            select from information_schema.tables 
+            where table_schema = 'system'
+            and table_name = tableName
+        ) then
+            execute concat('create table ', tableName, ' (like tb_table)');
+        end if;
 
         -- Delete existing events
         delete from tb_event

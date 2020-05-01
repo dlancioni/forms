@@ -162,12 +162,22 @@ begin
 
 		-- Figure out existing data		
 		sql := '';
-		sql := concat(sql, ' select field jsone from ', tableName);
-		sql := concat(sql, ' where (session', '->>', qt('id_system'), ')::int = ', systemId);
-		sql := concat(sql, ' and (field', '->>', qt('id'), ')::int = ', id);
+		sql := concat(sql, 'select ');
+		sql := concat(sql, tableName, '.id', ','); -- need ID not field->>'id'
+		sql := concat(sql, sql_field(tableName, 'field', 'jsone'));
+		sql := concat(sql, sql_from(tableName));
+		sql := concat(sql, sql_where(tableName, systemId));
+		sql := concat(sql, sql_and(tableName, 'id', id));
 		execute trace('Get existing json: ', sql);
 		for item in execute sql loop
-			jsone := item.jsone;
+			-- Keep current field			
+			jsone := item.jsone::jsonb;
+			-- Validate IDs are consistent
+			execute trace('ID 1: ', item.id::text);
+			execute trace('ID 2: ', jsone->>'id'::text);
+			if (item.id::text <> jsone->>'id'::text) then
+				raise exception 'Field ID [%] is different from field->>ID [%], record corrupted!!!', item.id::text, jsone->>'id'::text;
+			end if;
 		end loop;
 
 		-- Are json different

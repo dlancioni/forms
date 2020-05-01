@@ -55,7 +55,7 @@
             // Keep the values
             $fieldName = trim($key);
             $fieldValue = trim($val);
-            //if (isValid($fieldName) == "true") {            
+            if (isValid($fieldName) == "true") {            
                 // Must set 0 if ID is not informed    
                 if (trim($fieldName) == "__id__") {
                     if ($actionId != 1) { // new
@@ -65,7 +65,7 @@
                     }
                 }
                 $json = $jsonUtil->setField($json, $fieldName, $fieldValue);
-            //}
+            }
         }
 
         // Handle single quote
@@ -74,15 +74,30 @@
         // Persist it
         $log = $json;
         $sql = "call persist($1)";
+        $db->set_return_type("json");
         $json = $db->Execute($sql, $json);
 
     } catch (exception $e) {
         echo "EXCEPTION : " . $e;
     }
 
-    // echo $log;
+    error_log($log);
     //echo db->get_error();
     echo $json->message;
+
+    function isValid($item) {
+
+        switch ($item) {
+            case "__target__":
+            case "__table__":
+            case "__event__":
+            case "__offset__":
+                return "false";
+            default:
+                return "true";    
+        }
+    }
+
 
 ?>
 

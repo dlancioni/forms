@@ -4,7 +4,7 @@ call form('{"session":{"id_system":1,"id_table":2,"id":1, "id_event":1}}')
 */
 
 drop procedure if exists form;
-create or replace procedure form(inout data jsonb)
+create or replace procedure form(inout data text)
 language plpgsql
 as $procedure$
 declare
@@ -123,7 +123,12 @@ begin
                 html := concat (html, '</p>');
                 html := concat (html, html_input('text', fieldName, fieldValue, disabled, checked, events));
             else
-                html := concat (html, html_input('text', fieldName, fieldValue, disabled, checked, events));
+                if (fieldType = 6) then
+                    html := concat (html, '</p>');
+                    html := concat (html, html_textarea(fieldName, fieldValue));
+                else    
+                    html := concat (html, html_input('text', fieldName, fieldValue, disabled, checked, events));
+                end if;
             end if;
         else
             html := concat(html, html_dropdown(systemId, fieldName, fieldFK, fieldValue, domainName));
@@ -155,16 +160,9 @@ begin
     html := concat(html, '</script>');    
 
     ---
-    --- Prepare HTML to return as JSON
-    ---
-    html := replace(html, '"', '|');
-    html := concat('{', dbqt('html'), ':', dbqt(html), '}');
-    execute trace('Form: ', html);
-
-    ---
     --- Return data (success)
     ---
-    data := get_output(SUCCESS, 0, 0, '', '', html);
+    data := html;
 
     ---
     --- Finish with success
@@ -172,10 +170,12 @@ begin
 	execute trace('End Query(): ', 'Success');
 
 exception when others then
+
     ---
     --- Return data (fail)
     ---
-    data := get_output(FAIL, 0, 0, SQLERRM, '', '[]');
+    data := 'Deu pau';
+
     ---
     --- Finish no success
     ---

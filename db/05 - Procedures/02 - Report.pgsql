@@ -7,7 +7,7 @@ call report('{"session":{"id_system":1,"id_table":2,"id_action":1, "page_limit":
 */
 
 drop procedure if exists report;
-create or replace procedure report(inout data jsonb)
+create or replace procedure report(inout data text)
 language plpgsql
 as $procedure$
 declare
@@ -174,23 +174,25 @@ begin
     html := concat(html, '</script>');
 
     ---
-    --- Prepare HTML to return as JSON
+    --- Return data (success)
     ---
-    html := replace(html, '"', '|');
-    html := concat('{', dbqt('html'), ':', dbqt(html), '}');
-    execute trace('html: ', html);
+    data := html;
 
     ---
     --- Return data (success)
     ---
-    data := get_output(SUCCESS, 0, 0, '', '', html);
 	execute trace('End Query(): ', 'Success');
 
 exception when others then
+
     ---
     --- Return data (fail)
     ---
-    data := get_output(FAIL, 0, 0, SQLERRM, '', '[]');
+    data := 'Deu pau';
+
+    ---
+    --- Return data (fail)
+    ---
     execute trace('End Query() -> exception: ', SQLERRM);    
 end;
 

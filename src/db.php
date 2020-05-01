@@ -3,7 +3,9 @@
     class Db {
 
         private $error;
+        private $return_type = ""; // json or html
         function __construct() {
+
         }
 
         // Error handling    
@@ -13,7 +15,15 @@
         }
         function get_error() {
             return $this->error;
-        }        
+        }
+
+        // Error handling    
+        function set_return_type($return_type) {
+            $this->return_type = $return_type;
+        }
+        function get_return_type() {
+            return $this->return_type;
+        }
 
         public function getConnection() {
             try {
@@ -36,9 +46,19 @@
                 $connection = $this->getConnection();
                 $resultset = pg_query_params($connection, $sql, array($json));
                 while ($row = pg_fetch_row($resultset)) {
-                    if ($row[0]) {
-                        $data = json_decode($row[0]);
+
+                    if ($this->get_return_type() == "json") {
+                        if ($row[0]) {
+                            $data = json_decode($row[0]);
+                        }
                     }
+
+                    if ($this->get_return_type() == "html") {
+                        if ($row[0]) {
+                            $data = $row[0];
+                        }
+                    }
+
                 }
                 $this->set_error("", "");
             } catch (exception $e) {

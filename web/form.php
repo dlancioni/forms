@@ -5,7 +5,7 @@
         <div class='w3-row-padding'>
             <?php
             if ($tableId > 0) {
-                echo str_replace('|',"\"",$json->resultset->html);
+                echo $html;
             }
             ?>
         </div>

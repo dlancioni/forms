@@ -5,6 +5,8 @@
 Return sql code to select fields
 select sql_field('tb_client', 'name', 'client_name')
 select sql_field('tb_client', 'name')
+select sql_field('tb_client', 'field')
+select sql_field('tb_client', 'session')
  */
 drop function if exists sql_field;
 create or replace function sql_field(tableName text, fieldName text, fieldAlias text default '')
@@ -18,7 +20,14 @@ begin
         fieldAlias = fieldName;
     end if;
 
-    sql := concat(sql, tableName, '.field->>', qt(fieldName), ' ', fieldAlias);
+    if (fieldName = 'field') then
+        sql := concat(sql, tableName, '.field', ' ', fieldAlias);
+    elsif (fieldName = 'session') then
+        sql := concat(sql, tableName, '.session', ' ', fieldAlias);           
+    else
+        sql := concat(sql, tableName, '.field->>', qt(fieldName), ' ', fieldAlias);
+    end if;
+
     return sql;
 end;
 $function$;
@@ -482,7 +491,7 @@ declare
     item record;
 begin
 
-    if (trim(fieldValue) != '') then
+    if (trim(fieldValue) != '' and fieldName <> 'id') then
         sql := concat(sql, 'select ');
         sql := concat(sql, sql_field(tableName, 'id'));
         sql := concat(sql, sql_from(tableName));
@@ -909,6 +918,33 @@ begin
     html := concat(html, ' >');
     html := concat(html, html_option(systemId, fkId, fieldValue, domainName));
     html := concat(html, '</select>');
+
+    return html;
+end;
+$function$;
+
+/*
+Return html code to drow text area
+select html_textarea('code', 'abcdef')
+select html_textarea('code', 'abcdef', 5, 30)
+
+ */
+drop function if exists html_textarea;
+create or replace function html_textarea(fieldName text, fieldValue text, rows int default 20, cols int default 135)
+returns text
+language plpgsql
+as $function$
+declare
+    html varchar := '';
+begin
+    html := concat(html, ' <textarea ');
+    html := concat(html, ' id=', dbqt(fieldName));
+    html := concat(html, ' name=', dbqt(fieldName));
+    html := concat(html, ' rows=', dbqt(rows::text));
+    html := concat(html, ' cols=', dbqt(cols::text));
+    html := concat(html, ' >');
+    html := concat(html, fieldValue);
+    html := concat(html, '</textarea>');
 
     return html;
 end;

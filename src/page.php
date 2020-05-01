@@ -20,6 +20,7 @@
     $actionId = 0;
     $pageOffset = 0;    
     $json = "";
+    $html = "";
     $filter = [];
     $item = "";
 
@@ -81,7 +82,8 @@
             $sql = "call form($1)";
         }
 
-        $json = $db->Execute($sql, $json);  
+        $db->set_return_type("html");
+        $html = $db->Execute($sql, $json);  
 
     } catch (exception $e) {
         echo "EXCEPTION : " . $e;

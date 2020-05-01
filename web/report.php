@@ -1,7 +1,7 @@
 <?php
     if ($tableId > 0) {
         if ($db->get_error() == "") {
-            echo str_replace('|',"\"",$json->resultset->html);
+            echo $html;
         } else {
             echo $db->get_error();
         }

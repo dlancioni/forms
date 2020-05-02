@@ -927,7 +927,6 @@ $function$;
 Return html code to drow text area
 select html_textarea('code', 'abcdef')
 select html_textarea('code', 'abcdef', 5, 30)
-
  */
 drop function if exists html_textarea;
 create or replace function html_textarea(fieldName text, fieldValue text, rows int default 20, cols int default 135)
@@ -947,5 +946,79 @@ begin
     html := concat(html, '</textarea>');
 
     return html;
+end;
+$function$;
+
+/*
+Create valid json based on input data
+select parse_json('{"session":{"id_system":1,"id_table":1,"id_user":1, "id_action":3}}') -- IUD
+select parse_json('{"session":{"id_system":1,"id_table":2,"id_user":1, "id_action":4,"page_limit":5,"page_offset":0},"filter":[]}') -- Q
+ */
+drop function if exists parse_json;
+create or replace function parse_json(json1 jsonb)
+returns jsonb
+language plpgsql
+as $function$
+declare
+    json2 jsonb;
+    sql1 text := '';
+    sql2 text := '';
+    jsons jsonb;
+    jsonf jsonb;
+    item1 record;
+    item2 record;
+    fieldName text := '';
+begin
+    -- Validate missing session elements
+    if (json1->'session'->>'id_system' is null) then
+        raise exception 'Invalid session, % is missing', 'id_system';
+    end if;
+
+    if (json1->'session'->>'id_table' is null) then
+        raise exception 'Invalid session, % is missing', 'id_table';
+    end if;
+
+    if (json1->'session'->>'id_user' is null) then
+        raise exception 'Invalid session, % is missing', 'id_user';
+    end if;
+
+    if (json1->'session'->>'id_action' is null) then
+        raise exception 'Invalid session, % is missing', 'id_action';
+    end if;
+
+    -- Validate actions
+	if (position(json1->'session'->>'id_action'::text in '1234') = 0) then
+	    raise exception 'Action is invalid or missing: %', json1->'session'->>'id_action';
+    else
+        if (json1->'session'->>'id_action'::text = '4') then
+            if (json1->'session'->>'page_limit' is null) then
+                raise exception 'Invalid session, % is missing', 'page_limit';
+            end if;
+            if (json->'session'->>'page_offset' is null) then
+                raise exception 'Invalid session, % is missing', 'page_offset';
+            end if;
+        end if;
+	end if;
+
+    -- Prepare final json
+    json2 := get_json((json1->'session'->>'id_system')::int, 
+                      (json1->'session'->>'id_table')::int, 
+                      (json1->'session'->>'id_user')::int, 
+                      (json1->'session'->>'id_action')::int);
+
+    -- Remove invalid fields
+    sql1 := get_struct(systemId, tableId);
+    for item1 in execute sql1 loop
+        fieldName := item1.field_name;
+
+        if (json1->'field'->>fieldName is null) then
+            raise exception 'Field % is missing', fieldName;
+        end if;
+
+
+    end loop;
+
+
+    return json2;
 end;
 $function$;

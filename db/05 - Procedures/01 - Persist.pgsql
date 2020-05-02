@@ -37,6 +37,9 @@ begin
 	-- Start processing
 	execute trace('Begin Persist(): ', data::text);
 
+	-- Validate inputed data
+	data := parse_json(data);
+
 	-- Keep key parameters
 	jsons := data->'session';
 	jsonf := data->'field';	
@@ -45,11 +48,6 @@ begin
 	systemId := (jsons->>'id_system')::int;
 	tableId := (jsons->>'id_table')::int;
 	actionId = (jsons->>'id_action')::int;
-
-	-- Validate input
-	if (position(actionId::text in '123') = 0) then
-	    raise exception 'Action is invalid or missing: %', actionId;	
-	end if;
 
 	-- Must figure out table name
 	sql := '';		

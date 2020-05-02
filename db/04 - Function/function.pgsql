@@ -943,7 +943,7 @@ select parse_json('{"session":{"id_system":1,"id_table":2,"id_user":1, "id_actio
 select parse_json('{"session":{"id_system":1,"id_table":1,"id_action":1,"id_user":1},"field":{"id":0,"name":"lancioni it","expire_date":"31/12/2021","price":1200}}') -- IUD
  */
 drop function if exists parse_json;
-create or replace function parse_json(json1 jsonb)
+create or replace function parse_json(json jsonb)
 returns jsonb
 language plpgsql
 as $function$
@@ -959,33 +959,33 @@ declare
 
 begin
     -- Validate base elements (session and field)
-    if (json1->'session' is null) then
+    if (json->'session' is null) then
         raise exception 'Invalid json, session data is missing';
     end if;
 
     -- Validate missing session elements
-    if (json1->'session'->>'id_system' is null) then
+    if (json->'session'->>'id_system' is null) then
         raise exception 'Invalid session, % is missing', 'id_system';
     end if;
 
-    if (json1->'session'->>'id_table' is null) then
+    if (json->'session'->>'id_table' is null) then
         raise exception 'Invalid session, % is missing', 'id_table';
     end if;
 
-    if (json1->'session'->>'id_user' is null) then
+    if (json->'session'->>'id_user' is null) then
         raise exception 'Invalid session, % is missing', 'id_user';
     end if;
 
-    if (json1->'session'->>'id_action' is null) then
+    if (json->'session'->>'id_action' is null) then
         raise exception 'Invalid session, % is missing', 'id_action';
     end if;
 
     -- Validate actions
-	if (position(json1->'session'->>'id_action'::text in '1234') = 0) then
-	    raise exception 'Action is invalid or missing: %', json1->'session'->>'id_action';
+	if (position(json->'session'->>'id_action'::text in '1234') = 0) then
+	    raise exception 'Action is invalid or missing: %', json->'session'->>'id_action';
     else
-        if (json1->'session'->>'id_action'::text = '4') then
-            if (json1->'session'->>'page_limit' is null) then
+        if (json->'session'->>'id_action'::text = '4') then
+            if (json->'session'->>'page_limit' is null) then
                 raise exception 'Invalid session, % is missing', 'page_limit';
             end if;
             if (json->'session'->>'page_offset' is null) then
@@ -994,19 +994,25 @@ begin
         end if;
 	end if;
 
-    if (position(json1->'session'->>'id_action'::text in '123') > 0) then
-        if (json1->'field' is null) then
+    if (position(json->'session'->>'id_action'::text in '123') > 0) then
+        if (json->'field' is null) then
             raise exception 'Invalid json, field data is missing';
         end if;
     end if;
 
     -- Keep fields related to current transaction
-    sql1 := get_struct((json1->'session'->>'id_system')::int, (json1->'session'->>'id_table')::int);
+    sql1 := get_struct((json->'session'->>'id_system')::int, (json->'session'->>'id_table')::int);
     for item1 in execute sql1 loop
         fieldList := concat(fieldList, item1.field_name::text, '|');
     end loop;
-    execute trace('fieldList: ', fieldList);
 
-    return json2;
+    sql2 := concat('select * from json_each(', qt((json->'field')::text), ')');
+    for item2 in execute sql2 loop        
+        if (position(item2.key in fieldList) = 0) then
+            json := json_set(json, '{field}', ((json->'field') - 'name'));
+        end if;
+    end loop;
+
+    return json;
 end;
 $function$;

@@ -1000,6 +1000,7 @@ begin
         end if;
     end if;
 
+/*
     -- Keep fields related to current transaction
     sql1 := get_struct((json->'session'->>'id_system')::int, (json->'session'->>'id_table')::int);
     for item1 in execute sql1 loop
@@ -1012,6 +1013,8 @@ begin
             json := json_set(json, '{field}', ((json->'field') - 'name'));
         end if;
     end loop;
+*/
+
 
     return json;
 end;

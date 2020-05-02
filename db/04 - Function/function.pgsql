@@ -950,9 +950,43 @@ end;
 $function$;
 
 /*
+Return html code to drow text area
+select json_set('{"id": 0, "name": "", "price": "", "expire_date": ""}', 'id', 3, '')
+ */
+drop function if exists json_set;
+create or replace function json_set(json jsonb, fieldName text, fieldType int, fieldValue text)
+returns jsonb
+language plpgsql
+as $function$
+declare
+    field text[1];
+begin
+
+    field[1] = fieldName;
+
+    if (fieldType = 1 or fieldType = 2) then
+        if (fieldValue = '') then
+            fieldValue = '0';
+        end if;
+    else
+        fieldValue := dbqt(fieldValue);
+    end if;
+
+    json:= jsonb_set(json, field, fieldValue::jsonb);
+
+    return json;
+
+end;
+$function$;
+
+
+
+
+/*
 Create valid json based on input data
 select parse_json('{"session":{"id_system":1,"id_table":1,"id_user":1, "id_action":3}}') -- IUD
 select parse_json('{"session":{"id_system":1,"id_table":2,"id_user":1, "id_action":4,"page_limit":5,"page_offset":0},"filter":[]}') -- Q
+select parse_json('{"session":{"id_system":1,"id_table":1,"id_action":1,"id_user":1},"field":{"id":0,"name":"lancioni it","expire_date":"31/12/2021","price":1200}}') -- IUD
  */
 drop function if exists parse_json;
 create or replace function parse_json(json1 jsonb)
@@ -968,7 +1002,15 @@ declare
     item1 record;
     item2 record;
     fieldName text := '';
+    fieldType int := 0;
+    fieldValue text := '';
+
 begin
+    -- Validate base elements (session and field)
+    if (json1->'session' is null) then
+        raise exception 'Invalid json, session data is missing';
+    end if;
+
     -- Validate missing session elements
     if (json1->'session'->>'id_system' is null) then
         raise exception 'Invalid session, % is missing', 'id_system';
@@ -1000,6 +1042,12 @@ begin
         end if;
 	end if;
 
+    if (position(json1->'session'->>'id_action'::text in '123') > 0) then
+        if (json1->'field' is null) then
+            raise exception 'Invalid json, field data is missing';
+        end if;
+    end if;
+
     -- Prepare final json
     json2 := get_json((json1->'session'->>'id_system')::int, 
                       (json1->'session'->>'id_table')::int, 
@@ -1007,17 +1055,15 @@ begin
                       (json1->'session'->>'id_action')::int);
 
     -- Remove invalid fields
-    sql1 := get_struct(systemId, tableId);
+    sql1 := get_struct((json1->'session'->>'id_system')::int, 
+                       (json1->'session'->>'id_table')::int);
+
     for item1 in execute sql1 loop
-        fieldName := item1.field_name;
-
-        if (json1->'field'->>fieldName is null) then
-            raise exception 'Field % is missing', fieldName;
-        end if;
-
-
+        fieldName := item1.field_name::text;
+        fieldType := item1.id_type::int;
+        fieldValue := json1->'field'->>fieldName;
+        json2 := json_set(json2->'field', fieldName, fieldType, fieldValue);
     end loop;
-
 
     return json2;
 end;

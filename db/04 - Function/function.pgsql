@@ -743,53 +743,6 @@ begin
 end;
 $function$;
 
--------------------------------------------------------------
--- CONFIRM IF NECESSARY
--------------------------------------------------------------
-/*
-Get json related to given table
-select get_json(1, 1, 1, 1)
-*/
-drop function if exists get_json;
-create or replace function get_json(systemId int, tableId int, userId int, actionId int)
-returns jsonb
-language plpgsql
-as $function$
-declare
-    sql text := '';
-    session text := '';
-    field text := '';
-    item record;
-begin
-    -- Create session
-    session = concat(session, dbqt('session'), ':', '{');
-    session = concat(session, dbqt('id_system'), ':', systemId, ',');
-    session = concat(session, dbqt('id_table'), ':', tableId, ',');
-    session = concat(session, dbqt('id_user'), ':', userId, ',');
-    session = concat(session, dbqt('id_action'), ':', actionId);
-    session = concat(session, '}');
-
-    -- Create record
-    field = concat(field, dbqt('field'), ':', '{');
-
-    sql := get_struct(systemId, tableId);
-
-    for item in execute sql loop
-        if (item.id_type = 1) then
-            field = concat(field, dbqt(item.field_name), ':', '0', ',');        
-        else
-            field = concat(field, dbqt(item.field_name), ':', dbqt(''), ',');
-        end if;
-    end loop;
-    field := concat(crop(field, ','), '}');
-
-    -- Create final JSONB
-    return concat('{', session, ',', field, '}');
-
-end;
-$function$;
-
-
 ---------------------------------------------------------------------------------
 -- HTML function
 ---------------------------------------------------------------------------------
@@ -951,18 +904,19 @@ $function$;
 
 /*
 Return html code to drow text area
-select json_set('{"id": 0, "name": "", "price": "", "expire_date": ""}', 'id', 3, '')
+select json_set('{"session":{"id_system":1,"id_table":1,"id_action":1,"id_user":1},"field":{"id":0,"name":"lancioni it","expire_date":"31/12/2021","price":1200}}', 'session', 'id_user', 1, '99')
  */
 drop function if exists json_set;
-create or replace function json_set(json jsonb, fieldName text, fieldType int, fieldValue text)
+create or replace function json_set(json jsonb, element text, fieldName text, fieldType int, fieldValue text)
 returns jsonb
 language plpgsql
 as $function$
 declare
-    field text[1];
+    field text[2];
 begin
 
-    field[1] = fieldName;
+    field[1] = element;
+    field[2] = fieldName;
 
     if (fieldType = 1 or fieldType = 2) then
         if (fieldValue = '') then
@@ -1001,9 +955,7 @@ declare
     jsonf jsonb;
     item1 record;
     item2 record;
-    fieldName text := '';
-    fieldType int := 0;
-    fieldValue text := '';
+    fieldList text := '';
 
 begin
     -- Validate base elements (session and field)
@@ -1048,22 +1000,12 @@ begin
         end if;
     end if;
 
-    -- Prepare final json
-    json2 := get_json((json1->'session'->>'id_system')::int, 
-                      (json1->'session'->>'id_table')::int, 
-                      (json1->'session'->>'id_user')::int, 
-                      (json1->'session'->>'id_action')::int);
-
-    -- Remove invalid fields
-    sql1 := get_struct((json1->'session'->>'id_system')::int, 
-                       (json1->'session'->>'id_table')::int);
-
+    -- Keep fields related to current transaction
+    sql1 := get_struct((json1->'session'->>'id_system')::int, (json1->'session'->>'id_table')::int);
     for item1 in execute sql1 loop
-        fieldName := item1.field_name::text;
-        fieldType := item1.id_type::int;
-        fieldValue := json1->'field'->>fieldName;
-        json2 := json_set(json2->'field', fieldName, fieldType, fieldValue);
+        fieldList := concat(fieldList, item1.field_name::text, '|');
     end loop;
+    execute trace('fieldList: ', fieldList);
 
     return json2;
 end;

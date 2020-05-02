@@ -903,11 +903,14 @@ end;
 $function$;
 
 /*
-Return html code to drow text area
-select json_set('{"session":{"id_system":1,"id_table":1,"id_action":1,"id_user":1},"field":{"id":0,"name":"lancioni it","expire_date":"31/12/2021","price":1200}}', 'session', 'id_user', 1, '99')
+Manipulate json based on based on simple
+Note that we must work with single level json (DO NOT COMPLICATE THINGS ANYMORE)
+select json_set('{"id_system":1,"id_table":1,"id_action":1,"id_user":1}', 'I', 'id_language', 1, '99')
+select json_set('{"id_system":1,"id_table":1,"id_action":1,"id_user":1}', 'U', 'id_user', 1, '99')
+select json_set('{"id_system":1,"id_table":1,"id_action":1,"id_user":1}', 'D', 'id_system')
  */
 drop function if exists json_set;
-create or replace function json_set(json jsonb, element text, fieldName text, fieldType int, fieldValue text)
+create or replace function json_set(json jsonb, action text, fieldName text, fieldType int default 0, fieldValue text default '')
 returns jsonb
 language plpgsql
 as $function$
@@ -915,9 +918,9 @@ declare
     field text[2];
 begin
 
-    field[1] = element;
-    field[2] = fieldName;
+    action := upper(action);
 
+    field[1] = fieldName;
     if (fieldType = 1 or fieldType = 2) then
         if (fieldValue = '') then
             fieldValue = '0';
@@ -926,21 +929,29 @@ begin
         fieldValue := dbqt(fieldValue);
     end if;
 
-    json:= jsonb_set(json, field, fieldValue::jsonb);
+    if (action = 'I') then
+        json:= jsonb_set(json, field, fieldValue::jsonb, true);
+    end if;
+
+    if (action = 'U') then
+        json:= jsonb_set(json, field, fieldValue::jsonb, false);
+    end if;
+
+    if (action = 'D') then
+        json:= json - fieldName;
+    end if;    
 
     return json;
 
 end;
 $function$;
 
-
-
-
 /*
 Create valid json based on input data
-select parse_json('{"session":{"id_system":1,"id_table":1,"id_user":1, "id_action":3}}') -- IUD
+select parse_json('{"session":{"id_system":1,"id_table":1,"id_user":1, "id_action":1}}') -- IUD
 select parse_json('{"session":{"id_system":1,"id_table":2,"id_user":1, "id_action":4,"page_limit":5,"page_offset":0},"filter":[]}') -- Q
-select parse_json('{"session":{"id_system":1,"id_table":1,"id_action":1,"id_user":1},"field":{"id":0,"name":"lancioni it","expire_date":"31/12/2021","price":1200}}') -- IUD
+select parse_json('{"session":{"id_system":1,"id_table":1,"id_action":1,"id_user":1},"field":{"id":0,"name_":"lancioni it","expire_date":"31/12/2021","price":1200}}') -- IUD
+
  */
 drop function if exists parse_json;
 create or replace function parse_json(json jsonb)
@@ -958,64 +969,72 @@ declare
     fieldList text := '';
 
 begin
+
+	-- Keep key parameters
+	jsons := json->'session';
+	jsonf := json->'field';	
+
     -- Validate base elements (session and field)
-    if (json->'session' is null) then
+    if (jsons is null) then
         raise exception 'Invalid json, session data is missing';
     end if;
 
     -- Validate missing session elements
-    if (json->'session'->>'id_system' is null) then
+    if (jsons->>'id_system' is null) then
         raise exception 'Invalid session, % is missing', 'id_system';
     end if;
 
-    if (json->'session'->>'id_table' is null) then
+    if (jsons->>'id_table' is null) then
         raise exception 'Invalid session, % is missing', 'id_table';
     end if;
 
-    if (json->'session'->>'id_user' is null) then
+    if (jsons->>'id_user' is null) then
         raise exception 'Invalid session, % is missing', 'id_user';
     end if;
 
-    if (json->'session'->>'id_action' is null) then
+    if (jsons->>'id_action' is null) then
         raise exception 'Invalid session, % is missing', 'id_action';
     end if;
 
     -- Validate actions
-	if (position(json->'session'->>'id_action'::text in '1234') = 0) then
-	    raise exception 'Action is invalid or missing: %', json->'session'->>'id_action';
+	if (position(jsons->>'id_action'::text in '1234') = 0) then
+	    raise exception 'Action is invalid or missing: %', jsons->>'id_action';
     else
-        if (json->'session'->>'id_action'::text = '4') then
-            if (json->'session'->>'page_limit' is null) then
+        if (jsons->>'id_action'::text = '4') then
+            if (jsons->>'page_limit' is null) then
                 raise exception 'Invalid session, % is missing', 'page_limit';
             end if;
-            if (json->'session'->>'page_offset' is null) then
+            if (jsons->>'page_offset' is null) then
                 raise exception 'Invalid session, % is missing', 'page_offset';
             end if;
         end if;
 	end if;
 
-    if (position(json->'session'->>'id_action'::text in '123') > 0) then
+    if (position(jsons->>'id_action'::text in '123') > 0) then
         if (json->'field' is null) then
             raise exception 'Invalid json, field data is missing';
         end if;
     end if;
 
-/*
     -- Keep fields related to current transaction
-    sql1 := get_struct((json->'session'->>'id_system')::int, (json->'session'->>'id_table')::int);
+    sql1 := get_struct((jsons->>'id_system')::int, (jsons->>'id_table')::int);
     for item1 in execute sql1 loop
         fieldList := concat(fieldList, item1.field_name::text, '|');
     end loop;
 
+    -- Remove invalid elements
     sql2 := concat('select * from json_each(', qt((json->'field')::text), ')');
     for item2 in execute sql2 loop        
         if (position(item2.key in fieldList) = 0) then
-            json := json_set(json, '{field}', ((json->'field') - 'name'));
+            jsonf := json_set(jsonf, 'D', item2.key::text);
         end if;
     end loop;
-*/
 
+    -- Set fields back to main json
+    json := jsonb_set(json, '{field}', jsonf);
 
+    -- Finish it
     return json;
+
 end;
 $function$;

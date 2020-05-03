@@ -145,7 +145,7 @@ begin
 
     if (domainName != '')  then
         sql := concat(sql, ' inner join ', joinTable, ' ', joinTableAlias, ' on');
-        sql := concat(sql, ' (', baseTable, '.field->>', qt(baseField), ')::int = (', joinTableAlias, '.field->>', qt(joinField), ')::int');
+        sql := concat(sql, ' (', baseTable, '.field->>', qt(baseField), ')::text = (', joinTableAlias, '.field->>', qt(joinField), ')::text');
         sql := concat(sql, ' and ', joinTableAlias, '.field->>', qt('domain'), ' = ', qt(domainName));
     else
         sql := concat(sql, ' left join ', joinTable, ' ', joinTableAlias, ' on');

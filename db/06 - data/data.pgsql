@@ -7,17 +7,17 @@ ALTER ROLE qqbzxiqr IN DATABASE qqbzxiqr SET search_path TO system;
 -- table tb_system
 -- -----------------------------------------------------
 delete from tb_system;
-insert into tb_system (field) values ('{"id":1,"name":"forms","expire_date":"31/12/2020","price":"100.00"}');
+insert into tb_system (field) values ('{"id":1,"name":"Forms","expire_date":"31/12/2020","price":"100.00"}');
 update tb_system set session = '{"id_system":1,"id_table":1,"id_user":1,"id_action":1}';
 
 -- -----------------------------------------------------
 -- table tb_table
 -- -----------------------------------------------------
 delete from tb_table;
-insert into tb_table (session, field) values ('{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":1,"id_system":1,"name":"system","caption":"System","table_name":"tb_system"}');
-insert into tb_table (session, field) values ('{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":2,"id_system":1,"name":"table","caption":"Table","table_name":"tb_table"}');
-insert into tb_table (session, field) values ('{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":3,"id_system":1,"name":"field","caption":"Field","table_name":"tb_field"}');
-insert into tb_table (session, field) values ('{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":4,"id_system":1,"name":"domain","caption":"Domain","table_name":"tb_domain"}');
+insert into tb_table (session, field) values ('{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":1,"id_system":1,"name":"System","caption":"System","table_name":"tb_system"}');
+insert into tb_table (session, field) values ('{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":2,"id_system":1,"name":"Table","caption":"Table","table_name":"tb_table"}');
+insert into tb_table (session, field) values ('{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":3,"id_system":1,"name":"Field","caption":"Field","table_name":"tb_field"}');
+insert into tb_table (session, field) values ('{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":4,"id_system":1,"name":"Domain","caption":"Domain","table_name":"tb_domain"}');
 insert into tb_table (session, field) values ('{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":5,"id_system":1,"name":"Event","caption":"Event", "table_name":"tb_event"}');
 insert into tb_table (session, field) values ('{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":6,"id_system":1,"name":"Code","caption":"Code","table_name":"tb_code"}');
 

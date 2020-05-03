@@ -743,6 +743,45 @@ begin
 end;
 $function$;
 
+/*
+Get existing js code for current module
+select get_js(1, 1);
+*/
+drop function if exists get_js;
+create or replace function get_js(systemId int, tableId int)
+returns text
+language plpgsql
+as $function$
+declare
+    sql text := '';
+    html text := '';  
+    item record;  
+begin
+
+    ---
+    --- Javascript
+    ---
+    sql := concat(sql, ' select');
+    sql := concat(sql, ' field->>', qt('id'), ' id');
+    sql := concat(sql, ' ,field->>', qt('code'), ' code');
+    sql := concat(sql, ' from tb_code');
+    sql := concat(sql, ' where (session->', qt('id_system'), ')::int = ', systemId);
+	execute trace('sql: ', sql);
+
+    html := concat(html, '<script langauage="JavaScript">');    
+    for item in execute sql loop
+        html := concat(html, item.code);
+    end loop;
+    html := concat(html, '</script>');
+
+    ---
+    --- return buttons as html
+    ---
+    return html;
+
+end;
+$function$;
+
 ---------------------------------------------------------------------------------
 -- HTML function
 ---------------------------------------------------------------------------------

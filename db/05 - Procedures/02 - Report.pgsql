@@ -20,8 +20,6 @@ declare
     html text := '';
     sql1 text := '';
     sql2 text := '';
-    sql3 text := '';
-    sql4 text := '';        
     tableName text := '';
     fieldName text := '';    
     checked text := '';
@@ -29,12 +27,9 @@ declare
     events text := '';
     item1 record;
     item2 record;
-    item3 record;    
-    item4 record;    
     resultset jsonb;
     SUCCESS int := 1;
     FAIL int := 0;
-
     -- Paging
     PAGE_SIZE float := 10;
     recordCount float := 0;
@@ -160,18 +155,7 @@ begin
     ---
     --- Javascript
     ---
-    sql4 := concat(sql4, ' select');
-    sql4 := concat(sql4, ' field->>', qt('id'), ' id');
-    sql4 := concat(sql4, ' ,field->>', qt('code'), ' code');
-    sql4 := concat(sql4, ' from tb_code');
-    sql4 := concat(sql4, ' where (session->', qt('id_system'), ')::int = ', systemId);
-	execute trace('SQL4: ', sql4);
-
-    html := concat(html, '<script langauage="JavaScript">');    
-    for item4 in execute sql4 loop
-        html := concat(html, item4.code);
-    end loop;
-    html := concat(html, '</script>');
+    html :=concat(html, get_js(systemId, tableId));
 
     ---
     --- Return data (success)

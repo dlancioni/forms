@@ -15,7 +15,6 @@ declare
     fieldFK int := 0;
     sql1 text := '';
     sql2 text := '';
-    sql3 text := '';
     tableName text := '';
     tableFk text := '';
     fieldName text := '';
@@ -32,7 +31,6 @@ declare
     html text := '';
     item1 record;
     item2 record;
-    item3 record;    
     resultset jsonb;
     SUCCESS int := 1;
     FAIL int := 0;
@@ -146,18 +144,7 @@ begin
     ---
     --- Javascript
     ---
-    sql3 := concat(sql3, ' select');
-    sql3 := concat(sql3, ' field->>', qt('id'), ' id');
-    sql3 := concat(sql3, ' ,field->>', qt('code'), ' code');
-    sql3 := concat(sql3, ' from tb_code');
-    sql3 := concat(sql3, ' where (session->', qt('id_system'), ')::int = ', systemId);
-	execute trace('SQL3: ', sql3);
-
-    html := concat(html, '<script langauage="JavaScript">');    
-    for item3 in execute sql3 loop
-        html := concat(html, item3.code);
-    end loop;
-    html := concat(html, '</script>');    
+    html :=concat(html, get_js(systemId, tableId));
 
     ---
     --- Return data (success)

@@ -43,7 +43,7 @@
             $data = "";
 
             try {
-                // db expects '' to represent single quote (mandatory check)    
+                // db expects '' to represent single quote (mandatory check)
                 $json = str_replace("'", "''",  $json);
 
                 // Handle db connection    
@@ -60,6 +60,7 @@
                     if ($this->get_return_type() == "html") {
                         if ($row[0]) {
                             $data = $row[0];
+                            $data = str_replace("''", "'", $data);
                         }
                     }
                 }

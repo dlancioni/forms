@@ -30,8 +30,8 @@
         $jsonUtil = new JsonUtil();
 
         // Request key fields
-        $eventId = $_REQUEST["__event__"];
-        $tableId = $_REQUEST["__table__"];
+        $eventId = intval($_REQUEST["__event__"]);
+        $tableId = intval($_REQUEST["__table__"]);
 
         // Transform the event in action
         switch ($eventId) {

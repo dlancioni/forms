@@ -28,9 +28,9 @@
         }
 
         // Submit data
-        document.form1.method = 'post';
-        document.form1.action = 'index.php';
-        document.form1.submit();
+        document.form.method = 'post';
+        document.form.action = 'index.php';
+        document.form.submit();
     }
 
     // Navigate to page
@@ -42,9 +42,9 @@
         setValue('__target__', 1); // report
 
         // Submit data
-        document.form1.method = 'post';
-        document.form1.action = 'index.php';
-        document.form1.submit();
+        document.form.method = 'post';
+        document.form.action = 'index.php';
+        document.form.submit();
     }
 
 

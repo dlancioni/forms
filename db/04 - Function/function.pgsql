@@ -679,7 +679,7 @@ $function$;
 
 /*
 Set value between double quote
-select get_event(1, 1, 1, 2, 0);
+select get_event(1, 1, 1, 2, 1);
 */
 drop function if exists get_event;
 create or replace function get_event(systemId int, tableId int, eventId int, targetId int, recordCount int)

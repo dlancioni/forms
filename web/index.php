@@ -9,7 +9,7 @@
 <?php include "menu.php";?>
 
 <!-- FORM -->
-<form id='form1' name='form1'>
+<form id='form1' name='form'>
     <!-- CURRENT SESSION -->
     <?php include "session.php";?>
     <!-- PAGE CONTENTS-->

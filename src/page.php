@@ -47,11 +47,11 @@
             $pageOffset = $_REQUEST["__offset__"];            
 
         // Get data for current system and table
-        $json = $jsonUtil->setSession($json, "id_system", $systemId);
-        $json = $jsonUtil->setSession($json, "id_table", $tableId);
-        $json = $jsonUtil->setSession($json, "id", $id);
-        $json = $jsonUtil->setSession($json, "id_event", $eventId);
-        $json = $jsonUtil->setSession($json, "page_offset", $pageOffset);
+        $json = $jsonUtil->setSession($json, "id_system", intval($systemId));
+        $json = $jsonUtil->setSession($json, "id_table", intval($tableId));
+        $json = $jsonUtil->setSession($json, "id", intval($id));
+        $json = $jsonUtil->setSession($json, "id_event", intval($eventId));
+        $json = $jsonUtil->setSession($json, "page_offset", intval($pageOffset));
 
         // Filter logic
         if ($eventId == 6) {
@@ -74,7 +74,7 @@
         }        
 
         // Debug point to check what is been sent to bd
-        //echo $json;
+        // echo $json;
 
         if ($targetId == 1) {
             $sql = "call report($1)";

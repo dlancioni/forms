@@ -220,7 +220,7 @@ begin
 	sql := concat(sql, ' select * from vw_table');
 	sql := concat(sql, ' where id_system = ', systemId);
 	sql := concat(sql, ' and id_table = ', tableId);
-
+	execute trace('SQL: ', sql);
     return sql;
 end;
 $function$;
@@ -948,7 +948,7 @@ $function$;
 
 /*
 Create valid json based on input data
-select parse_json('{"session":{"id_system":1,"id_table":1,"id_user":1, "id_action":1}}') -- IUD
+select parse_json('{"session":{"id_system":1,"id_table":1,"id_user":1, "id_action":1}}')
 select parse_json('{"session":{"id_system":1,"id_table":2,"id_user":1, "id_action":4,"page_limit":5,"page_offset":0},"filter":[]}') -- Q
 select parse_json('{"session":{"id_system":1,"id_table":1,"id_action":1,"id_user":1},"field":{"id":0,"name_":"lancioni it","expire_date":"31/12/2021","price":1200}}') -- IUD
 
@@ -1024,6 +1024,7 @@ begin
 
     -- Remove invalid elements
     sql2 := concat('select * from json_each(', qt((json->'field')::text), ')');
+    execute trace('json query: ', sql2);
     for item2 in execute sql2 loop        
         if (position(item2.key in fieldList) = 0) then
             jsonf := json_set(jsonf, 'D', item2.key::text);

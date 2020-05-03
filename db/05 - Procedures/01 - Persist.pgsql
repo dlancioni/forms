@@ -50,22 +50,11 @@ begin
 	actionId = (jsons->>'id_action')::int;
 
 	-- Must figure out table name
-	sql := '';		
-	sql := concat(sql, ' select * from vw_table');
-	sql := concat(sql, ' where id_system = ', systemId);
-	sql := concat(sql, ' and id_table = ', tableId);
-	execute trace('SQL: ', sql);
+	sql := get_struct(systemId, tableId);
 	for item in execute sql loop
 		tableName = item.table_name;
 	end loop;
 
-	if (tableName = null or tableName = '') then
-	    -- raise exception 'Table name not found for table id %', tableId;
-		tableName = "tb_event";
-    end if;
-
-	execute trace('Current table: ', tableName);
-	execute trace('Action ID: ', actionId::text);
 	------------------------------------------------
 	------------------------------------------------ INSERT
 	------------------------------------------------
@@ -75,11 +64,7 @@ begin
 		execute trace('Validating before INSERT: ', actionId::text);
 
 		-- Validate input and persist
-		sql := '';		
-		sql := concat(sql, ' select * from vw_table');
-		sql := concat(sql, ' where id_system = ', systemId);
-		sql := concat(sql, ' and id_table = ', tableId);
-		execute trace('SQL: ', sql);
+		sql := get_struct(systemId, tableId);
 
 		for item in execute sql loop
 
@@ -140,6 +125,7 @@ begin
 
 		-- Get inserted id and stamp in the json
  		select currval(pg_get_serial_sequence(tableName, 'id')) into id;
+
 		-- jsonf := jsonb_set(jsonf, '{id}', dbqt(id::text)::jsonb, false);
 		jsonf := jsonb_set(jsonf, '{id}', id::text::jsonb, false);
 
@@ -167,12 +153,11 @@ begin
 		sql := concat(sql, sql_where(tableName, systemId));
 		sql := concat(sql, sql_and(tableName, 'id', id));
 		execute trace('Get existing json: ', sql);
+
 		for item in execute sql loop
 			-- Keep current field			
 			jsone := item.jsone::jsonb;
 			-- Validate IDs are consistent
-			execute trace('ID 1: ', item.id::text);
-			execute trace('ID 2: ', jsone->>'id'::text);
 			if (item.id::text <> jsone->>'id'::text) then
 				raise exception 'Field ID [%] is different from field->>ID [%], record corrupted!!!', item.id::text, jsone->>'id'::text;
 			end if;
@@ -184,12 +169,7 @@ begin
 		execute trace('json new: ', jsonf::text);
 
 		-- validate if json changed
-		sql := '';
-		sql := concat(sql, ' select * from vw_table');
-		sql := concat(sql, ' where id_system = ', systemId);
-		sql := concat(sql, ' and id_table = ', tableId);
-		execute trace('SQL: ', sql);
-
+		sql := get_struct(systemId, tableId);
 		for item in execute sql loop
 
 			-- Collect data

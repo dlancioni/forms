@@ -6,15 +6,12 @@ class JsonUtil {
     }
 
     function getJson($system, $table, $user, $action) {
-
         $json = "";
-        $json = $this->setSession($json, "id_system", $system);
-        $json = $this->setSession($json, "id_table", $table);
-        $json = $this->setSession($json, "id_user", $user);
-        $json = $this->setSession($json, "id_action", $action);
-
-        $json = $this->setField($json, "id", "0");
-
+        $json = $this->setSession($json, "id_system", intval($system));
+        $json = $this->setSession($json, "id_table", intval($table));
+        $json = $this->setSession($json, "id_user", intval($user));
+        $json = $this->setSession($json, "id_action", intval($action));
+        $json = $this->setField($json, "id", intval("0"));
         return $json;
     }
 
@@ -38,8 +35,5 @@ class JsonUtil {
         $json = json_encode($json);
         return $json;
     }
-
 }
-
-
 ?>

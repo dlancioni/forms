@@ -706,8 +706,8 @@ begin
     sql := concat(sql, sql_join('tb_event', 'id_event', 'tb_domain', 'tb_domain_event', 'id_domain', 'tb_event'));   
 
     if (targetId = 2) then
-        sql := concat(sql, sql_join('tb_event', 'id', 'tb_domain', 'tb_rel_event', 'value', 'tb_rel_event'));
-        sql := concat(sql, sql_and('tb_rel_event', 'id_domain', eventId));  
+        --sql := concat(sql, sql_join('tb_event', 'id', 'tb_domain', 'tb_rel_event', 'value', 'tb_rel_event'));
+        --sql := concat(sql, sql_and('tb_rel_event', 'id_domain', eventId));  
     end if;    
 
     sql := concat(sql, sql_where('tb_event', systemId));    

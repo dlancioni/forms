@@ -28,15 +28,15 @@ tb_field.session->>'id_system' = tb_table.session->>'id_system' and
 (tb_field.field->>'id_table')::int = tb_table.id
 
 inner join tb_domain tb_field_type on
-tb_field.field->>'id_type' = tb_field_type.field->>'id_domain'
+tb_field.field->>'id_type' = tb_field_type.field->>'key'
 and tb_field_type.field->>'domain' = 'tb_field_type'
 
 inner join tb_domain tb_mandatory on
-tb_field.field->>'id_mandatory' = tb_mandatory.field->>'id_domain'
+tb_field.field->>'id_mandatory' = tb_mandatory.field->>'key'
 and tb_mandatory.field->>'domain' = 'tb_bool'
 
 inner join tb_domain tb_unique on
-tb_field.field->>'id_unique' = tb_unique.field->>'id_domain'
+tb_field.field->>'id_unique' = tb_unique.field->>'key'
 and tb_unique.field->>'domain' = 'tb_bool'
 
 order by 

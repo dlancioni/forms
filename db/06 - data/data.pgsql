@@ -50,7 +50,7 @@ insert into tb_field (field) values ('{"id":19,"id_system":1,"id_table":3,"label
 insert into tb_field (field) values ('{"id":20,"id_system":1,"id_table":3,"label":"Domain","name":"domain","id_type":3,"size":50,"mask":"","id_mandatory":2,"id_unique":2,"id_fk":0,"domain":""}');
 -- tb_domain
 insert into tb_field (field) values ('{"id":21,"id_system":1,"id_table":4,"label":"Id","name":"id","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":0,"domain":""}');
-insert into tb_field (field) values ('{"id":22,"id_system":1,"id_table":4,"label":"Id Domain","name":"id_domain","id_type":3,"size":50,"mask":"","id_mandatory":1,"id_unique":2,"id_fk":0,"domain":""}');
+insert into tb_field (field) values ('{"id":22,"id_system":1,"id_table":4,"label":"Key","name":"key","id_type":3,"size":50,"mask":"","id_mandatory":1,"id_unique":2,"id_fk":0,"domain":""}');
 insert into tb_field (field) values ('{"id":23,"id_system":1,"id_table":4,"label":"Value","name":"value","id_type":3,"size":50,"mask":"","id_mandatory":1,"id_unique":2,"id_fk":0,"domain":""}');
 insert into tb_field (field) values ('{"id":24,"id_system":1,"id_table":4,"label":"Domain","name":"domain","id_type":3,"size":50,"mask":"","id_mandatory":1,"id_unique":2,"id_fk":0,"domain":""}');
 -- tb_event
@@ -74,42 +74,42 @@ update tb_field set session = '{"id_system":1,"id_table":3,"id_user":1,"id_actio
 -- -----------------------------------------------------
 delete from tb_domain;
 -- tb_bool
-insert into tb_domain (field) values ('{"id":1,"id_system":1,"id_domain":1,"value":"Yes","domain":"tb_bool"}');
-insert into tb_domain (field) values ('{"id":2,"id_system":1,"id_domain":2,"value":"No","domain":"tb_bool"}');
+insert into tb_domain (field) values ('{"id":1,"id_system":1,"key":1,"value":"Yes","domain":"tb_bool"}');
+insert into tb_domain (field) values ('{"id":2,"id_system":1,"key":2,"value":"No","domain":"tb_bool"}');
 -- tb_field_type
-insert into tb_domain (field) values ('{"id":3,"id_system":1,"id_domain":1,"value":"Integer","domain":"tb_field_type"}');
-insert into tb_domain (field) values ('{"id":4,"id_system":1,"id_domain":2,"value":"Decimal","domain":"tb_field_type"}');
-insert into tb_domain (field) values ('{"id":5,"id_system":1,"id_domain":3,"value":"String","domain":"tb_field_type"}');
-insert into tb_domain (field) values ('{"id":6,"id_system":1,"id_domain":4,"value":"Date","domain":"tb_field_type"}');
-insert into tb_domain (field) values ('{"id":7,"id_system":1,"id_domain":5,"value":"Boolean","domain":"tb_field_type"}');
-insert into tb_domain (field) values ('{"id":8,"id_system":1,"id_domain":6,"value":"Text","domain":"tb_field_type"}');
+insert into tb_domain (field) values ('{"id":3,"id_system":1,"key":1,"value":"Integer","domain":"tb_field_type"}');
+insert into tb_domain (field) values ('{"id":4,"id_system":1,"key":2,"value":"Decimal","domain":"tb_field_type"}');
+insert into tb_domain (field) values ('{"id":5,"id_system":1,"key":3,"value":"String","domain":"tb_field_type"}');
+insert into tb_domain (field) values ('{"id":6,"id_system":1,"key":4,"value":"Date","domain":"tb_field_type"}');
+insert into tb_domain (field) values ('{"id":7,"id_system":1,"key":5,"value":"Boolean","domain":"tb_field_type"}');
+insert into tb_domain (field) values ('{"id":8,"id_system":1,"key":6,"value":"Text","domain":"tb_field_type"}');
 -- tb_target
-insert into tb_domain (field) values ('{"id":9,"id_system":1,"id_domain":1,"value":"Report","domain":"tb_target"}');
-insert into tb_domain (field) values ('{"id":10,"id_system":1,"id_domain":2,"value":"Form","domain":"tb_target"}');
+insert into tb_domain (field) values ('{"id":9,"id_system":1,"key":1,"value":"Report","domain":"tb_target"}');
+insert into tb_domain (field) values ('{"id":10,"id_system":1,"key":2,"value":"Form","domain":"tb_target"}');
 -- tb_event
-insert into tb_domain (field) values ('{"id":11,"id_system":1,"id_domain":1,"value":"OnClick","domain":"tb_event"}');
-insert into tb_domain (field) values ('{"id":12,"id_system":1,"id_domain":2,"value":"OnFocus","domain":"tb_event"}');
-insert into tb_domain (field) values ('{"id":13,"id_system":1,"id_domain":3,"value":"OnBlur","domain":"tb_event"}');
+insert into tb_domain (field) values ('{"id":11,"id_system":1,"key":1,"value":"OnClick","domain":"tb_event"}');
+insert into tb_domain (field) values ('{"id":12,"id_system":1,"key":2,"value":"OnFocus","domain":"tb_event"}');
+insert into tb_domain (field) values ('{"id":13,"id_system":1,"key":3,"value":"OnBlur","domain":"tb_event"}');
 -- tb_event_type
-insert into tb_domain (field) values ('{"id":11,"id_system":1,"id_domain":1,"value":"None","domain":"tb_event_type"}');
-insert into tb_domain (field) values ('{"id":12,"id_system":1,"id_domain":2,"value":"Caption","domain":"tb_event_type"}');
-insert into tb_domain (field) values ('{"id":13,"id_system":1,"id_domain":3,"value":"Image","domain":"tb_event_type"}');
+insert into tb_domain (field) values ('{"id":11,"id_system":1,"key":1,"value":"None","domain":"tb_event_type"}');
+insert into tb_domain (field) values ('{"id":12,"id_system":1,"key":2,"value":"Caption","domain":"tb_event_type"}');
+insert into tb_domain (field) values ('{"id":13,"id_system":1,"key":3,"value":"Image","domain":"tb_event_type"}');
 -- tb_rel_event
-insert into tb_domain (field) values ('{"id":14,"id_system":1,"id_domain":"new","value":"save","domain":"tb_rel_event"}');
-insert into tb_domain (field) values ('{"id":15,"id_system":1,"id_domain":"new","value":"back","domain":"tb_rel_event"}');
-insert into tb_domain (field) values ('{"id":16,"id_system":1,"id_domain":"edit","value":"save","domain":"tb_rel_event"}');
-insert into tb_domain (field) values ('{"id":17,"id_system":1,"id_domain":"edit","value":"back","domain":"tb_rel_event"}');
-insert into tb_domain (field) values ('{"id":18,"id_system":1,"id_domain":"delete","value":"save","domain":"tb_rel_event"}');
-insert into tb_domain (field) values ('{"id":19,"id_system":1,"id_domain":"delete","value":"back","domain":"tb_rel_event"}');
-insert into tb_domain (field) values ('{"id":20,"id_system":1,"id_domain":"filter1","value":"filter2","domain":"tb_rel_event"}');
-insert into tb_domain (field) values ('{"id":21,"id_system":1,"id_domain":"filter1","value":"back","domain":"tb_rel_event"}');
+insert into tb_domain (field) values ('{"id":14,"id_system":1,"key":"new","value":"save","domain":"tb_rel_event"}');
+insert into tb_domain (field) values ('{"id":15,"id_system":1,"key":"new","value":"back","domain":"tb_rel_event"}');
+insert into tb_domain (field) values ('{"id":16,"id_system":1,"key":"edit","value":"save","domain":"tb_rel_event"}');
+insert into tb_domain (field) values ('{"id":17,"id_system":1,"key":"edit","value":"back","domain":"tb_rel_event"}');
+insert into tb_domain (field) values ('{"id":18,"id_system":1,"key":"delete","value":"save","domain":"tb_rel_event"}');
+insert into tb_domain (field) values ('{"id":19,"id_system":1,"key":"delete","value":"back","domain":"tb_rel_event"}');
+insert into tb_domain (field) values ('{"id":20,"id_system":1,"key":"filter1","value":"filter2","domain":"tb_rel_event"}');
+insert into tb_domain (field) values ('{"id":21,"id_system":1,"key":"filter1","value":"back","domain":"tb_rel_event"}');
 -- tb_operator
-insert into tb_domain (field) values ('{"id":22,"id_system":1,"id_domain":"=","value":"=","domain":"tb_operator"}');
-insert into tb_domain (field) values ('{"id":23,"id_system":1,"id_domain":"<>","value":"<>","domain":"tb_operator"}');
-insert into tb_domain (field) values ('{"id":24,"id_system":1,"id_domain":">","value":">","domain":"tb_operator"}');
-insert into tb_domain (field) values ('{"id":25,"id_system":1,"id_domain":">=","value":">=","domain":"tb_operator"}');
-insert into tb_domain (field) values ('{"id":26,"id_system":1,"id_domain":"<","value":"<","domain":"tb_operator"}');
-insert into tb_domain (field) values ('{"id":27,"id_system":1,"id_domain":"<=","value":"<=","domain":"tb_operator"}');
+insert into tb_domain (field) values ('{"id":22,"id_system":1,"key":"=","value":"=","domain":"tb_operator"}');
+insert into tb_domain (field) values ('{"id":23,"id_system":1,"key":"<>","value":"<>","domain":"tb_operator"}');
+insert into tb_domain (field) values ('{"id":24,"id_system":1,"key":">","value":">","domain":"tb_operator"}');
+insert into tb_domain (field) values ('{"id":25,"id_system":1,"key":">=","value":">=","domain":"tb_operator"}');
+insert into tb_domain (field) values ('{"id":26,"id_system":1,"key":"<","value":"<","domain":"tb_operator"}');
+insert into tb_domain (field) values ('{"id":27,"id_system":1,"key":"<=","value":"<=","domain":"tb_operator"}');
 -- set the session
 update tb_domain set session = '{"id_system":1,"id_table":4,"id_user":1,"id_action":1}';
 

@@ -68,7 +68,7 @@ $function$;
 
 /*
 Mandatory condition for all queries
-select sql_and('tb_rel_event', 'id_domain', 1)
+select sql_and('tb_rel_event', 'key', 1)
  */
 drop function if exists sql_and;
 create or replace function sql_and(tableName text, fieldName text, fieldValue int)
@@ -132,7 +132,7 @@ $function$;
 /*
 Return sql code to join tables
 select sql_join('tb_client', 'id_address', 'tb_address', 'address', 'id')
-select sql_join('tb_client', 'id_address', 'tb_domain', 'tb_domain_event', 'id_domain', 'tb_event')
+select sql_join('tb_client', 'id_address', 'tb_domain', 'tb_domain_event', 'key', 'tb_event')
  */
 drop function if exists sql_join;
 create or replace function sql_join(baseTable text, baseField text, joinTable text, joinTableAlias text, joinField text, domainName text default '')
@@ -192,7 +192,7 @@ begin
     for item in execute sql loop
         if (item.id_fk = 4) then
             tableAlias = concat('tb_', replace(item.field_name, 'id_', 'fk_'));
-            output := concat(output, sql_join(item.base_table, item.field_name, item.table_name, tableAlias, 'id_domain', item.domain_name));
+            output := concat(output, sql_join(item.base_table, item.field_name, item.table_name, tableAlias, 'key', item.domain_name));
         else
             -- FKs
             tableAlias = concat('tb_', replace(item.field_name, 'id_', 'fk_')); 
@@ -703,11 +703,11 @@ begin
     sql := concat(sql, sql_field('tb_event', 'code'), ',');
     sql := concat(sql, sql_field('tb_domain_event', 'value', 'event_name'));
     sql := concat(sql, sql_from('tb_event'));
-    sql := concat(sql, sql_join('tb_event', 'id_event', 'tb_domain', 'tb_domain_event', 'id_domain', 'tb_event'));   
+    sql := concat(sql, sql_join('tb_event', 'id_event', 'tb_domain', 'tb_domain_event', 'key', 'tb_event'));   
 
     if (targetId = 2) then
         --sql := concat(sql, sql_join('tb_event', 'id', 'tb_domain', 'tb_rel_event', 'value', 'tb_rel_event'));
-        --sql := concat(sql, sql_and('tb_rel_event', 'id_domain', eventId));  
+        --sql := concat(sql, sql_and('tb_rel_event', 'key', eventId));  
     end if;    
 
     sql := concat(sql, sql_where('tb_event', systemId));    
@@ -850,7 +850,7 @@ begin
     if (fkId = 4) then
         -- Domain table
         sql2 := 'select ';
-        sql2 := concat(sql2, sql_field('tb_domain', 'id_domain', 'id'), ',');
+        sql2 := concat(sql2, sql_field('tb_domain', 'key', 'id'), ',');
         sql2 := concat(sql2, sql_field('tb_domain', 'value', 'ds'));
         sql2 := concat(sql2, sql_from('tb_domain'));
         sql2 := concat(sql2, sql_where('tb_domain', systemId));

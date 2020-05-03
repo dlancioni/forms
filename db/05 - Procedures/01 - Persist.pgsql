@@ -114,25 +114,7 @@ begin
 		end loop;
 
 		-- Prepare statement
-		sql := '';
-		sql := concat(sql, 'insert into ', tableName);
-		sql := concat(sql, ' (session, field) values (');
-		sql := concat(sql, qt(jsons::text), ', ');
-		sql := concat(sql, qt(jsonf::text));
-		sql := concat(sql, ')');
-		execute trace('SQL: ', sql); 
-		execute sql;
-
-		-- Get inserted id and stamp in the json
- 		select currval(pg_get_serial_sequence(tableName, 'id')) into id;
-
-		-- jsonf := jsonb_set(jsonf, '{id}', dbqt(id::text)::jsonb, false);
-		jsonf := jsonb_set(jsonf, '{id}', id::text::jsonb, false);
-
-		-- Save new json
-		sql := concat('update ', tableName, ' set field = ', qt(jsonf::text), ' where id = ', id);
-		execute trace('SQL: ', sql);
-		execute sql;		
+		id := stamp(tableName, jsons, jsonf);
 
 	end if;
     

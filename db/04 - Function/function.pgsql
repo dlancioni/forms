@@ -1078,3 +1078,44 @@ begin
 
 end;
 $function$;
+
+/*
+Insert json into table and stamp generate id
+select stamp('tb_code', '{"id":0}', '{"name":"0"}')
+ */
+drop function if exists stamp;
+create or replace function stamp(tableName text, jsons jsonb, jsonf jsonb)
+returns int
+language plpgsql
+as $function$
+declare
+	id int := 0;
+    sql text := '';
+begin
+
+    -- Prepare statement
+    sql := concat(sql, 'insert into ', tableName, ' (session) values (', qt('{"id":0}') ,')');
+    execute sql;
+
+    -- Get inserted id and stamp in the json
+    select currval(pg_get_serial_sequence(tableName, 'id')) into id;
+
+    -- jsonf := jsonb_set(jsonf, '{id}', dbqt(id::text)::jsonb, false);
+    jsonf := json_set(jsonf, 'U', 'id', 1, id::text);
+
+    -- Save new json
+    sql := '';
+    sql := concat(sql, ' update ', tableName, ' set');
+    sql := concat(sql, ' session = ', qt(jsons::text), ','); 
+    sql := concat(sql, ' field = ', qt(jsonf::text)); 
+    sql := concat(sql, ' where id = ', id);
+    execute sql;
+
+    -- Trace new record
+    execute trace('sql: ', sql); 
+
+    -- Return generated id
+    return id;
+
+end;
+$function$;

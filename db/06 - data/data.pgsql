@@ -55,16 +55,17 @@ insert into tb_field (field) values ('{"id":23,"id_system":1,"id_table":4,"label
 insert into tb_field (field) values ('{"id":24,"id_system":1,"id_table":4,"label":"Domain","name":"domain","id_type":3,"size":50,"mask":"","id_mandatory":1,"id_unique":2,"id_fk":0,"domain":""}');
 -- tb_event
 insert into tb_field (field) values ('{"id":25,"id_system":1,"id_table":5,"label":"Id","name":"id","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":0,"domain":""}');
-insert into tb_field (field) values ('{"id":26,"id_system":1,"id_table":5,"label":"Target","name":"id_target","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":2,"id_fk":4,"domain":"tb_target"}');
-insert into tb_field (field) values ('{"id":27,"id_system":1,"id_table":5,"label":"Table","name":"id_table","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":2,"id_fk":2,"domain":""}');
-insert into tb_field (field) values ('{"id":28,"id_system":1,"id_table":5,"label":"Field","name":"id_field","id_type":1,"size":0,"mask":"","id_mandatory":2,"id_unique":2,"id_fk":3,"domain":""}');
-insert into tb_field (field) values ('{"id":29,"id_system":1,"id_table":5,"label":"Event","name":"id_event","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":2,"id_fk":4,"domain":"tb_event"}');
-insert into tb_field (field) values ('{"id":30,"id_system":1,"id_table":5,"label":"Display Type","name":"id_event_type","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":2,"id_fk":4,"domain":"tb_event_type"}');
-insert into tb_field (field) values ('{"id":31,"id_system":1,"id_table":5,"label":"Display","name":"display","id_type":3,"size":50,"mask":"","id_mandatory":1,"id_unique":2,"id_fk":0,"domain":""}');
-insert into tb_field (field) values ('{"id":32,"id_system":1,"id_table":5,"label":"Code","name":"code","id_type":3,"size":500,"mask":"","id_mandatory":1,"id_unique":2,"id_fk":0,"domain":""}');
+insert into tb_field (field) values ('{"id":26,"id_system":1,"id_table":5,"label":"Name","name":"name","id_type":3,"size":50,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":0,"domain":""}');
+insert into tb_field (field) values ('{"id":27,"id_system":1,"id_table":5,"label":"Target","name":"id_target","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":2,"id_fk":4,"domain":"tb_target"}');
+insert into tb_field (field) values ('{"id":28,"id_system":1,"id_table":5,"label":"Table","name":"id_table","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":2,"id_fk":2,"domain":""}');
+insert into tb_field (field) values ('{"id":29,"id_system":1,"id_table":5,"label":"Field","name":"id_field","id_type":1,"size":0,"mask":"","id_mandatory":2,"id_unique":2,"id_fk":3,"domain":""}');
+insert into tb_field (field) values ('{"id":30,"id_system":1,"id_table":5,"label":"Event","name":"id_event","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":2,"id_fk":4,"domain":"tb_event"}');
+insert into tb_field (field) values ('{"id":31,"id_system":1,"id_table":5,"label":"Display Type","name":"id_event_type","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":2,"id_fk":4,"domain":"tb_event_type"}');
+insert into tb_field (field) values ('{"id":32,"id_system":1,"id_table":5,"label":"Display","name":"display","id_type":3,"size":50,"mask":"","id_mandatory":1,"id_unique":2,"id_fk":0,"domain":""}');
+insert into tb_field (field) values ('{"id":33,"id_system":1,"id_table":5,"label":"Code","name":"code","id_type":3,"size":500,"mask":"","id_mandatory":1,"id_unique":2,"id_fk":0,"domain":""}');
 -- tb_code
-insert into tb_field (field) values ('{"id":33,"id_system":1,"id_table":6,"label":"Id","name":"id","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":0,"domain":""}');
-insert into tb_field (field) values ('{"id":34,"id_system":1,"id_table":6,"label":"Code","name":"code","id_type":6,"size":500,"mask":"","id_mandatory":1,"id_unique":2,"id_fk":0,"domain":""}');
+insert into tb_field (field) values ('{"id":34,"id_system":1,"id_table":6,"label":"Id","name":"id","id_type":1,"size":0,"mask":"","id_mandatory":1,"id_unique":1,"id_fk":0,"domain":""}');
+insert into tb_field (field) values ('{"id":35,"id_system":1,"id_table":6,"label":"Code","name":"code","id_type":6,"size":500,"mask":"","id_mandatory":1,"id_unique":2,"id_fk":0,"domain":""}');
 -- Fix session for all records
 update tb_field set session = '{"id_system":1,"id_table":3,"id_user":1,"id_action":1}';
 

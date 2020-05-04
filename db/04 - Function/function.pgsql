@@ -944,12 +944,12 @@ $function$;
 /*
 Manipulate json based on based on simple
 Note that we must work with single level json (DO NOT COMPLICATE THINGS ANYMORE)
-select json_set('{"id_system":1,"id_table":1,"id_action":1,"id_user":1}', 'I', 'id_language', 1, '99')
-select json_set('{"id_system":1,"id_table":1,"id_action":1,"id_user":1}', 'U', 'id_user', 1, '99')
-select json_set('{"id_system":1,"id_table":1,"id_action":1,"id_user":1}', 'D', 'id_system')
+select json_set('{"id_system":1,"id_table":1}', 'id_language', '99', 'I')
+select json_set('{"id_system":1,"id_table":1}', 'id_user', '99')
+select json_set('{"id_system":1,"id_table":1}', 'id_user', 'blabla', 'D')
  */
-drop function if exists json_set;
-create or replace function json_set(json jsonb, action text, fieldName text, fieldType int default 0, fieldValue text default '')
+ drop function if exists json_set;
+create or replace function json_set(json jsonb, fieldName text, fieldValue text default '', action text default 'U')
 returns jsonb
 language plpgsql
 as $function$
@@ -958,9 +958,10 @@ declare
 begin
 
     action := upper(action);
-
     field[1] = fieldName;
-    if (fieldType = 1 or fieldType = 2) then
+
+    -- If value is numeric
+    if (parse_dec(fieldValue)) then 
         if (fieldValue = '') then
             fieldValue = '0';
         end if;
@@ -968,14 +969,17 @@ begin
         fieldValue := dbqt(fieldValue);
     end if;
 
+    -- Create new element
     if (action = 'I') then
         json:= jsonb_set(json, field, fieldValue::jsonb, true);
     end if;
 
+    -- Update value on existing element (default action)
     if (action = 'U') then
         json:= jsonb_set(json, field, fieldValue::jsonb, false);
     end if;
 
+    -- Remove existing element
     if (action = 'D') then
         json:= json - fieldName;
     end if;    
@@ -1066,7 +1070,7 @@ begin
     execute trace('json query: ', sql2);
     for item2 in execute sql2 loop        
         if (position(item2.key in fieldList) = 0) then
-            jsonf := json_set(jsonf, 'D', item2.key::text);
+            jsonf := json_set(jsonf, item2.key::text, '', 'D');
         end if;
     end loop;
 
@@ -1101,7 +1105,7 @@ begin
     select currval(pg_get_serial_sequence(tableName, 'id')) into id;
 
     -- jsonf := jsonb_set(jsonf, '{id}', dbqt(id::text)::jsonb, false);
-    jsonf := json_set(jsonf, 'U', 'id', 1, id::text);
+    jsonf := json_set(jsonf, 'id', id::text);
 
     -- Save new json
     sql := '';

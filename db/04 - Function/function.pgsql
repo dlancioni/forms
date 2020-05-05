@@ -16,14 +16,18 @@ as $function$
 declare
     sql varchar := '';
 begin
+    -- No alias, repeat field name
     if (fieldAlias = '') then
         fieldAlias = fieldName;
     end if;
 
+    -- Entire field
     if (fieldName = 'field') then
         sql := concat(sql, tableName, '.field', ' ', fieldAlias);
+    -- Entire field    
     elsif (fieldName = 'session') then
         sql := concat(sql, tableName, '.session', ' ', fieldAlias);           
+    -- Specific column    
     else
         sql := concat(sql, tableName, '.field->>', qt(fieldName), ' ', fieldAlias);
     end if;
@@ -51,10 +55,10 @@ $function$;
 
 /*
 Mandatory condition for all queries
-select sql_where(1)
+select sql_where('tb', '1')
  */
 drop function if exists sql_where;
-create or replace function sql_where(tableName text, systemId integer)
+create or replace function sql_where(tableName text, systemId text)
 returns text
 language plpgsql
 as $function$
@@ -68,32 +72,38 @@ $function$;
 
 /*
 Mandatory condition for all queries
-select sql_and('tb_rel_event', 'key', 1)
+select sql_and('tb_rel_event', 'key', '1')
+select sql_and('tb_rel_event', 'key', 'new')
  */
 drop function if exists sql_and;
-create or replace function sql_and(tableName text, fieldName text, fieldValue int)
+create or replace function sql_and(tableName text, fieldName text, fieldValue text)
 returns text
 language plpgsql
 as $function$
 declare
     sql varchar := '';
 begin
-    sql := concat(sql, ' and (', tableName, '.field->>', qt(fieldName), ')::int = ', fieldValue);    
+    if (parse_dec(fieldValue)) then
+        sql := concat(sql, ' and (', tableName, '.field->>', qt(fieldName), ')::int = ', fieldValue);            
+    else    
+        sql := concat(sql, ' and (', tableName, '.field->>', qt(fieldName), ')::text = ', qt(fieldValue));
+    end if;    
+
     return sql;
 end;
 $function$;
 
 /*
 Return sql that creates dynamic conditions
-select sql_condition('tb1', 'id', 1, '=', '1');
-select sql_condition('tb1', 'amount', 2, '>', '10.99');
-select sql_condition('tb1', 'name', 3, '=', 'David');
-select sql_condition('tb1', 'expire_date', 4, '=', '31/12/2014', 'dd/mm/yyyy');
-
-select sql_condition('tb1', 'id_mandatory', 1, '=', '1');
+select sql_condition('tb1', 'id', '1', '=', '1');
+select sql_condition('tb1', 'amount', '2', '>', '10.99');
+select sql_condition('tb1', 'name', '3', '=', 'David');
+select sql_condition('tb1', 'expire_date', '4', '=', '31/12/2014', 'dd/mm/yyyy');
+select sql_condition('tb1', 'id_mandatory', '1', '=', '1');
+-> Pending field type
 */
 drop function if exists sql_condition;
-create or replace function sql_condition(tableName text, fieldName text, fieldType integer, fieldOperator text, fieldValue text, fieldMask text default '')
+create or replace function sql_condition(tableName text, fieldName text, fieldType text, fieldOperator text, fieldValue text, fieldMask text default '')
 returns text
 language plpgsql
 as $function$
@@ -101,23 +111,23 @@ declare
     output text := ' and ';
 begin
     -- Note: apply single quote on data and string
-    if (fieldType = 4) then
+    if (fieldType = '4') then
         output = concat(output , ' (to_date(', tableName, '.field', '->>', qt(fieldName), ', ', fieldMask, ')');
     else
         output = concat(output , ' (', tableName, '.field', '->>', qt(fieldName));
     end if;
 
-    if (fieldType = 1) then
+    if (fieldType = 'integer') then
         output = concat(output, ')::int');
-    elsif (fieldType = 2) then
+    elsif (fieldType = 'decimal') then
         output = concat(output, ')::float');
-    elsif (fieldType = 3) then
+    elsif (fieldType = 'string') then
         output = concat(output, ')::text');
         fieldValue := qt(fieldValue);
-    elsif (fieldType = 4) then
+    elsif (fieldType = 'date') then
         output = concat(output, ')::date');
         fieldValue := concat('to_date(', qt(fieldValue), ', ', qt(fieldMask), ')');
-    elsif (fieldType = 5) then -- bool
+    elsif (fieldType = 'boolean') then
         output = concat(output, ')::int');
     end if;
 
@@ -142,7 +152,6 @@ as $function$
 declare
     sql varchar := '';
 begin
-
     if (domainName != '')  then
         sql := concat(sql, ' inner join ', joinTable, ' ', joinTableAlias, ' on');
         sql := concat(sql, ' (', baseTable, '.field->>', qt(baseField), ')::text = (', joinTableAlias, '.field->>', qt(joinField), ')::text');
@@ -162,12 +171,12 @@ $function$;
 -----------------------------------------------------------------
 /*
 Get join
-select get_join(1,1) -- No join
-select get_join(1,2) -- Simple join
-select get_join(1,3) -- Complex join (domain)
+select get_join('1','1') -- No join
+select get_join('1','2') -- Simple join
+select get_join('1','3') -- Complex join (domain)
 */
 drop function if exists get_join;
-create or replace function get_join(systemId int, tableId int)
+create or replace function get_join(systemId text, tableId text)
 returns text
 language plpgsql
 as $function$
@@ -183,13 +192,14 @@ begin
     sql := concat(sql, ' t1.field_name,');
     sql := concat(sql, ' t1.id_fk,');
     sql := concat(sql, ' t1.domain_name,');
-    sql := concat(sql, sql_column('t2','table_name', 3, '', ''));
+    sql := concat(sql, sql_column('t2','table_name', '3', '', ''));
     sql := concat(sql, ' from vw_table t1');
     sql := concat(sql, ' inner join tb_table t2 on t1.id_fk = t2.id'); 
     sql := concat(sql, ' where id_system = ', systemId);
     sql := concat(sql, ' and id_table = ', tableId);
 
     for item in execute sql loop
+        -- Domain
         if (item.id_fk = 4) then
             tableAlias = concat('tb_', replace(item.field_name, 'id_', 'fk_'));
             output := concat(output, sql_join(item.base_table, item.field_name, item.table_name, tableAlias, 'key', item.domain_name));
@@ -207,10 +217,10 @@ $function$;
 
 /*
 Get table structure
-select get_struct(1,1);
+select get_struct('1','1');
 */
 drop function if exists get_struct;
-create or replace function get_struct(systemId int, tableId int)
+create or replace function get_struct(systemId text, tableId text)
 returns text
 language plpgsql
 as $function$
@@ -272,8 +282,8 @@ returns text
 language plpgsql
 as $function$
 declare
-    systemId int := 0;
-    tableId int := 0;
+    systemId text := 0;
+    tableId text := 0;
     sql text := '';
     output text := '';
     item record;
@@ -294,7 +304,7 @@ begin
         sql := concat(sql, ' x.field_name,');
         sql := concat(sql, ' x.operator,');
         sql := concat(sql, ' x.field_value::text,');
-        sql := concat(sql, ' v.id_type field_type,');
+        sql := concat(sql, ' v.field_type,');
         sql := concat(sql, ' v.field_mask');
         sql := concat(sql, ' from json_to_recordset(', data, ') as x(field_name text, operator text, field_value text)');
         sql := concat(sql, ' inner join vw_table v on x.field_name = v.field_name');
@@ -330,7 +340,7 @@ select get_output(1, 1, 0, '', '', '[{"id": 1, "url": "-", "name": "system", "id
 select get_output(0, 0, 0, 'SQLERRM', '', '[]');
 */
 drop function if exists get_output;
-create or replace function get_output(status integer, actionId integer, id integer, error text, warning text, resultset text)
+create or replace function get_output(status text, actionId text, id text, error text, warning text, resultset text)
 returns jsonb
 language plpgsql
 as $function$
@@ -344,14 +354,14 @@ begin
     end if;    
 
     if (trim(error) = '') then
-        if actionId = 0 then
+        if actionId = 'Q' then
             message := ''; -- Query
-        elsif (actionId = 1) then
-            message := concat('Registro INCLUÍDO com sucesso', ' [', id::text, ']');
-        elsif (actionId = 2) then
-            message := concat('Registro ALTERADO com sucesso', ' [', id::text, ']');
-        elsif (actionId = 3) then
-            message := concat('Registro EXCLUÍDO com sucesso', ' [', id::text, ']');
+        elsif (actionId = 'I') then
+            message := concat('Registro INCLUÍDO com sucesso', ' [', id, ']');
+        elsif (actionId = 'U') then
+            message := concat('Registro ALTERADO com sucesso', ' [', id, ']');
+        elsif (actionId = 'D') then
+            message := concat('Registro EXCLUÍDO com sucesso', ' [', id, ']');
         else
             message := 'Invalid action';
         end if;
@@ -375,11 +385,11 @@ $function$;
 
 /*
 Get table name
-select get_table(1,1) -- success
-select get_table(1,9) -- fail
+select get_table('1','1') -- success
+select get_table('1','9') -- fail
 */
 drop function if exists get_table;
-create or replace function get_table(systemId integer, tableId integer)
+create or replace function get_table(systemId text, tableId text)
 returns text
 language plpgsql
 as $function$
@@ -403,11 +413,11 @@ $function$;
 
 /*
 Get table name
-select get_title(1,1) -- success
-select get_title(1,9) -- fail
+select get_title('1','1') -- success
+select get_title('1','9') -- fail
 */
 drop function if exists get_title;
-create or replace function get_title(systemId integer, tableId integer)
+create or replace function get_title(systemId text, tableId text)
 returns text
 language plpgsql
 as $function$
@@ -476,13 +486,12 @@ $function$;
 
 /*
 Check if the record is unique at the table
-select is_unique(1, 'tb_system', 'name', 'formsss') -- true, dont exists
-select is_unique(1, 'tb_system', 'name', 'forms') -- false, already exists 
-
-select is_unique(1, 'tb_field', 'domain', '') -- false, already exists 
+select is_unique('1', 'tb_system', 'name', 'formsss') -- true, dont exists
+select is_unique('1', 'tb_system', 'name', 'forms') -- false, already exists 
+select is_unique('1', 'tb_field', 'domain', '') -- false, already exists 
 */
 drop function if exists is_unique;
-create or replace function is_unique(systemId integer, tableName text, fieldName text, fieldValue text)
+create or replace function is_unique(systemId text, tableName text, fieldName text, fieldValue text)
 returns boolean
 language plpgsql
 as $function$
@@ -496,7 +505,7 @@ begin
         sql := concat(sql, sql_field(tableName, 'id'));
         sql := concat(sql, sql_from(tableName));
         sql := concat(sql, sql_where(tableName, systemId));
-        sql := concat(sql, sql_condition(tableName, fieldName, 3, '=', fieldValue, ''));
+        sql := concat(sql, sql_condition(tableName, fieldName, '3', '=', fieldValue, ''));
 
         for item in execute sql loop
             return false;
@@ -571,7 +580,7 @@ select sql_column('tb_system', 'expire_date', '4', 'dd/mm/yyyy', ''); -- date
 select sql_column('tb_system', 'boolean', '5', '', ''); -- boolean (0/1 int)
 */
 drop function if exists sql_column;
-create or replace function sql_column(tableName text, fieldName text, fieldType integer, fieldMask text, fieldAlias text)
+create or replace function sql_column(tableName text, fieldName text, fieldType text, fieldMask text, fieldAlias text)
 returns text
 language plpgsql
 as $function$
@@ -583,13 +592,13 @@ begin
     field = concat(field , tableName, '.field', '->>', qt(fieldName));
 
     -- Field type
-    if (fieldType = 1 or fieldType = 5) then
+    if (fieldType = 'integer' or fieldType = 'boolean') then
         field = concat('(', field, ')::int');
-    elsif (fieldType = 2) then
+    elsif (fieldType = 'decimal') then
         field = concat('(', field, ')::text');
-    elsif (fieldType = 3) then
+    elsif (fieldType = 'string') then
         field = concat('(', field, ')::text');
-    elsif (fieldType = 4) then
+    elsif (fieldType = 'date') then
         --field = concat('(', 'to_date(', field, ',', qt(fieldMask), '))::date');
         field = concat('(', field, ')::text');
     end if;
@@ -619,16 +628,14 @@ begin
 end;
 $function$;
 
-
-
 /*
 Get table name
-select get_field_list(1,1) -- No join
-select get_field_list(1,2) -- Join
-select get_field_list(1,3) -- Domain
+select get_field_list('1','1') -- No join
+select get_field_list('1','2') -- Join
+select get_field_list('1','3') -- Domain
 */
 drop function if exists get_field_list;
-create or replace function get_field_list(systemId int, tableId int)
+create or replace function get_field_list(systemId text, tableId text)
 returns text
 language plpgsql
 as $function$
@@ -647,7 +654,7 @@ begin
         if (item1.id_fk = 0) then
             -- Same tables
             tableName := get_table(systemId, tableId);
-            output := concat(output, sql_column(tableName, item1.field_name, item1.id_type, item1.field_mask, ''), ',');
+            output := concat(output, sql_column(tableName, item1.field_name, item1.field_type, item1.field_mask, ''), ',');
         else
             -- Other tables, get first text field
             tableName := get_table(systemId, item1.id_fk);
@@ -655,17 +662,17 @@ begin
             if (item1.id_fk = 4) then
                 -- Domain
                 tableName = concat('tb_', replace(item1.field_name, 'id_', 'fk_'));
-                output := concat(output, sql_column(tableName, 'value', 3, item1.field_mask, item1.field_name), ',');                
+                output := concat(output, sql_column(tableName, 'value', '3', item1.field_mask, item1.field_name), ',');
             else
                 -- Other foreign keys
                 tableName = concat('tb_', replace(item1.field_name, 'id_', 'fk_'));                
                 sql2 := '';               
                 sql2 = get_struct(systemId, item1.id_fk);
-                sql2 := concat(sql2, ' and id_type = ', 3);
+                sql2 := concat(sql2, ' and field_type = ', qt('string'));
                 sql2 := concat(sql2, ' limit 1');
 
                 for item2 in execute sql2 loop
-                    output := concat(output, sql_column(tableName, item2.field_name, item2.id_type, item2.field_mask, item1.field_name), ',');
+                    output := concat(output, sql_column(tableName, item2.field_name, item2.field_type, item2.field_mask, item1.field_name), ',');
                 end loop;
 
             end if;
@@ -682,7 +689,7 @@ Set value between double quote
 select get_event(1, 1, 1, 2, 1);
 */
 drop function if exists get_event;
-create or replace function get_event(systemId int, tableId int, eventId int, targetId int, recordCount int)
+create or replace function get_event(systemId text, tableId text, eventId text, targetId text, recordCount text)
 returns text
 language plpgsql
 as $function$
@@ -706,8 +713,8 @@ begin
     sql := concat(sql, sql_join('tb_event', 'id_event', 'tb_domain', 'tb_domain_event', 'key', 'tb_event'));   
 
     if (targetId = 2) then
-        --sql := concat(sql, sql_join('tb_event', 'id', 'tb_domain', 'tb_rel_event', 'value', 'tb_rel_event'));
-        --sql := concat(sql, sql_and('tb_rel_event', 'key', eventId));  
+        sql := concat(sql, sql_join('tb_event', 'id', 'tb_domain', 'tb_rel_event', 'value', 'tb_rel_event'));
+        sql := concat(sql, sql_and('tb_rel_event', 'key', 'new'));  
     end if;    
 
     sql := concat(sql, sql_where('tb_event', systemId));    
@@ -735,6 +742,7 @@ begin
         html := concat(html, ' &nbsp;');  
     end loop;    
     html := concat(html, '</center>');
+
     ---
     --- return buttons as html
     ---
@@ -745,10 +753,10 @@ $function$;
 
 /*
 Get existing js code for current module
-select get_js(1, 1);
+select get_js('1', '1');
 */
 drop function if exists get_js;
-create or replace function get_js(systemId int, tableId int)
+create or replace function get_js(systemId text, tableId text)
 returns text
 language plpgsql
 as $function$
@@ -757,10 +765,6 @@ declare
     html text := '';  
     item record;  
 begin
-
-    ---
-    --- Javascript
-    ---
     sql := concat(sql, ' select');
     sql := concat(sql, ' field->>', qt('id'), ' id');
     sql := concat(sql, ' ,field->>', qt('code'), ' code');
@@ -774,11 +778,7 @@ begin
     end loop;
     html := concat(html, '</script>');
 
-    ---
-    --- return buttons as html
-    ---
     return html;
-
 end;
 $function$;
 
@@ -827,7 +827,7 @@ select html_option(1, 3, '2');
 select html_option(1, 4, '2', 'tb_operator');
 */
 drop function if exists html_option;
-create or replace function html_option(systemId integer, fkId int, selectedValue text, domainName text default '')
+create or replace function html_option(systemId text, fkId text, selectedValue text, domainName text default '')
 returns text
 language plpgsql
 as $function$
@@ -859,12 +859,12 @@ begin
         -- Other tables
         sql2 := 'select ';
         
-        sql1 := concat('select field_name from vw_table where id_system = ', systemId, ' and id_type = ', 1, ' limit 1 ');
+        sql1 := concat('select field_name from vw_table where id_system = ', systemId, ' and field_type = ', qt('integer'), ' limit 1 ');
         for item1 in execute sql1 loop
             sql2 := concat(sql2, 'field->>', qt(item1.field_name), ' as id', ',');
         end loop;
 
-        sql1 := concat('select field_name from vw_table where id_system = ', systemId, ' and id_type = ', 3, ' limit 1 ');        
+        sql1 := concat('select field_name from vw_table where id_system = ', systemId, ' and field_type = ', qt('string'), ' limit 1 ');        
         for item1 in execute sql1 loop
             sql2 := concat(sql2, 'field->>', qt(item1.field_name), ' as ds');
         end loop;              
@@ -892,11 +892,11 @@ $function$;
 /*
 Return sql code to select fields
 Note: html_option is able to figure out ID and DS
-select html_dropdown(1, 'id_system', 2, '1')
-select html_dropdown(1, 'id_system', 4, '1', 'tb_operator')
+select html_dropdown('1', 'id_system', '2', '1')
+select html_dropdown('1', 'id_system', '4', '1', 'tb_operator')
  */
 drop function if exists html_dropdown;
-create or replace function html_dropdown(systemId int, fieldName text, fkId int, fieldValue text, domainName text default '')
+create or replace function html_dropdown(systemId text, fieldName text, fkId text, fieldValue text, domainName text default '')
 returns text
 language plpgsql
 as $function$
@@ -921,7 +921,7 @@ select html_textarea('code', 'abcdef')
 select html_textarea('code', 'abcdef', 5, 30)
  */
 drop function if exists html_textarea;
-create or replace function html_textarea(fieldName text, fieldValue text, rows int default 20, cols int default 135)
+create or replace function html_textarea(fieldName text, fieldValue text, rows text default 20, cols text default 135)
 returns text
 language plpgsql
 as $function$
@@ -931,8 +931,8 @@ begin
     html := concat(html, ' <textarea ');
     html := concat(html, ' id=', dbqt(fieldName));
     html := concat(html, ' name=', dbqt(fieldName));
-    html := concat(html, ' rows=', dbqt(rows::text));
-    html := concat(html, ' cols=', dbqt(cols::text));
+    html := concat(html, ' rows=', dbqt(rows));
+    html := concat(html, ' cols=', dbqt(cols));
     html := concat(html, ' >');
     html := concat(html, fieldValue);
     html := concat(html, '</textarea>');
@@ -1093,7 +1093,7 @@ returns int
 language plpgsql
 as $function$
 declare
-	id int := 0;
+	id text := '0';
     sql text := '';
 begin
 
@@ -1137,13 +1137,13 @@ language plpgsql
 as $function$
 declare
 
-	id int := 0;
-	tableId int := 0;
-	actionId int := 0;	
-    systemId int := 0;
-    fieldType int := 0;
-	fieldUnique int := 0;	
-	fieldMandatory int := 0;	
+	id text := '';
+	tableId text := '';
+	actionId text := '';
+    systemId text := '';
+    fieldType text := '';
+	fieldUnique text := '';	
+	fieldMandatory text := '';
 
 	old text := '';
 	new text := '';
@@ -1170,10 +1170,10 @@ begin
 	jsons := data->'session';
 	jsonf := data->'field';	
 
-	id = (jsonf->>'id')::int;	
-	systemId := (jsons->>'id_system')::int;
-	tableId := (jsons->>'id_table')::int;
-	actionId = (jsons->>'id_action')::int;
+	id = jsonf->>'id';
+	systemId := jsons->>'id_system';
+	tableId := jsons->>'id_table';
+	actionId = jsons->>'id_action');
 
 	-- Must figure out table name
 	sql := get_struct(systemId, tableId);
@@ -1184,7 +1184,7 @@ begin
 	------------------------------------------------
 	------------------------------------------------ INSERT
 	------------------------------------------------
-	if (actionId = 1) then
+	if (actionId = 'I') then
 
 		-- Before insert
 		execute trace('Validating before INSERT: ', actionId::text);
@@ -1196,11 +1196,11 @@ begin
 
 			-- Keep key information
 			fieldName = trim(item.field_name);
-			fieldType = item.id_type;
+			fieldType = trim(item.field_type);
 			fieldValue = trim(jsonf->>fieldName);
 			fieldMask = trim(item.field_mask);
-			fieldMandatory = (item.id_mandatory)::int;
-			fieldUnique = (item.id_unique)::int;
+			fieldMandatory = trim(item.id_mandatory);
+			fieldUnique = trim(item.id_unique);
 
 			-- Validate mandatory fields
 			if (fieldMandatory = 1) then
@@ -1281,10 +1281,10 @@ begin
 		for item in execute sql loop
 
 			-- Collect data
-			fieldMandatory = (item.id_mandatory)::int;
-			fieldUnique = (item.id_unique)::int;			
+			fieldMandatory = trim(item.id_mandatory);
+			fieldUnique = trim(item.id_unique);
 			fieldName = trim(item.field_name);			
-			fieldType = item.id_type;
+			fieldType = trim(item.field_type);
 			fieldValue = trim(jsonf->>fieldName);
 			fieldMask = trim(item.field_mask);
 

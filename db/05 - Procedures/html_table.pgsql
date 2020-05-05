@@ -6,8 +6,8 @@ call report('{"session":{"id_system":1,"id_table":2,"page_limit":5,"page_offset"
 call report('{"session":{"id_system":1,"id_table":2,"id_action":1, "page_limit":5,"page_offset":0},"filter":[{"field_name":"id", "operator":"=", "field_value":"1"}]}')
 */
 
-drop procedure if exists report;
-create or replace procedure report(inout data text)
+drop procedure if exists html_table;
+create or replace procedure html_table(inout data text)
 language plpgsql
 as $procedure$
 declare

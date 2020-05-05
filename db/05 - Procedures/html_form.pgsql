@@ -3,8 +3,8 @@
 call form('{"session":{"id_system":1,"id_table":2,"id":1, "id_event":1}}')
 */
 
-drop procedure if exists form;
-create or replace procedure form(inout data text)
+drop procedure if exists html_form;
+create or replace procedure html_form(inout data text)
 language plpgsql
 as $procedure$
 declare

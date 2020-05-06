@@ -17,14 +17,15 @@
         <div class="w3-col l2">&nbsp;</div>
         <div class="w3-col l8">
         <?php
-        switch ($targetId) {
-            case 1: // table
+        switch ($target) {
+            case "report": // table
                 include "report.php";
                 break;
-            case 2: // form
+            case "form": // form
                 include "form.php";
                 break;
             default:
+                echo "Invalid target";
         }
         ?>
         </div>

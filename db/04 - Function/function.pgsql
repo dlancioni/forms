@@ -683,10 +683,10 @@ $function$;
 
 /*
 Set value between double quote
-select get_event('1', '1', '1', '2', '1');
+select get_event('1', '1', 'report', 'new', '1');
 */
 drop function if exists get_event;
-create or replace function get_event(systemId text, tableId text, eventId text, targetId text, recordCount text)
+create or replace function get_event(systemId text, tableId text, targetId text, eventId text, recordCount text)
 returns text
 language plpgsql
 as $function$
@@ -709,9 +709,9 @@ begin
     sql := concat(sql, sql_from('tb_event'));
     sql := concat(sql, sql_join('tb_event', 'id_event', 'tb_domain', 'tb_domain_event', 'key', 'tb_event'));   
 
-    if (targetId = '2') then
-        sql := concat(sql, sql_join('tb_event', 'id', 'tb_domain', 'tb_rel_event', 'value', 'tb_rel_event'));
-        sql := concat(sql, sql_and('tb_rel_event', 'key', 'new'));  
+    if (targetId = 'form') then
+        --sql := concat(sql, sql_join('tb_event', 'id', 'tb_domain', 'tb_rel_event', 'value', 'tb_rel_event'));
+        --sql := concat(sql, sql_and('tb_rel_event', 'key', 'new'));  
     end if;    
 
     sql := concat(sql, sql_where('tb_event', systemId));    
@@ -719,8 +719,8 @@ begin
     sql := concat(sql, sql_and('tb_event', 'id_target', targetId));    
 
     -- No records, only [New] is presented
-    if (targetId = '1' and recordCount = '0') then
-        sql := concat(sql, sql_and('tb_event', 'id', '1'));
+    if (targetId = 'new' and recordCount = '0') then
+        --sql := concat(sql, sql_and('tb_event', 'id', 'new'));
     end if;
 	execute trace('sql: ', sql);
 

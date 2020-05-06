@@ -5,16 +5,16 @@
     setValue('__id__', document.getElementById("selection").value);
 
     // Navigate to page
-    function go(targetId, tableId, recordId, eventId) {
+    function go(target, table, record, event) {
 
         // Set values
-        setValue('__target__', targetId);
-        setValue('__table__', tableId);
-        setValue('__id__', recordId);
-        setValue('__event__', eventId);
+        setValue('__target__', target);
+        setValue('__table__', table);
+        setValue('__id__', record);
+        setValue('__event__', event);
 
         // New asks to copy record    
-        if (eventId == 1) {
+        if (event == "new") {
             if (getId() > 0) {
                 if (confirm("Would you like to use selected record as template?") == false) {
                     setValue('__id__', '0');
@@ -23,7 +23,7 @@
         }
 
         // Filter requires empty form
-        if (eventId == 5) {
+        if (event == "filter1") {
             setValue('__id__', '0');
         }
 
@@ -38,7 +38,7 @@
 
         // Set values
         setValue('__offset__', pageOffset);
-        setValue('__event__', 6); // filter results
+        setValue('__event__', "filter"); // filter results
         setValue('__target__', 1); // report
 
         // Submit data
@@ -46,8 +46,6 @@
         document.form.action = 'index.php';
         document.form.submit();
     }
-
-
 
     // IDs to navigate
     // Target -> report or form

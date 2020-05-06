@@ -9,11 +9,11 @@
     session_start();
    
     // General Declaration    
-    $systemId = 1;
-    $tableId = 0;
-    $userId = 1;
-    $eventId = 0;
-    $actionId = 0;
+    $system = 1;
+    $table = 0;
+    $user = 1;
+    $event = 0;
+    $action = 0;
 
     $db = "";
     $sql = "";
@@ -30,24 +30,24 @@
         $jsonUtil = new JsonUtil();
 
         // Request key fields
-        $eventId = intval($_REQUEST["__event__"]);
-        $tableId = intval($_REQUEST["__table__"]);
+        $event = intval($_REQUEST["__event__"]);
+        $table = intval($_REQUEST["__table__"]);
 
         // Transform the event in action
-        switch ($eventId) {
+        switch ($event) {
             case 1:                 // new->insert    
-                $actionId = 1;
+                $action = 1;
                 break;
             case 2:                 // edit->update
-                $actionId = 2;
+                $action = 2;
                 break;                
             case 3:                 // Delete button
-                $actionId = 3;
+                $action = 3;
                 break;                
         } 
 
         // Get representation of current action
-        $json = $jsonUtil->getJson($systemId, $tableId, $userId, $actionId);
+        $json = $jsonUtil->getJson($system, $table, $user, $action);
 
         // Form contents to standard json
         foreach($_REQUEST as $key => $val) {
@@ -58,7 +58,7 @@
             if (isValid($fieldName) == "true") {            
                 // Must set 0 if ID is not informed    
                 if (trim($fieldName) == "__id__") {
-                    if ($actionId != 1) { // new
+                    if ($action != 1) { // new
                         $json = $jsonUtil->setField($json, "id", intval($fieldValue));
                     } else {
                         $json = $jsonUtil->setField($json, "id", 0);                    

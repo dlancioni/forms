@@ -1,5 +1,5 @@
 <?php
-    if ($tableId > 0) {
+    if ($table > 0) {
         if ($db->get_error() == "") {
             echo $html;
         } else {

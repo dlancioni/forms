@@ -10,7 +10,7 @@ declare
     tableName text := (new.field->>'table_name')::text;    
     jsons jsonb;
     jsonf jsonb;
-    TB_EVENT jsonb = 5;
+    TB_EVENT text = '5';
 begin
 
     -- Once a table is created, default events are create too
@@ -34,7 +34,7 @@ begin
         and (field->>'id_table')::int = tableEventId::int;
 
         -- Define the Session
-        jsons := json_set(new.session, 'id_table', TB_EVENT::text);
+        jsons := json_set(new.session, 'id_table', TB_EVENT);
 
         -- Create standard buttons for current form [New, Edit, Delete, Save, Filter, Filter, Back]        
         jsonf := json_set('{"id":1,"name":"new","id_target":1,"id_table":0,"id_field":0,"id_event":1,"id_event_type":2,"display":"New","code":"go(getTarget(), getTable(), getId(), 1);"}', 'id_table', tableEventId);

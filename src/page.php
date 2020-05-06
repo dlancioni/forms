@@ -9,15 +9,15 @@
     include "util.php";
    
     // General Declaration
-    $systemId = 1;    
-    $targetId = 1; // 1-report 2-form
-    $tableId = 1;
-    $id = 1;
-    $eventId = 0; // from tb_events (new, edit, delete, etc)
+    $system = 1;    
+    $target = 1; // 1-report 2-form
+    $table = 1;
+    $record = 1;
+    $event = 0; // from tb_events (new, edit, delete, etc)
 
-    $userId = 1;    
-    $viewId = 0;
-    $actionId = 0;
+    $user = 1;    
+    $view = 0;
+    $action = 0;
     $pageOffset = 0;    
     $json = "";
     $html = "";
@@ -36,25 +36,25 @@
 
         // Request data  
         if ($_REQUEST["__target__"] != null)
-            $targetId = $_REQUEST["__target__"];
+            $target = $_REQUEST["__target__"];
         if ($_REQUEST["__table__"] != null)
-            $tableId = $_REQUEST["__table__"];
+            $table = $_REQUEST["__table__"];
         if ($_REQUEST["__id__"] != null)
-            $id = $_REQUEST["__id__"];
+            $record = $_REQUEST["__id__"];
         if ($_REQUEST["__event__"] != null)
-            $eventId = $_REQUEST["__event__"];
+            $event = $_REQUEST["__event__"];
         if ($_REQUEST["__offset__"] != null)
             $pageOffset = $_REQUEST["__offset__"];            
 
         // Get data for current system and table
-        $json = $jsonUtil->setSession($json, "id_system", intval($systemId));
-        $json = $jsonUtil->setSession($json, "id_table", intval($tableId));
-        $json = $jsonUtil->setSession($json, "id", intval($id));
-        $json = $jsonUtil->setSession($json, "id_event", intval($eventId));
+        $json = $jsonUtil->setSession($json, "id_system", intval($system));
+        $json = $jsonUtil->setSession($json, "id_table", intval($table));
+        $json = $jsonUtil->setSession($json, "id", intval($record));
+        $json = $jsonUtil->setSession($json, "id_event", intval($event));
         $json = $jsonUtil->setSession($json, "page_offset", intval($pageOffset));
 
         // Filter logic
-        if ($eventId == 6) {
+        if ($event == 6) {
             foreach($_REQUEST as $key => $val) {
                 $fieldName = trim($key);
                 $fieldValue = trim($val);
@@ -76,10 +76,10 @@
         // Debug point to check what is been sent to bd
         // echo $json;
 
-        if ($targetId == 1) {
-            $sql = "call report($1)";
+        if ($target == "report") {
+            $sql = "call html_table($1)";
         } else {
-            $sql = "call form($1)";
+            $sql = "call html_form($1)";
         }
 
         $db->set_return_type("html");

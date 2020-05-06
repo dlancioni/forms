@@ -1,6 +1,6 @@
 /*
 -- filtering
-call form('{"session":{"id_system":1,"id_table":2,"id":1, "id_event":1}}')
+call html_form('{"session":{"id_system":1,"id_table":2,"id":1, "id_event":1}}')
 */
 
 drop procedure if exists html_form;
@@ -8,11 +8,11 @@ create or replace procedure html_form(inout data text)
 language plpgsql
 as $procedure$
 declare
-    id int := 0;
-    systemId int := 0;
-    tableId int := 0;
-    eventId int := 0;
-    fieldFK int := 0;
+    id text := '';
+    systemId text := '';
+    tableId text := '';
+    eventId text := '';
+    fieldFK text := '';
     sql1 text := '';
     sql2 text := '';
     tableName text := '';
@@ -20,10 +20,10 @@ declare
     fieldName text := '';
     fieldValue text := '';
     fieldLabel text := '';
-    fieldType int := 0;
+    fieldType text := '';
     fieldMask text := '';
     domainName text := '';
-    targetId int = 2; -- const
+    target text = 'form';
     recordCount float := 0;
     checked text := '';
     disabled text := '';
@@ -32,9 +32,9 @@ declare
     item1 record;
     item2 record;
     resultset jsonb;
-    SUCCESS int := 1;
-    FAIL int := 0;
-    TB_DOMAIN int := 4;
+    SUCCESS text := '1';
+    FAIL text := '';
+    TB_DOMAIN int := '4';
 begin
     ---
     --- Start processing
@@ -44,10 +44,10 @@ begin
     ---
     --- Session related information
     ---
-    id := data::jsonb->'session'->>'id';
-    systemId := data::jsonb->'session'->>'id_system';
-    tableId := data::jsonb->'session'->>'id_table';
-    eventId := data::jsonb->'session'->>'id_event';
+    id := data::jsonb->'session'->>'id'::text;
+    systemId := data::jsonb->'session'->>'id_system'::text;
+    tableId := data::jsonb->'session'->>'id_table'::text;
+    eventId := data::jsonb->'session'->>'id_event'::text;
     tableName := get_table(systemId, tableId);
 
     ---
@@ -64,7 +64,7 @@ begin
     ---
     --- Get the record
     ---
-    if (id > 0) then
+    if (id <> '0') then
         sql2 := '';
         sql2 := concat(sql2, ' select field');
         sql2 := concat(sql2, sql_from(tableName));
@@ -79,49 +79,47 @@ begin
     ---
     --- Create the form
     ---
-    for item1 in execute sql1 loop
-
+    for item1 in execute sql1 loop        
         recordCount = recordCount + 1;
         fieldLabel = trim(item1.field_label);
         fieldName = trim(lower(item1.field_name));
-        fieldType = item1.id_type;
+        fieldType = trim(item1.field_type);
         fieldMask = trim(item1.field_mask);
-        fieldFK = item1.id_fk;
+        fieldFK = item1.field_fk::text;
         domainName := trim(item1.domain_name);
         fieldValue := '';
         disabled := '';
 
         -- Filter must allow users enter the ID, cannot disable
         if (fieldName = 'id') then
-            if (eventId = 1) then
+            if (eventId = 'new') then
                 -- NEW: set zero and disable
                 fieldValue := '0';
                 disabled := ' disabled ';
-            elsif (eventId = 5) then
+            elsif (eventId = 'filter1') then
                 -- FILTER: set empty and allow enter data
                 fieldValue := '';
             else
                 -- All other situation just disable
-                fieldValue := resultset->>fieldName;
+                fieldValue := (resultset->>fieldName)::text;
                 disabled := ' disabled ';
             end if;
         else
-            fieldValue := resultset->>fieldName;
+            fieldValue := (resultset->>fieldName)::text;
         end if;
-
 
         --html := concat(html, '<div class="w3-half">');
         html := concat(html, '<div class="">');
         html := concat(html, '<label>', fieldLabel, '</label>');
         -- Write the form
-        if (fieldFK = 0) then
+        if (fieldFK = '0') then
             -- event:filter | type:int/dec/dat enable checkbox to pick operator
-            if (eventId = 5 and (fieldType = 1 or fieldType = 2 or fieldType = 4)) then 
+            if (eventId = 'filter1' and (fieldType = 'integer' or fieldType = 'decimal' or fieldType = 'date')) then 
                 html := concat(html, html_dropdown(systemId, concat(fieldName, '_operator'), TB_DOMAIN, fieldValue, 'tb_operator'));
                 html := concat (html, '</p>');
                 html := concat (html, html_input('text', fieldName, fieldValue, disabled, checked, events));
             else
-                if (fieldType = 6) then
+                if (fieldType = 'text') then
                     html := concat (html, '</p>');
                     html := concat (html, html_textarea(fieldName, fieldValue));
                 else    
@@ -139,7 +137,7 @@ begin
     ---
     --- Actions (Buttons)
     ---
-    html := concat(html, get_event(systemId, tableId, eventId, targetId, recordCount::int));
+    html := concat(html, get_event(systemId, tableId, target, eventId, recordCount::text));
 
     ---
     --- Javascript

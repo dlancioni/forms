@@ -1,9 +1,9 @@
 /*
 -- no condition
-call report('{"session":{"id_system":1,"id_table":2,"page_limit":5,"page_offset":0},"filter":[]}')
+call html_table('{"session":{"id_system":1,"id_table":2,"page_limit":5,"page_offset":0},"filter":[]}')
 
 -- filtering
-call report('{"session":{"id_system":1,"id_table":2,"id_action":1, "page_limit":5,"page_offset":0},"filter":[{"field_name":"id", "operator":"=", "field_value":"1"}]}')
+call html_table('{"session":{"id_system":1,"id_table":2,"id_action":1, "page_limit":5,"page_offset":0},"filter":[{"field_name":"id", "operator":"=", "field_value":"1"}]}')
 */
 
 drop procedure if exists html_table;
@@ -11,12 +11,12 @@ create or replace procedure html_table(inout data text)
 language plpgsql
 as $procedure$
 declare
-    systemId int := 0;
-    tableId int := 0;
-    eventId int := 0;
-    id int := 0;
-    targetId int := 1;
-    pageOffset int := 0;
+    systemId text := '';
+    tableId text := '';
+    eventId text := '';
+    id text := '';
+    targetId text := 1;
+    pageOffset text := '';
     html text := '';
     sql1 text := '';
     sql2 text := '';
@@ -25,16 +25,15 @@ declare
     checked text := '';
     disabled text := '';
     events text := '';
-    item1 record;
-    item2 record;
     resultset jsonb;
-    SUCCESS int := 1;
-    FAIL int := 0;
+    SUCCESS text := 1;
+    FAIL text := '';
     -- Paging
     PAGE_SIZE float := 10;
     recordCount float := 0;
-    pageCount float := 0;
-
+    pageCount float := 0;  
+    item1 record;
+    item2 record;
 begin
 
     ---
@@ -45,26 +44,11 @@ begin
     ---
     --- Session related information
     ---
-    id := (data::jsonb->'session'->>'id')::int;    
-    systemId := (data::jsonb->'session'->>'id_system')::int;
-    tableId := (data::jsonb->'session'->>'id_table')::int;
+    id := (data::jsonb->'session'->>'id')::text;    
+    systemId := (data::jsonb->'session'->>'id_system')::text;
+    tableId := (data::jsonb->'session'->>'id_table')::text;
     pageOffset := data::jsonb->'session'->>'page_offset';
     tableName := get_table(systemId, tableId);
-
-    ---
-    --- Prepare query to get data
-    ---
-    sql1 := 'select count(*) over() as record_count,';
-    sql1 := concat(sql1, get_field_list(systemId, tableId));
-    sql1 := concat(sql1, ' from ', tableName, ' ');
-    sql1 := concat(sql1, get_join(systemId, tableId));
-    sql1 := concat(sql1, sql_where(tableName, systemId));
-    sql1 := concat(sql1, get_condition(data::jsonb));
-    sql1 := concat(sql1, ' order by ', tableName, '.id');
-    sql1 := concat('select to_jsonb(r)::text as record from (', sql1, ') r');
-    sql1 := concat(sql1, ' limit ', PAGE_SIZE);
-    sql1 := concat(sql1, ' offset ', pageOffset);
-	execute trace('SQL1: ', sql1);
 
     ---
     --- Prepare query to get table structure
@@ -96,6 +80,18 @@ begin
     ---
     --- Table body
     ---
+    sql1 := 'select count(*) over() as record_count,';
+    sql1 := concat(sql1, get_field_list(systemId, tableId));
+    sql1 := concat(sql1, ' from ', tableName, ' ');
+    sql1 := concat(sql1, get_join(systemId, tableId));
+    sql1 := concat(sql1, sql_where(tableName, systemId));
+    sql1 := concat(sql1, get_condition(data::jsonb));
+    sql1 := concat(sql1, ' order by ', tableName, '.id');
+    sql1 := concat('select to_jsonb(r)::text as record from (', sql1, ') r');
+    sql1 := concat(sql1, ' limit ', PAGE_SIZE);
+    sql1 := concat(sql1, ' offset ', pageOffset);
+	execute trace('SQL1: ', sql1);
+
     html := concat(html, '<tbody>');
     for item1 in execute sql1 loop
         fieldName := 'id';
@@ -104,11 +100,11 @@ begin
         events = 'onClick="setValue(''__id__'', this.value);"';
 
         checked := '';
-        if (id = 0) then
+        if (id = '0') then
             checked := ' checked '; 
-            id = -1;
+            id = '-1';
         else                    
-            if ((resultset->>fieldName)::int = id) then
+            if ((resultset->>fieldName)::text = id) then
                 checked := ' checked '; 
             end if;
         end if;
@@ -150,7 +146,7 @@ begin
     ---
     --- Actions (Buttons)
     ---
-    html :=concat(html, get_event(systemId, tableId, 1, targetId, recordCount::int));
+    html :=concat(html, get_event(systemId, tableId, targetId, 'new', recordCount::text));
 
     ---
     --- Javascript

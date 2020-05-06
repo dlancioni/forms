@@ -1,3 +1,153 @@
+/*
+Sset value between single quote
+select trace('Error code: ', '255');
+*/
+drop function if exists trace;
+create or replace function trace(v1 text, v2 text)
+returns void
+language plpgsql
+as $function$
+begin
+    raise notice '%', concat(v1, ' ', v2);
+end;
+$function$;
+
+-----------------------------------------------------------------
+-- FUNCTION TO MANIPULATE STRINGS
+-----------------------------------------------------------------
+/*
+Parse string in a valid date
+select is_date('', 'yyyy/MM/dd') -- true (nothing to parse)
+select is_date('2020/12/31', 'yyyy/MM/dd') -- true
+select is_date('', 'dd/mm/yyyy') -- false
+select is_date('25/12/2021', 'dd/mm/yyyy') -- true
+*/
+drop function if exists is_date;
+create or replace function is_date(date text, mask text)
+returns boolean
+language plpgsql
+as $function$
+declare
+    output text;
+begin
+    -- empty return true
+    date := trim(date);
+    mask := trim(mask);
+    if (date = '') then
+        return true;
+    end if;
+
+    -- parse string into date
+    select to_date(date, mask)::date into output;
+    -- input must have same size as mask
+    if (length(date) != length(mask)) then
+        return false;
+    end if;
+    -- output must have same size as mask
+    if (length(output) != length(mask)) then
+        return false;
+    end if;
+    -- return
+    return true;
+exception when others then
+    return false;
+end;
+$function$;
+
+
+/*
+Check if the record is unique at the table
+select is_decimal('1'); -- true
+select is_decimal('d'); -- false
+select is_decimal('10,2'); -- false
+select is_decimal('10.2'); -- false
+*/
+drop function if exists is_decimal;
+create or replace function is_decimal(value text)
+returns boolean
+language plpgsql
+as $function$
+declare 
+    x numeric;
+begin
+    x = value::numeric;
+    return true;
+exception when others then
+    return false;
+end;
+$function$;
+
+/*
+Check if the record is unique at the table
+select is_integer('1'); -- true
+select is_integer('d'); -- false
+select is_integer('10,2'); -- false
+select is_integer('10.2'); -- false
+*/
+drop function if exists is_integer;
+create or replace function is_integer(value text)
+returns boolean
+language plpgsql
+as $function$
+declare 
+    x int;
+begin
+    x = value::int;
+    return true;
+exception when others then
+    return false;
+end;
+$function$;
+
+/*
+Crop data from string 
+select crop('id,name, ', ',');
+*/
+drop function if exists crop;
+create or replace function crop(text text, value text)
+returns text
+language plpgsql
+as $function$
+begin
+    return btrim(trim(text), value);
+end;
+$function$;
+
+/*
+Set value between single quote
+select qt('david');
+*/
+drop function if exists qt;
+create or replace function qt(value text)
+returns text
+language plpgsql
+as $function$
+begin
+    return '''' || value || '''';    
+end;
+$function$;
+
+/*
+Set value between double quote
+select dbqt('david');
+select dbqt('');
+*/
+drop function if exists dbqt;
+create or replace function dbqt(value text)
+returns text
+language plpgsql
+as $function$
+begin
+    if (value != '') then
+        value = concat('"', value, '"');
+    else
+        value = concat('"', '"');    
+    end if;
+
+    return value;
+end;
+$function$;
+
 -----------------------------------------------------------------
 -- FUNCTION TO MANIPULATE SQL
 -----------------------------------------------------------------
@@ -24,10 +174,10 @@ begin
     -- Entire field
     if (fieldName = 'field') then
         sql := concat(sql, tableName, '.field', ' ', fieldAlias);
-    -- Entire field    
+    -- Entire field
     elsif (fieldName = 'session') then
-        sql := concat(sql, tableName, '.session', ' ', fieldAlias);           
-    -- Specific column    
+        sql := concat(sql, tableName, '.session', ' ', fieldAlias);
+    -- Specific column
     else
         sql := concat(sql, tableName, '.field->>', qt(fieldName), ' ', fieldAlias);
     end if;
@@ -83,7 +233,7 @@ as $function$
 declare
     sql varchar := '';
 begin
-    if (parse_dec(fieldValue)) then
+    if (is_decimal(fieldValue)) then
         sql := concat(sql, ' and (', tableName, '.field->>', qt(fieldName), ')::int = ', fieldValue);            
     else    
         sql := concat(sql, ' and (', tableName, '.field->>', qt(fieldName), ')::text = ', qt(fieldValue));
@@ -95,12 +245,11 @@ $function$;
 
 /*
 Return sql that creates dynamic conditions
-select sql_condition('tb1', 'id', '1', '=', '1');
-select sql_condition('tb1', 'amount', '2', '>', '10.99');
-select sql_condition('tb1', 'name', '3', '=', 'David');
-select sql_condition('tb1', 'expire_date', '4', '=', '31/12/2014', 'dd/mm/yyyy');
-select sql_condition('tb1', 'id_mandatory', '1', '=', '1');
--> Pending field type
+select sql_condition('tb1', 'id', 'integer', '=', '1');
+select sql_condition('tb1', 'amount', 'decimal', '>', '10.99');
+select sql_condition('tb1', 'name', 'string', '=', 'David');
+select sql_condition('tb1', 'expire_date', 'date', '=', '31/12/2014', 'dd/mm/yyyy');
+select sql_condition('tb1', 'id_mandatory', 'boolean', '=', '1');
 */
 drop function if exists sql_condition;
 create or replace function sql_condition(tableName text, fieldName text, fieldType text, fieldOperator text, fieldValue text, fieldMask text default '')
@@ -129,6 +278,8 @@ begin
         fieldValue := concat('to_date(', qt(fieldValue), ', ', qt(fieldMask), ')');
     elsif (fieldType = 'boolean') then
         output = concat(output, ')::int');
+    else
+        raise exception 'Invalid data type %', fieldType;
     end if;
 
     output = concat(output, ' ', fieldOperator);
@@ -136,6 +287,52 @@ begin
     output = concat(output, ' ');
 
     return output;
+end;
+$function$;
+
+/*
+author: david lancioni
+target: Return sql for select clause in json format
+Tests:
+select sql_column('tb_system', 'id', 'integer');
+select sql_column('tb_system', 'price', 'decimal');
+select sql_column('tb_system', 'name', 'string');
+select sql_column('tb_system', 'exp_dt', 'date', 'dd/mm/yyyy', 'expire_date');
+select sql_column('tb_system', 'boolean', 'boolean', '', 'flag_confirm');
+*/
+drop function if exists sql_column;
+create or replace function sql_column(tableName text, fieldName text, fieldType text, fieldMask text default '', fieldAlias text default '')
+returns text
+language plpgsql
+as $function$
+declare
+    field text := '';
+begin
+
+    -- Table + Field Name
+    field = concat(field , tableName, '.field', '->>', qt(fieldName));
+
+    -- Field type
+    if (fieldType = 'integer' or fieldType = 'boolean') then
+        field = concat('(', field, ')::int');
+    elsif (fieldType = 'decimal') then
+        field = concat('(', field, ')::text');
+    elsif (fieldType = 'string') then
+        field = concat('(', field, ')::text');
+    elsif (fieldType = 'date') then
+        field = concat('(', field, ')::text');
+    else
+        raise exception 'Invalid data type %', fieldType;        
+    end if;
+
+    -- Field alias
+    if (fieldAlias = '') then 
+        fieldAlias = fieldName;
+    end if;
+    
+    field = concat(field, ' as ', fieldAlias);
+
+    return field;
 end;
 $function$;
 
@@ -165,10 +362,6 @@ begin
 end;
 $function$;
 
-
------------------------------------------------------------------
--- OTHER FUNCTIONS
------------------------------------------------------------------
 /*
 Get join
 select get_join('1','1') -- No join
@@ -190,17 +383,17 @@ begin
     sql := concat(sql, ' select');
     sql := concat(sql, ' t1.table_name base_table,');
     sql := concat(sql, ' t1.field_name,');
-    sql := concat(sql, ' t1.id_fk,');
+    sql := concat(sql, ' t1.field_fk,');
     sql := concat(sql, ' t1.domain_name,');
-    sql := concat(sql, sql_column('t2','table_name', '3', '', ''));
+    sql := concat(sql, sql_column('t2','table_name', 'string', '', ''));
     sql := concat(sql, ' from vw_table t1');
-    sql := concat(sql, ' inner join tb_table t2 on t1.id_fk = t2.id'); 
+    sql := concat(sql, ' inner join tb_table t2 on t1.field_fk = t2.id'); 
     sql := concat(sql, ' where id_system = ', systemId);
     sql := concat(sql, ' and id_table = ', tableId);
 
     for item in execute sql loop
         -- Domain
-        if (item.id_fk = 4) then
+        if (item.field_fk = 4) then
             tableAlias = concat('tb_', replace(item.field_name, 'id_', 'fk_'));
             output := concat(output, sql_join(item.base_table, item.field_name, item.table_name, tableAlias, 'key', item.domain_name));
         else
@@ -213,7 +406,6 @@ begin
     return output;
 end;
 $function$;
-
 
 /*
 Get table structure
@@ -235,46 +427,9 @@ begin
 end;
 $function$;
 
-
-/*
-Crop data from string 
-select crop('id,name, ', ',');
-*/
-drop function if exists crop;
-create or replace function crop(text text, value text)
-returns text
-language plpgsql
-as $function$
-begin
-    return btrim(trim(text), value);
-end;
-$function$;
-
-/*
-Set value between double quote
-select dbqt('david');
-select dbqt('');
-*/
-drop function if exists dbqt;
-create or replace function dbqt(value text)
-returns text
-language plpgsql
-as $function$
-begin
-    if (value != '') then
-        value = concat('"', value, '"');
-    else
-        value = concat('"', '"');    
-    end if;
-
-    return value;
-end;
-$function$;
-
 /*
 Get dynamic and condition
 select get_condition('{"session":{"id_system":1,"id_table":1,"id_action":1},"filter":[{"field_name":"name", "operator":"=", "field_value":"1"}]}')
-select get_condition('{"session":{"id_system":1,"id_table":1,"id_action":1}}')
 */
 drop function if exists get_condition;
 create or replace function get_condition(json jsonb)
@@ -329,15 +484,12 @@ begin
 end;
 $function$;
 
-
-
-
 /*
 Format numbers based on mask
-select get_output(0, 1, 23, 'exception goes here', 'warning goes here', '')
-select get_output(0, 0, 0, 'exception goes here', '', '')
-select get_output(1, 1, 0, '', '', '[{"id": 1, "url": "-", "name": "system", "id_system": 1, "table_name": "tb_system"}]');
-select get_output(0, 0, 0, 'SQLERRM', '', '[]');
+select get_output('0', '1', '23', 'exception goes here', 'warning goes here', '')
+select get_output('0', '0', '0', 'exception goes here', '', '')
+select get_output('1', '1', '0', '', '', '[{"id": 1, "url": "-", "name": "system", "id_system": 1, "table_name": "tb_system"}]');
+select get_output('0', '0', '0', 'SQLERRM', '', '[]');
 */
 drop function if exists get_output;
 create or replace function get_output(status text, actionId text, id text, error text, warning text, resultset text)
@@ -439,55 +591,10 @@ begin
 end;
 $function$;
 
-
-/*
-Check if the record is unique at the table
-select parse_int('1'); -- true
-select parse_int('d'); -- false
-select parse_int('10,2'); -- false
-select parse_int('10.2'); -- false
-*/
-drop function if exists parse_int;
-create or replace function parse_int(value text)
-returns boolean
-language plpgsql
-as $function$
-declare 
-    x int;
-begin
-    x = value::int;
-    return true;
-exception when others then
-    return false;
-end;
-$function$;
-
-/*
-Check if the record is unique at the table
-select parse_dec('1'); -- true
-select parse_dec('d'); -- false
-select parse_dec('10,2'); -- false
-select parse_dec('10.2'); -- false
-*/
-drop function if exists parse_dec;
-create or replace function parse_dec(value text)
-returns boolean
-language plpgsql
-as $function$
-declare 
-    x numeric;
-begin
-    x = value::numeric;
-    return true;
-exception when others then
-    return false;
-end;
-$function$;
-
 /*
 Check if the record is unique at the table
 select is_unique('1', 'tb_system', 'name', 'formsss') -- true, dont exists
-select is_unique('1', 'tb_system', 'name', 'forms') -- false, already exists 
+select is_unique('1', 'tb_system', 'name', 'Forms') -- false, already exists 
 select is_unique('1', 'tb_field', 'domain', '') -- false, already exists 
 */
 drop function if exists is_unique;
@@ -496,6 +603,7 @@ returns boolean
 language plpgsql
 as $function$
 declare
+    fieldType text = 'string';
     sql varchar := '';
     item record;
 begin
@@ -505,7 +613,7 @@ begin
         sql := concat(sql, sql_field(tableName, 'id'));
         sql := concat(sql, sql_from(tableName));
         sql := concat(sql, sql_where(tableName, systemId));
-        sql := concat(sql, sql_condition(tableName, fieldName, '3', '=', fieldValue, ''));
+        sql := concat(sql, sql_condition(tableName, fieldName, fieldType, '=', fieldValue, ''));
 
         for item in execute sql loop
             return false;
@@ -513,118 +621,6 @@ begin
     end if;
 
     return true;
-end;
-$function$;
-
-/*
-Parse string in a valid date
-select parse_date('', 'yyyy/MM/dd') -- true (nothing to parse)
-select parse_date('2020/12/31', 'yyyy/MM/dd') -- true
-select parse_date('', 'dd/mm/yyyy') -- false
-select parse_date('25/12/2021', 'dd/mm/yyyy') -- true
-*/
-drop function if exists parse_date;
-create or replace function parse_date(date text, mask text)
-returns boolean
-language plpgsql
-as $function$
-declare
-    output text;
-begin
-    -- empty return true
-    date := trim(date);
-    mask := trim(mask);
-    if (date = '') then
-        return true;
-    end if;
-
-    -- parse string into date
-    select to_date(date, mask)::date into output;
-    -- input must have same size as mask
-    if (length(date) != length(mask)) then
-        return false;
-    end if;
-    -- output must have same size as mask
-    if (length(output) != length(mask)) then
-        return false;
-    end if;
-    -- return
-    return true;
-exception when others then
-    return false;
-end;
-$function$;
-
-/*
-Set value between single quote
-select qt('david');
-*/
-drop function if exists qt;
-create or replace function qt(value text)
-returns text
-language plpgsql
-as $function$
-begin
-    return '''' || value || '''';    
-end;
-$function$;
-
-/*
-author: david lancioni
-target: Return sql for select clause in json format
-Tests:
-select sql_column('tb_system', 'id', '1', '', ''); -- int
-select sql_column('tb_system', 'price', '100', '', ''); -- decimal (float)
-select sql_column('tb_system', 'name', '3', '', ''); -- text
-select sql_column('tb_system', 'expire_date', '4', 'dd/mm/yyyy', ''); -- date
-select sql_column('tb_system', 'boolean', '5', '', ''); -- boolean (0/1 int)
-*/
-drop function if exists sql_column;
-create or replace function sql_column(tableName text, fieldName text, fieldType text, fieldMask text, fieldAlias text)
-returns text
-language plpgsql
-as $function$
-declare
-    field text := '';
-begin
-
-    -- Table + Field Name
-    field = concat(field , tableName, '.field', '->>', qt(fieldName));
-
-    -- Field type
-    if (fieldType = 'integer' or fieldType = 'boolean') then
-        field = concat('(', field, ')::int');
-    elsif (fieldType = 'decimal') then
-        field = concat('(', field, ')::text');
-    elsif (fieldType = 'string') then
-        field = concat('(', field, ')::text');
-    elsif (fieldType = 'date') then
-        --field = concat('(', 'to_date(', field, ',', qt(fieldMask), '))::date');
-        field = concat('(', field, ')::text');
-    end if;
-
-    -- Field alias
-    if (fieldAlias = '') then 
-        fieldAlias = fieldName;
-    end if;
-    
-    field = concat(field, ' as ', fieldAlias);
-
-    return field;
-end;
-$function$;
-
-/*
-Sset value between single quote
-select trace('david');
-*/
-drop function if exists trace;
-create or replace function trace(v1 text, v2 text)
-returns void
-language plpgsql
-as $function$
-begin
-    raise notice '%', concat(v1, ' ', v2);
 end;
 $function$;
 
@@ -646,28 +642,29 @@ declare
     sql2 text := '';
     tableName text := '';
     fieldName text := '';    
+    fieldType text := 'string';
     output text := '';
 begin
     sql1 := get_struct(systemId, tableId);
 
     for item1 in execute sql1 loop
-        if (item1.id_fk = 0) then
+        if (item1.field_fk = 0) then
             -- Same tables
             tableName := get_table(systemId, tableId);
             output := concat(output, sql_column(tableName, item1.field_name, item1.field_type, item1.field_mask, ''), ',');
         else
             -- Other tables, get first text field
-            tableName := get_table(systemId, item1.id_fk);
+            tableName := get_table(systemId, item1.field_fk::text);
             
-            if (item1.id_fk = 4) then
+            if (item1.field_fk = 4) then
                 -- Domain
                 tableName = concat('tb_', replace(item1.field_name, 'id_', 'fk_'));
-                output := concat(output, sql_column(tableName, 'value', '3', item1.field_mask, item1.field_name), ',');
+                output := concat(output, sql_column(tableName, 'value', fieldType, item1.field_mask, item1.field_name), ',');
             else
                 -- Other foreign keys
                 tableName = concat('tb_', replace(item1.field_name, 'id_', 'fk_'));                
                 sql2 := '';               
-                sql2 = get_struct(systemId, item1.id_fk);
+                sql2 = get_struct(systemId, item1.field_fk::text);
                 sql2 := concat(sql2, ' and field_type = ', qt('string'));
                 sql2 := concat(sql2, ' limit 1');
 
@@ -686,7 +683,7 @@ $function$;
 
 /*
 Set value between double quote
-select get_event(1, 1, 1, 2, 1);
+select get_event('1', '1', '1', '2', '1');
 */
 drop function if exists get_event;
 create or replace function get_event(systemId text, tableId text, eventId text, targetId text, recordCount text)
@@ -712,7 +709,7 @@ begin
     sql := concat(sql, sql_from('tb_event'));
     sql := concat(sql, sql_join('tb_event', 'id_event', 'tb_domain', 'tb_domain_event', 'key', 'tb_event'));   
 
-    if (targetId = 2) then
+    if (targetId = '2') then
         sql := concat(sql, sql_join('tb_event', 'id', 'tb_domain', 'tb_rel_event', 'value', 'tb_rel_event'));
         sql := concat(sql, sql_and('tb_rel_event', 'key', 'new'));  
     end if;    
@@ -722,8 +719,8 @@ begin
     sql := concat(sql, sql_and('tb_event', 'id_target', targetId));    
 
     -- No records, only [New] is presented
-    if (targetId = 1 and recordCount = 0) then
-        sql := concat(sql, sql_and('tb_event', 'id', 1));
+    if (targetId = '1' and recordCount = '0') then
+        sql := concat(sql, sql_and('tb_event', 'id', '1'));
     end if;
 	execute trace('sql: ', sql);
 
@@ -787,7 +784,7 @@ $function$;
 ---------------------------------------------------------------------------------
 /*
 Get an html input element (hidden, text, select)
-select html_input('text', 'id_order', 'ir_order', '123456', '', '', 'onclick=alert(123)');
+select html_input('text', 'ir_order', '123456', '', '', 'onclick=alert(123)');
  */
 drop function if exists html_input;
 create or replace function html_input(htmlType text, fieldName text, fieldValue text, disabled text, checked text, events text)
@@ -803,18 +800,15 @@ begin
     html := concat(html, ' id=', dbqt(fieldName));
     html := concat(html, ' name=', dbqt(fieldName));
     html := concat(html, ' value=', dbqt(fieldValue));
-
     html := concat(html, ' ', disabled);
     html := concat(html, ' ', events);
 
     if (htmlType = 'text') then
         html := concat(html, ' class=', dbqt('w3-input w3-border'));
     end if;    
-
     if (htmlType = 'radio') then
         html := concat(html, ' ', checked);
     end if;
-
     html := concat(html, '>');
 
     return html;
@@ -823,11 +817,11 @@ $function$;
 
 /*
 Generate HTML option list for dropdown
-select html_option(1, 3, '2');
-select html_option(1, 4, '2', 'tb_operator');
+select html_option('1', '3', '2');
+select html_option('1', '4', '2', 'tb_operator');
 */
 drop function if exists html_option;
-create or replace function html_option(systemId text, fkId text, selectedValue text, domainName text default '')
+create or replace function html_option(systemId text, fieldFk text, selectedValue text, domainName text default '')
 returns text
 language plpgsql
 as $function$
@@ -845,16 +839,17 @@ begin
     html := concat(html, '</option>');            
 
     -- Figure out ID and DS to populate dropdown
-    execute trace('fkId: ', fkId::text);
+    execute trace('fieldFk: ', fieldFk::text);
+
     -- Generate query selecting first Int and first String (ID, DS) from each table            
-    if (fkId = 4) then
+    if (fieldFk = '4') then
         -- Domain table
         sql2 := 'select ';
         sql2 := concat(sql2, sql_field('tb_domain', 'key', 'id'), ',');
         sql2 := concat(sql2, sql_field('tb_domain', 'value', 'ds'));
         sql2 := concat(sql2, sql_from('tb_domain'));
         sql2 := concat(sql2, sql_where('tb_domain', systemId));
-        sql2 := concat(sql2, sql_condition('tb_domain', 'domain', 3, '=', domainName));
+        sql2 := concat(sql2, sql_condition('tb_domain', 'domain', 'string', '=', domainName));
     else
         -- Other tables
         sql2 := 'select ';
@@ -869,7 +864,7 @@ begin
             sql2 := concat(sql2, 'field->>', qt(item1.field_name), ' as ds');
         end loop;              
 
-        sql2 := concat(sql2, ' from ', get_table(systemId, fkId));
+        sql2 := concat(sql2, ' from ', get_table(systemId, fieldFk));
     end if;
     execute trace('sql2: ', sql2);            
 
@@ -896,7 +891,7 @@ select html_dropdown('1', 'id_system', '2', '1')
 select html_dropdown('1', 'id_system', '4', '1', 'tb_operator')
  */
 drop function if exists html_dropdown;
-create or replace function html_dropdown(systemId text, fieldName text, fkId text, fieldValue text, domainName text default '')
+create or replace function html_dropdown(systemId text, fieldName text, fieldFk text, fieldValue text, domainName text default '')
 returns text
 language plpgsql
 as $function$
@@ -908,7 +903,7 @@ begin
     html := concat(html, ' id=', dbqt(fieldName));
     html := concat(html, ' name=', dbqt(fieldName));            
     html := concat(html, ' >');
-    html := concat(html, html_option(systemId, fkId, fieldValue, domainName));
+    html := concat(html, html_option(systemId, fieldFk, fieldValue, domainName));
     html := concat(html, '</select>');
 
     return html;
@@ -948,7 +943,7 @@ select json_set('{"id_system":1,"id_table":1}', 'id_language', '99', 'I')
 select json_set('{"id_system":1,"id_table":1}', 'id_user', '99')
 select json_set('{"id_system":1,"id_table":1}', 'id_user', 'blabla', 'D')
  */
- drop function if exists json_set;
+drop function if exists json_set;
 create or replace function json_set(json jsonb, fieldName text, fieldValue text default '', action text default 'U')
 returns jsonb
 language plpgsql
@@ -961,7 +956,7 @@ begin
     field[1] = fieldName;
 
     -- If value is numeric
-    if (parse_dec(fieldValue)) then 
+    if (is_decimal(fieldValue)) then 
         if (fieldValue = '') then
             fieldValue = '0';
         end if;
@@ -992,9 +987,8 @@ $function$;
 /*
 Create valid json based on input data
 select parse_json('{"session":{"id_system":1,"id_table":1,"id_user":1, "id_action":1}}')
-select parse_json('{"session":{"id_system":1,"id_table":2,"id_user":1, "id_action":4,"page_limit":5,"page_offset":0},"filter":[]}') -- Q
+select parse_json('{"session":{"id_system":1,"id_table":2,"id_user":1, "id_action":4,"page_limit":5,"page_offset":0},"filter":[]}')
 select parse_json('{"session":{"id_system":1,"id_table":1,"id_action":1,"id_user":1},"field":{"id":0,"name_":"lancioni it","expire_date":"31/12/2021","price":1200}}') -- IUD
-
  */
 drop function if exists parse_json;
 create or replace function parse_json(json jsonb)
@@ -1060,7 +1054,7 @@ begin
     end if;
 
     -- Keep fields related to current transaction
-    sql1 := get_struct((jsons->>'id_system')::int, (jsons->>'id_table')::int);
+    sql1 := get_struct((jsons->>'id_system')::text, (jsons->>'id_table')::text);
     for item1 in execute sql1 loop
         fieldList := concat(fieldList, item1.field_name::text, '|');
     end loop;
@@ -1166,14 +1160,15 @@ begin
 	-- Validate inputed data
 	data := parse_json(data);
 
-	-- Keep key parameters
+	-- Separate session and field to let things simple
 	jsons := data->'session';
 	jsonf := data->'field';	
 
+    -- Keep key parameters
 	id = jsonf->>'id';
 	systemId := jsons->>'id_system';
 	tableId := jsons->>'id_table';
-	actionId = jsons->>'id_action');
+	actionId = jsons->>'id_action';
 
 	-- Must figure out table name
 	sql := get_struct(systemId, tableId);
@@ -1203,36 +1198,36 @@ begin
 			fieldUnique = trim(item.id_unique);
 
 			-- Validate mandatory fields
-			if (fieldMandatory = 1) then
+			if (fieldMandatory = 'Y') then
 				if (fieldValue = null or fieldValue = '') then
 					raise exception 'Campo [%] é obrigatorio', fieldName;
 				end if;
 			end if;
 
 			-- Validate unique values
-			if (fieldUnique = 1) then
+			if (fieldUnique = 'Y') then
 				if (is_unique(systemId, tableName, fieldName, fieldValue) = false) then
 					raise exception 'Valor [%] ja existe na tabela % campo %', fieldValue, tableName, fieldName;
 				end if;
 			end if;
 
 			-- Validate int
-			if (fieldType = 1) then
-				if (parse_int(fieldValue) = false) then
+			if (fieldType = 'integer') then
+				if (is_integer(fieldValue) = false) then
 					raise exception 'Valor inválido [%] no campo %, esperado numerico inteiro', fieldValue, fieldName;
 				end if;
 			end if;
 
 			-- Validate dec
-			if (fieldType = 2) then
-				if (parse_dec(fieldValue) = false) then
+			if (fieldType = 'decimal') then
+				if (is_decimal(fieldValue) = false) then
 					raise exception 'Valor inválido [%] no campo %, esperado numerico', fieldValue, fieldName;
 				end if;
 			end if;
 
 			-- Validate dates
-			if (fieldType = 4) then
-				if (parse_date(fieldValue, fieldMask) = false) then
+			if (fieldType = 'date') then
+				if (is_date(fieldValue, fieldMask) = false) then
 					raise exception 'Data inváida [%] no campo %', fieldValue, fieldName;
 				end if;
 			end if;
@@ -1304,29 +1299,29 @@ begin
 			end if;
 
 			-- Validate unique values
-			if (fieldUnique = 1) then
+			if (fieldUnique = 'Y') then
 				if (is_unique(systemId, tableName, fieldName, fieldValue) = false) then
 					raise exception 'Valor [%] ja existe na tabela % campo %', fieldValue, tableName, fieldName;
 				end if;
 			end if;
 
 			-- Validate int
-			if (fieldType = 1) then
-				if (parse_int(fieldValue) = false) then
+			if (fieldType = 'integer') then
+				if (is_integer(fieldValue) = false) then
 					raise exception 'Valor inválido [%] no campo %, esperado numerico inteiro', fieldValue, fieldName;
 				end if;
 			end if;
 
 			-- Validate dec
-			if (fieldType = 2) then
-				if (parse_dec(fieldValue) = false) then
+			if (fieldType = 'decimal') then
+				if (is_decimal(fieldValue) = false) then
 					raise exception 'Valor inválido [%] no campo %, esperado numerico', fieldValue, fieldName;
 				end if;
 			end if;
 
 			-- Validate dates
-			if (fieldType = 4) then
-				if (parse_date(fieldValue, fieldMask) = false) then
+			if (fieldType = 'date') then
+				if (is_date(fieldValue, fieldMask) = false) then
 					raise exception 'Data inváida [%] no campo %', fieldValue, fieldName;
 				end if;
 			end if;			
@@ -1334,12 +1329,12 @@ begin
 			-- If changed, validate unique values
 			if (trim(old) != trim(new)) then
 				-- Validate dates
-				if (fieldType = 4) then
-					if (parse_date(fieldValue, fieldMask) = false) then
+				if (fieldType = 'date') then
+					if (is_date(fieldValue, fieldMask) = false) then
 						raise exception 'Data inváida [%] no campo %', fieldValue, fieldName;
 					end if;
 				end if;			
-				if (fieldUnique = 1) then
+				if (fieldUnique = 'Y') then
 					if (is_unique(systemId, tableName, fieldName, fieldValue) = false) then
 						raise exception 'Valor [%] ja existe na tabela % campo %', fieldValue, tableName, fieldName;
 					end if;
@@ -1381,7 +1376,7 @@ begin
 		sql = concat(sql, ' field_name');
 		sql = concat(sql, ' from vw_table');
 		sql = concat(sql, ' where id_system = ', systemId);
-		sql = concat(sql, ' and id_fk = ', tableId);
+		sql = concat(sql, ' and field_fk = ', tableId);
 		execute trace('SQL: ', sql);
 		
 		for item in execute sql loop

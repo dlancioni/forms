@@ -511,7 +511,7 @@ begin
     end if;    
 
     if (trim(error) = '') then
-        if actionId = 'Q' then
+        if actionId = '0' then
             message := ''; -- Query
         elsif (actionId = '1') then
             message := concat('Registro INCLUÍDO com sucesso', ' [', id, ']');
@@ -1106,16 +1106,23 @@ $function$;
 /*
 Insert json into table and stamp generate id
 select stamp('tb_code', '{"id":0}', '{"name":"0"}')
+select stamp('tb_code', '{"id_system":1,"id_table":2,"id_user":1,"id_action":1}', '{"id":0,"__id__":"1","id_system":"1","name":"Customer","caption":"system_999","table_name":"tb_customer"}')
  */
+
 drop function if exists stamp;
 create or replace function stamp(tableName text, jsons jsonb, jsonf jsonb)
-returns int
+returns text
 language plpgsql
 as $function$
 declare
 	id text := '0';
     sql text := '';
 begin
+
+    -- Validate table name
+    if (trim(tableName) = '') then
+        raise exception 'Table name is mandatory %', tableName;
+    end if;
 
     -- Prepare statement
     sql := concat(sql, 'insert into ', tableName, ' (session) values (', qt('{"id":0}') ,')');
@@ -1439,7 +1446,7 @@ exception
 	when others then 
 
 		-- Return json with error (0 Fail)
-		return get_output('0', actionId, id, SQLERRM::text, '', '');
+		return get_output('0', actionId, id, (SQLERRM)::text, '', '');
 
 		-- Finish
 		execute trace('End Persist() -> exception: ', SQLERRM);

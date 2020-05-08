@@ -15,12 +15,12 @@
                     <a href="#" class="w3-bar-item w3-button w3-mobile">Setup</a>        
                     <ul class="sub-menu">
                         <li>              
-                        <a onClick="go('report',1,0)" class="w3-bar-item w3-button w3-mobile">System</a>
-                        <a onClick="go('report',2,0)" class="w3-bar-item w3-button w3-mobile">Table</a>              
-                        <a onClick="go('report',3,0)" class="w3-bar-item w3-button w3-mobile">Field</a>              
-                        <a onClick="go('report',4,0)" class="w3-bar-item w3-button w3-mobile">Domain</a>              
-                        <a onClick="go('report',5,0)" class="w3-bar-item w3-button w3-mobile">Event</a>              
-                        <a onClick="go('report',6,0)" class="w3-bar-item w3-button w3-mobile">Code</a>                         
+                        <a onClick="go(1,1,0)" class="w3-bar-item w3-button w3-mobile">System</a>
+                        <a onClick="go(1,2,0)" class="w3-bar-item w3-button w3-mobile">Table</a>              
+                        <a onClick="go(1,3,0)" class="w3-bar-item w3-button w3-mobile">Field</a>              
+                        <a onClick="go(1,4,0)" class="w3-bar-item w3-button w3-mobile">Domain</a>              
+                        <a onClick="go(1,5,0)" class="w3-bar-item w3-button w3-mobile">Event</a>              
+                        <a onClick="go(1,6,0)" class="w3-bar-item w3-button w3-mobile">Code</a>                         
                         </li>
                     </ul>        
                 </li>

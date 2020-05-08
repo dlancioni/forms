@@ -18,10 +18,10 @@
         <div class="w3-col l8">
         <?php
         switch ($target) {
-            case "report": // table
+            case "1": // report
                 include "report.php";
                 break;
-            case "form": // form
+            case "2": // form
                 include "form.php";
                 break;
             default:

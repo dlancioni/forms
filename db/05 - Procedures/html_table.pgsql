@@ -1,6 +1,7 @@
 /*
 -- no condition
-call html_table('{"session":{"id_system":1,"id_table":2,"page_limit":5,"page_offset":0},"filter":[]}')
+call html_table('{"session":{"id_system":1,"id_table":3,"id":0,"id_event":0,"page_offset":0}}')
+
 
 -- filtering
 call html_table('{"session":{"id_system":1,"id_table":2,"id_action":1, "page_limit":5,"page_offset":0},"filter":[{"field_name":"id", "operator":"=", "field_value":"1"}]}')
@@ -15,7 +16,7 @@ declare
     tableId text := '';
     eventId text := '';
     id text := '';
-    targetId text := 1;
+    targetId text := '1'; -- report
     pageOffset text := '';
     html text := '';
     sql1 text := '';
@@ -76,6 +77,7 @@ begin
             end loop;
         html := concat(html, '</tr>');
     html := concat(html, '</thead>');
+    execute trace('Table header: ', 'OK');
 
     ---
     --- Table body
@@ -127,7 +129,7 @@ begin
     html := concat(html, '</tbody>');
     html := concat(html, '</table>');
     html := concat(html, '</div">');    
-    
+    execute trace('Main: ', 'OK');    
     ---
     --- Paging
     ---
@@ -142,6 +144,7 @@ begin
     end if;
     html := concat(html, '</center>');
     html := concat(html, '<br>');
+    execute trace('Paging: ', 'OK');        
 
     ---
     --- Actions (Buttons)

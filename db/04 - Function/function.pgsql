@@ -683,7 +683,11 @@ $function$;
 
 /*
 Set value between double quote
-select get_event('1', '1', 'report', 'new', '1');
+select get_event('1', '1', '1', 'not used', '1');
+select get_event('1', '1', '2', '1', '1');
+select get_event('1', '1', '2', '2', '1');
+select get_event('1', '1', '2', '3', '1');
+select get_event('1', '1', '2', '5', '1');
 */
 drop function if exists get_event;
 create or replace function get_event(systemId text, tableId text, targetId text, eventId text, recordCount text)
@@ -693,11 +697,24 @@ as $function$
 declare
     sql text := '';
     html text := '';  
-    item1 record;  
+    eventName text := '';  
+    item record;  
 begin
-    ---
-    --- Prepare query to get actions (buttons)
-    ---
+
+    -- Get event name
+    sql := '';
+    sql := concat(sql, ' select ');    
+    sql := concat(sql, sql_field('tb_event', 'name', 'event_name'));
+    sql := concat(sql, sql_from('tb_event'));    
+    sql := concat(sql, sql_where('tb_event', systemId));    
+    sql := concat(sql, sql_and('tb_event', 'id', eventId));
+    execute trace('sql: ', sql);
+    for item in execute sql loop
+        eventName := item.event_name;
+    end loop;
+
+    -- Prepare query to get actions (buttons)
+    sql := '';
     sql := concat(sql, ' select ');
     sql := concat(sql, sql_field('tb_event', 'id'), ',');
     sql := concat(sql, sql_field('tb_event', 'id_table'), ',');
@@ -709,18 +726,20 @@ begin
     sql := concat(sql, sql_from('tb_event'));
     sql := concat(sql, sql_join('tb_event', 'id_event', 'tb_domain', 'tb_domain_event', 'key', 'tb_event'));   
 
-    if (targetId = 'form') then
-        --sql := concat(sql, sql_join('tb_event', 'id', 'tb_domain', 'tb_rel_event', 'value', 'tb_rel_event'));
-        --sql := concat(sql, sql_and('tb_rel_event', 'key', 'new'));  
+    -- Handle related events (report/filter cannot present form/save)
+    if (targetId = '2') then
+        sql := concat(sql, sql_join('tb_event', 'name', 'tb_domain', 'tb_rel_event', 'value', 'tb_rel_event'));
+        sql := concat(sql, sql_and('tb_rel_event', 'key', eventName));
     end if;    
 
+    -- Get events for specific screen (form or report)
     sql := concat(sql, sql_where('tb_event', systemId));    
     sql := concat(sql, sql_and('tb_event', 'id_table', tableId));
-    sql := concat(sql, sql_and('tb_event', 'id_target', targetId));    
+    sql := concat(sql, sql_and('tb_event', 'id_target', targetId));
 
-    -- No records, only [New] is presented
-    if (targetId = 'new' and recordCount = '0') then
-        --sql := concat(sql, sql_and('tb_event', 'id', 'new'));
+    -- On report when no data, only [New] is presented
+    if (targetId = 'report' and (recordCount)::int = 0) then
+        sql := concat(sql, sql_and('tb_event', 'id', '1'));
     end if;
 	execute trace('sql: ', sql);
 
@@ -728,13 +747,13 @@ begin
     --- Actions (Buttons)
     ---
     html := concat(html, '<center>');
-    for item1 in execute sql loop
+    for item in execute sql loop
         html := concat(html, '<input');
         html := concat(html, ' type=', dbqt('button'));
         html := concat(html, ' class=', dbqt('w3-button w3-blue'));
-        html := concat(html, ' id=', dbqt(item1.id));
-        html := concat(html, ' value=', dbqt(item1.display));
-        html := concat(html, ' ', item1.event_name, ' = ', dbqt(item1.code));
+        html := concat(html, ' id=', dbqt(item.id));
+        html := concat(html, ' value=', dbqt(item.display));
+        html := concat(html, ' ', item.event_name, ' = ', dbqt(item.code));
         html := concat(html, ' >');            
         html := concat(html, ' &nbsp;');  
     end loop;    

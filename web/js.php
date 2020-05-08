@@ -14,7 +14,7 @@
         setValue('__event__', event);
 
         // New asks to copy record    
-        if (event == "new") {
+        if (event == "1") {
             if (getId() > 0) {
                 if (confirm("Would you like to use selected record as template?") == false) {
                     setValue('__id__', '0');
@@ -23,7 +23,7 @@
         }
 
         // Filter requires empty form
-        if (event == "filter1") {
+        if (event == "5") {
             setValue('__id__', '0');
         }
 

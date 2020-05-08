@@ -41,7 +41,7 @@ insert into tb_field (field) values ('{"id":10,"id_system":1,"id_table":3,"label
 insert into tb_field (field) values ('{"id":11,"id_system":1,"id_table":3,"label":"Table","name":"id_table","field_type":"integer","size":0,"mask":"","id_mandatory":"Y","id_unique":"N","id_fk":2,"domain":""}');
 insert into tb_field (field) values ('{"id":12,"id_system":1,"id_table":3,"label":"Label","name":"label","field_type":"string","size":50,"mask":"","id_mandatory":"Y","id_unique":"N","id_fk":0,"domain":""}');
 insert into tb_field (field) values ('{"id":13,"id_system":1,"id_table":3,"label":"Name","name":"name","field_type":"string","size":50,"mask":"","id_mandatory":"Y","id_unique":"N","id_fk":0,"domain":""}');
-insert into tb_field (field) values ('{"id":14,"id_system":1,"id_table":3,"label":"Type","name":"id_type","field_type":"integer","size":0,"mask":"","id_mandatory":"Y","id_unique":"N","id_fk":4,"domain":"tb_field_type"}');
+insert into tb_field (field) values ('{"id":14,"id_system":1,"id_table":3,"label":"Type","name":"field_type","field_type":"integer","size":0,"mask":"","id_mandatory":"Y","id_unique":"N","id_fk":4,"domain":"tb_field_type"}');
 insert into tb_field (field) values ('{"id":15,"id_system":1,"id_table":3,"label":"Size","name":"size","field_type":"integer","size":0,"mask":"","id_mandatory":"N","id_unique":"N","id_fk":0,"domain":""}');
 insert into tb_field (field) values ('{"id":16,"id_system":1,"id_table":3,"label":"Mask","name":"mask","field_type":"string","size":50,"mask":"","id_mandatory":"N","id_unique":"N","id_fk":0,"domain":""}');
 insert into tb_field (field) values ('{"id":17,"id_system":1,"id_table":3,"label":"Mandatory","name":"id_mandatory","field_type":"boolean","size":0,"mask":"","id_mandatory":"N","id_unique":"N","id_fk":4,"domain":"tb_bool"}');
@@ -65,7 +65,7 @@ insert into tb_field (field) values ('{"id":32,"id_system":1,"id_table":5,"label
 insert into tb_field (field) values ('{"id":33,"id_system":1,"id_table":5,"label":"Code","name":"code","field_type":"string","size":500,"mask":"","id_mandatory":"Y","id_unique":"N","id_fk":0,"domain":""}');
 -- tb_code
 insert into tb_field (field) values ('{"id":34,"id_system":1,"id_table":6,"label":"Id","name":"id","field_type":"integer","size":0,"mask":"","id_mandatory":"Y","id_unique":"Y","id_fk":0,"domain":""}');
-insert into tb_field (field) values ('{"id":35,"id_system":1,"id_table":6,"label":"Code","name":"code","id_type":6,"size":500,"mask":"","id_mandatory":"Y","id_unique":"N","id_fk":0,"domain":""}');
+insert into tb_field (field) values ('{"id":35,"id_system":1,"id_table":6,"label":"Code","name":"code","field_type":"text","size":500,"mask":"","id_mandatory":"Y","id_unique":"N","id_fk":0,"domain":""}');
 -- Fix session for all records
 update tb_field set session = '{"id_system":1,"id_table":3,"id_user":1,"id_action":1}';
 
@@ -84,8 +84,8 @@ insert into tb_domain (field) values ('{"id":6,"id_system":1,"key":"date","value
 insert into tb_domain (field) values ('{"id":7,"id_system":1,"key":"boolean","value":"Boolean","domain":"tb_field_type"}');
 insert into tb_domain (field) values ('{"id":8,"id_system":1,"key":"text","value":"Text","domain":"tb_field_type"}');
 -- tb_target
-insert into tb_domain (field) values ('{"id":9, "id_system":1,"key":"report","value":"Report","domain":"tb_target"}');
-insert into tb_domain (field) values ('{"id":10,"id_system":1,"key":"form","value":"Form","domain":"tb_target"}');
+insert into tb_domain (field) values ('{"id":9, "id_system":1,"key":1,"value":"Report","domain":"tb_target"}');
+insert into tb_domain (field) values ('{"id":10,"id_system":1,"key":2,"value":"Form","domain":"tb_target"}');
 -- tb_event
 insert into tb_domain (field) values ('{"id":11,"id_system":1,"key":1,"value":"OnClick","domain":"tb_event"}');
 insert into tb_domain (field) values ('{"id":12,"id_system":1,"key":2,"value":"OnFocus","domain":"tb_event"}');

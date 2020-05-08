@@ -23,7 +23,7 @@ declare
     fieldType text := '';
     fieldMask text := '';
     domainName text := '';
-    target text = 'form';
+    target text = '2'; -- form
     recordCount float := 0;
     checked text := '';
     disabled text := '';

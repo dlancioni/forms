@@ -76,7 +76,7 @@
         // Debug point to check what is been sent to bd
         // echo $json;
 
-        if ($target == "report") {
+        if ($target == "1") {
             $sql = "call html_table($1)";
         } else {
             $sql = "call html_form($1)";

@@ -44,7 +44,7 @@
 
             try {
                 // db expects '' to represent single quote (mandatory check)
-                $json = str_replace("'", "''",  $json);
+                $json = str_replace("'", "''''",  $json);
 
                 // Handle db connection    
                 $connection = $this->getConnection();

@@ -513,11 +513,11 @@ begin
     if (trim(error) = '') then
         if actionId = 'Q' then
             message := ''; -- Query
-        elsif (actionId = 'I') then
+        elsif (actionId = '1') then
             message := concat('Registro INCLUÍDO com sucesso', ' [', id, ']');
-        elsif (actionId = 'U') then
+        elsif (actionId = '2') then
             message := concat('Registro ALTERADO com sucesso', ' [', id, ']');
-        elsif (actionId = 'D') then
+        elsif (actionId = '3') then
             message := concat('Registro EXCLUÍDO com sucesso', ' [', id, ']');
         else
             message := 'Invalid action';
@@ -1013,6 +1013,8 @@ Create valid json based on input data
 select parse_json('{"session":{"id_system":1,"id_table":1,"id_user":1, "id_action":1}}')
 select parse_json('{"session":{"id_system":1,"id_table":2,"id_user":1, "id_action":4,"page_limit":5,"page_offset":0},"filter":[]}')
 select parse_json('{"session":{"id_system":1,"id_table":1,"id_action":1,"id_user":1},"field":{"id":0,"name_":"lancioni it","expire_date":"31/12/2021","price":1200}}') -- IUD
+select parse_json('{"session":{"id_system":1,"id_table":6,"id_user":1,"id_action":2},"field":{"id":1,"__id__":"1","code":"function helloWorld() {alert(''''Hello World'''');}"}}'); 
+select persist('{"session":{"id_system":1,"id_table":6,"id_user":1,"id_action":2},"field":{"id":1,"__id__":"1","code":"function helloWorld() {alert(''''Hello World'''');}"}}'); 
  */
 drop function if exists parse_json;
 create or replace function parse_json(json jsonb)
@@ -1144,9 +1146,10 @@ $function$;
 
 
 /* 
-select persist('{"session":{"id_system":1,"id_table":1,"id_action":1,"id_user":1},"field":{"id":0,"name":"lancioni it","expire_date":"31/12/2021","price":1200}}'); 
-select persist('{"session":{"id_system":1,"id_table":1,"id_action":2,"id_user":1},"field":{"id":1,"name":"Lancioni IT","expire_date":"31/12/2021","price":1200}}'); 
+select persist('{"session":{"id_system":1,"id_table":6,"id_user":1,"id_action":2},"field":{"id":1,"__id__":"1","code":"function helloWorld() {alert(''Hello World'');}"}}'); 
+select persist('{"session":{"id_system":1,"id_table":6,"id_user":1,"id_action":2},"field":{"id":1,"__id__":"1","code":"function helloWorld() {alert(''Hello World'');}"}}'); 
 select persist('{"session":{"id_system":1,"id_table":6,"id_action":3,"id_user":1},"field":{"id":7}}'); 
+
 */
 drop function if exists persist;
 create or replace function persist(data jsonb)
@@ -1177,6 +1180,10 @@ declare
 	jsons jsonb; -- session part
 	jsonf jsonb; -- field part
 
+    ACTION_INSERT text := '1';
+    ACTION_UPDATE text := '2';
+    ACTION_DELETE text := '3';
+
 begin
 	-- Start processing
 	execute trace('Begin Persist(): ', data::text);
@@ -1203,7 +1210,7 @@ begin
 	------------------------------------------------
 	------------------------------------------------ INSERT
 	------------------------------------------------
-	if (actionId = 'I') then
+	if (actionId = ACTION_INSERT) then
 
 		-- Before insert
 		execute trace('Validating before INSERT: ', actionId::text);
@@ -1266,10 +1273,10 @@ begin
 	------------------------------------------------
 	------------------------------------------------ UPDATE
 	------------------------------------------------
-	if (actionId = 2) then
+	if (actionId = ACTION_UPDATE) then
 
 		-- Before UPDATE
-		execute trace('Validating before UPDATE: ', actionId::text);
+		execute trace('Validating before UPDATE: ', actionId);
 
 		-- Figure out existing data		
 		sql := '';
@@ -1316,7 +1323,7 @@ begin
 			execute trace('New value: ', new);
 
 			-- Validate mandatory fields
-			if (fieldMandatory = 1) then
+			if (fieldMandatory = 'Y') then
 				if (fieldValue = null OR fieldValue = '') then
 					raise exception 'Campo % é obrigatorio', field_name;
 				end if;
@@ -1388,7 +1395,7 @@ begin
 	------------------------------------------------
 	------------------------------------------------ DELETE
 	------------------------------------------------
-	if (actionId = 3) then
+	if (actionId = ACTION_DELETE) then
 
 		-- Before UPDATE
 		execute trace('Validating before DELETE: ', actionId::text);
@@ -1422,7 +1429,7 @@ begin
 	end if;
 
 	-- Return json with success (1 Success)
-	return get_output(1, actionId, id, '', '', '');
+	return get_output('1', actionId, id, '', '', '');
 
 	-- Finish
 	execute trace('End Persist(): ', 'Success');
@@ -1432,7 +1439,7 @@ exception
 	when others then 
 
 		-- Return json with error (0 Fail)
-		return get_output(0, actionId, id, SQLERRM, '', '');
+		return get_output('0', actionId, id, SQLERRM::text, '', '');
 
 		-- Finish
 		execute trace('End Persist() -> exception: ', SQLERRM);

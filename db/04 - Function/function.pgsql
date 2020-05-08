@@ -297,6 +297,7 @@ Tests:
 select sql_column('tb_system', 'id', 'integer');
 select sql_column('tb_system', 'price', 'decimal');
 select sql_column('tb_system', 'name', 'string');
+select sql_column('tb_system', 'name', 'text');
 select sql_column('tb_system', 'exp_dt', 'date', 'dd/mm/yyyy', 'expire_date');
 select sql_column('tb_system', 'boolean', 'boolean', '', 'flag_confirm');
 */
@@ -313,11 +314,15 @@ begin
     field = concat(field , tableName, '.field', '->>', qt(fieldName));
 
     -- Field type
-    if (fieldType = 'integer' or fieldType = 'boolean') then
+    if (fieldType = 'integer') then
         field = concat('(', field, ')::int');
     elsif (fieldType = 'decimal') then
-        field = concat('(', field, ')::text');
+        field = concat('(', field, ')::float');        
+    elsif (fieldType = 'boolean') then
+        field = concat('(', field, ')::int');
     elsif (fieldType = 'string') then
+        field = concat('(', field, ')::text');
+    elsif (fieldType = 'text') then
         field = concat('(', field, ')::text');
     elsif (fieldType = 'date') then
         field = concat('(', field, ')::text');

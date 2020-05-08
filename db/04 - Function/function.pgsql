@@ -259,8 +259,14 @@ as $function$
 declare
     output text := ' and ';
 begin
+
+    -- Handle default operator
+    if (trim(fieldOperator) = '') then
+        fieldOperator = '=';
+    end if;
+
     -- Note: apply single quote on data and string
-    if (fieldType = '4') then
+    if (fieldType = 'date') then
         output = concat(output , ' (to_date(', tableName, '.field', '->>', qt(fieldName), ', ', fieldMask, ')');
     else
         output = concat(output , ' (', tableName, '.field', '->>', qt(fieldName));
@@ -434,7 +440,7 @@ $function$;
 
 /*
 Get dynamic and condition
-select get_condition('{"session":{"id_system":1,"id_table":1,"id_action":1},"filter":[{"field_name":"name", "operator":"=", "field_value":"1"}]}')
+select get_condition('{"session":{"id_system":1,"id_table":2,"id":0,"id_event":6,"page_offset":0},"filter":[{"field_name":"id_system","operator":"","field_value":"1"}]}')
 */
 drop function if exists get_condition;
 create or replace function get_condition(json jsonb)
@@ -1107,7 +1113,7 @@ $function$;
 Insert json into table and stamp generate id
 select stamp('tb_code', '{"id":0}', '{"name":"0"}')
 select stamp('tb_code', '{"id_system":1,"id_table":2,"id_user":1,"id_action":1}', '{"id":0,"__id__":"1","id_system":"1","name":"Customer","caption":"system_999","table_name":"tb_customer"}')
- */
+*/
 
 drop function if exists stamp;
 create or replace function stamp(tableName text, jsons jsonb, jsonf jsonb)
@@ -1119,13 +1125,8 @@ declare
     sql text := '';
 begin
 
-    -- Validate table name
-    if (trim(tableName) = '') then
-        raise exception 'Table name is mandatory %', tableName;
-    end if;
-
     -- Prepare statement
-    sql := concat(sql, 'insert into ', tableName, ' (session) values (', qt('{"id":0}') ,')');
+    sql := concat(sql, 'insert into ', tableName, ' (session, field) values (', qt(jsonf::text), ',', qt(jsonf::text) ,')');
     execute sql;
 
     -- Get inserted id and stamp in the json

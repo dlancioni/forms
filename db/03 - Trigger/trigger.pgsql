@@ -6,8 +6,8 @@ create or replace function fn_ai_table() returns trigger as $$
 declare
     id int := 0;
     tableEventId text;
-    systemId jsonb := (new.session->>'id_system')::int;
-    tableName text := (new.field->>'table_name')::text;    
+    systemId jsonb;
+    tableName text := '';
     jsons jsonb;
     jsonf jsonb;
     TB_EVENT text = '5';
@@ -19,12 +19,12 @@ begin
         -- ID create in tb_table for current record
         tableEventId := currval(pg_get_serial_sequence('tb_table', 'id'));
 
+        -- Get important values
+        systemId := new.session->>'id_system';
+        tableName := new.field->>'table_name';        
+
         -- Create physical table
-        if not exists (
-            select from information_schema.tables 
-            where table_schema = 'system'
-            and table_name = tableName
-        ) then
+        if not exists (select from information_schema.tables where table_schema = 'system' and table_name = tableName) then
             execute concat('create table ', tableName, ' (like tb_table)');
         end if;
 
@@ -59,6 +59,5 @@ begin
 end;
 $$ language plpgsql;
 
-drop trigger if exists tg_ai_table on tb_table;
 create trigger tg_ai_table after insert on tb_table
 for each row execute procedure fn_ai_table();

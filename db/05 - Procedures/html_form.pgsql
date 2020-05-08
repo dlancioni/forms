@@ -1,6 +1,6 @@
 /*
 -- filtering
-call html_form('{"session":{"id_system":1,"id_table":2,"id":1, "id_event":1}}')
+call html_form({"session":{"id_system":1,"id_table":4,"id":0,"id_event":5,"page_offset":0}}')
 */
 
 drop procedure if exists html_form;
@@ -34,7 +34,7 @@ declare
     resultset jsonb;
     SUCCESS text := '1';
     FAIL text := '';
-    TB_DOMAIN int := '4';
+    TB_DOMAIN text := '4';
 begin
     ---
     --- Start processing
@@ -92,11 +92,11 @@ begin
 
         -- Filter must allow users enter the ID, cannot disable
         if (fieldName = 'id') then
-            if (eventId = 'new') then
+            if (eventId = '1') then
                 -- NEW: set zero and disable
                 fieldValue := '0';
                 disabled := ' disabled ';
-            elsif (eventId = 'filter1') then
+            elsif (eventId = '5') then
                 -- FILTER: set empty and allow enter data
                 fieldValue := '';
             else
@@ -114,7 +114,7 @@ begin
         -- Write the form
         if (fieldFK = '0') then
             -- event:filter | type:int/dec/dat enable checkbox to pick operator
-            if (eventId = 'filter1' and (fieldType = 'integer' or fieldType = 'decimal' or fieldType = 'date')) then 
+            if (eventId = '5' and (fieldType = 'integer' or fieldType = 'decimal' or fieldType = 'date')) then 
                 html := concat(html, html_dropdown(systemId, concat(fieldName, '_operator'), TB_DOMAIN, fieldValue, 'tb_operator'));
                 html := concat (html, '</p>');
                 html := concat (html, html_input('text', fieldName, fieldValue, disabled, checked, events));

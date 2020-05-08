@@ -2,9 +2,8 @@
 -- no condition
 call html_table('{"session":{"id_system":1,"id_table":3,"id":0,"id_event":0,"page_offset":0}}')
 
-
 -- filtering
-call html_table('{"session":{"id_system":1,"id_table":2,"id_action":1, "page_limit":5,"page_offset":0},"filter":[{"field_name":"id", "operator":"=", "field_value":"1"}]}')
+call html_table('{"session":{"id_system":1,"id_table":2,"id":0,"id_event":6,"page_offset":0},"filter":[{"field_name":"id_system","operator":"","field_value":"1"}]}')
 */
 
 drop procedure if exists html_table;
@@ -128,8 +127,8 @@ begin
 
     html := concat(html, '</tbody>');
     html := concat(html, '</table>');
-    html := concat(html, '</div">');    
-    execute trace('Main: ', 'OK');    
+    html := concat(html, '</div">');
+    execute trace('Main: ', 'OK');
     ---
     --- Paging
     ---
@@ -144,7 +143,7 @@ begin
     end if;
     html := concat(html, '</center>');
     html := concat(html, '<br>');
-    execute trace('Paging: ', 'OK');        
+    execute trace('Paging: ', 'OK');
 
     ---
     --- Actions (Buttons)

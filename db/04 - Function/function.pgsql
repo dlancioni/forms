@@ -1,4 +1,30 @@
 /*
+Set value between single quote
+*/
+drop function if exists return;
+create or replace function return(status text, message text, warning text default '', action text default '', id text default '0', resultset text default '')
+returns jsonb
+language plpgsql
+as $function$
+declare
+    output jsonb := '{}'; 
+begin
+
+    -- Set values
+    output := json_set(output, 'status', status, 'I');
+    output := json_set(output, 'message', message, 'I');
+    output := json_set(output, 'warning', warning, 'I');
+    output := json_set(output, 'action', action, 'I');
+    output := json_set(output, 'id', id, 'I');
+    output := json_set(output, 'resultset', resultset, 'I');
+
+    -- Return output
+    return output;
+
+end;
+$function$;
+
+/*
 Sset value between single quote
 select trace('Error code: ', '255');
 */
@@ -164,7 +190,7 @@ returns text
 language plpgsql
 as $function$
 declare
-    sql varchar := '';
+    sql text := '';
 begin
     -- No alias, repeat field name
     if (fieldAlias = '') then
@@ -196,7 +222,7 @@ returns text
 language plpgsql
 as $function$
 declare
-    sql varchar := '';
+    sql text := '';
 begin
     sql := concat(sql, ' from ', tableName); 
     return sql;
@@ -213,7 +239,7 @@ returns text
 language plpgsql
 as $function$
 declare
-    sql varchar := '';
+    sql text := '';
 begin
     sql = concat(sql, ' where (', tableName, '.session->>', qt('id_system'), ')::int = ', systemId);
     return sql;
@@ -231,7 +257,7 @@ returns text
 language plpgsql
 as $function$
 declare
-    sql varchar := '';
+    sql text := '';
 begin
     if (is_decimal(fieldValue)) then
         sql := concat(sql, ' and (', tableName, '.field->>', qt(fieldName), ')::int = ', fieldValue);            
@@ -283,7 +309,7 @@ begin
         output = concat(output, ')::date');
         fieldValue := concat('to_date(', qt(fieldValue), ', ', qt(fieldMask), ')');
     elsif (fieldType = 'boolean') then
-        output = concat(output, ')::int');
+        output = concat(output, ')::text');
     else
         raise exception 'Invalid data type %', fieldType;
     end if;
@@ -358,7 +384,7 @@ returns text
 language plpgsql
 as $function$
 declare
-    sql varchar := '';
+    sql text := '';
 begin
     if (domainName != '')  then
         sql := concat(sql, ' inner join ', joinTable, ' ', joinTableAlias, ' on');
@@ -496,57 +522,6 @@ end;
 $function$;
 
 /*
-Format numbers based on mask
-select get_output('0', '1', '23', 'exception goes here', 'warning goes here', '')
-select get_output('0', '0', '0', 'exception goes here', '', '')
-select get_output('1', '1', '0', '', '', '[{"id": 1, "url": "-", "name": "system", "id_system": 1, "table_name": "tb_system"}]');
-select get_output('0', '0', '0', 'SQLERRM', '', '[]');
-*/
-drop function if exists get_output;
-create or replace function get_output(status text, actionId text, id text, error text, warning text, resultset text)
-returns jsonb
-language plpgsql
-as $function$
-declare
-    output text := '';
-    message text := '';
-begin
-
-    if (resultset = '') then
-        resultset = '[]';
-    end if;    
-
-    if (trim(error) = '') then
-        if actionId = '0' then
-            message := ''; -- Query
-        elsif (actionId = '1') then
-            message := concat('Registro INCLUÍDO com sucesso', ' [', id, ']');
-        elsif (actionId = '2') then
-            message := concat('Registro ALTERADO com sucesso', ' [', id, ']');
-        elsif (actionId = '3') then
-            message := concat('Registro EXCLUÍDO com sucesso', ' [', id, ']');
-        else
-            message := 'Invalid action';
-        end if;
-    else
-        message := error;
-    end if;
-
-    output := concat(output, '{');
-    output := concat(output, '"status":', status, ',');
-    output := concat(output, '"id":', id, ',');
-    output := concat(output, '"action":', actionId, ',');
-    output := concat(output, '"message":', dbqt(message), ',');
-    output := concat(output, '"warning":', dbqt(warning), ',');
-    output := concat(output, '"resultset":', resultset);
-    output := concat(output, '}');
-
-    return output;
-
-end;
-$function$;
-
-/*
 Get table name
 select get_table('1','1') -- success
 select get_table('1','9') -- fail
@@ -615,7 +590,7 @@ language plpgsql
 as $function$
 declare
     fieldType text = 'string';
-    sql varchar := '';
+    sql text := '';
     item record;
 begin
 
@@ -822,7 +797,7 @@ returns text
 language plpgsql
 as $function$
 declare
-    html varchar := '';
+    html text := '';
 begin
 
     html := concat(html, ' <input ');
@@ -926,7 +901,7 @@ returns text
 language plpgsql
 as $function$
 declare
-    html varchar := '';
+    html text := '';
 begin
     html := concat(html, ' <select ');
     html := concat(html, ' class=', dbqt('w3-input w3-border'));
@@ -951,7 +926,7 @@ returns text
 language plpgsql
 as $function$
 declare
-    html varchar := '';
+    html text := '';
 begin
     html := concat(html, ' <textarea ');
     html := concat(html, ' id=', dbqt(fieldName));
@@ -1154,8 +1129,8 @@ $function$;
 
 
 /* 
-select persist('{"session":{"id_system":1,"id_table":6,"id_user":1,"id_action":2},"field":{"id":1,"__id__":"1","code":"function helloWorld() {alert(''Hello World'');}"}}'); 
-select persist('{"session":{"id_system":1,"id_table":6,"id_user":1,"id_action":2},"field":{"id":1,"__id__":"1","code":"function helloWorld() {alert(''Hello World'');}"}}'); 
+select persist('{"session":{"id_system":1,"id_table":6,"id_user":1,"id_action":1},"field":{"id":1,"__id__":"1","code":"function helloWorld() {alert(''''Hello World'''');}"}}'); 
+select persist('{"session":{"id_system":1,"id_table":6,"id_user":1,"id_action":2},"field":{"id":1,"__id__":"1","code":"function helloWorld() {alert(''''Hello World'''');}"}}'); 
 select persist('{"session":{"id_system":1,"id_table":6,"id_action":3,"id_user":1},"field":{"id":7}}'); 
 
 */
@@ -1176,13 +1151,14 @@ declare
 
 	old text := '';
 	new text := '';
-	sql varchar := '';
+	sql text := '';
 	output text := '';	
-	tableName varchar := '';
-	fieldName varchar := '';
-	fieldValue varchar := '';
-	fieldMask varchar := '';
-
+	tableName text := '';
+	fieldName text := '';
+	fieldValue text := '';
+	fieldMask text := '';
+    message text := '';
+    warning text := '';
     item record;
 	jsone jsonb; -- existing json on database
 	jsons jsonb; -- session part
@@ -1191,6 +1167,9 @@ declare
     ACTION_INSERT text := '1';
     ACTION_UPDATE text := '2';
     ACTION_DELETE text := '3';
+
+    SUCCESS text := '1';
+    FAIL text := '1';
 
 begin
 	-- Start processing
@@ -1436,8 +1415,19 @@ begin
 		execute sql;
 	end if;
 
+    -- Output message
+    if actionId = '0' then
+        message := '';
+    elsif (actionId = '1') then
+        message := concat('Registro INCLUÍDO com sucesso', ' [', id, ']');
+    elsif (actionId = '2') then
+        message := concat('Registro ALTERADO com sucesso', ' [', id, ']');
+    elsif (actionId = '3') then
+        message := concat('Registro EXCLUÍDO com sucesso', ' [', id, ']');
+    end if;
+
 	-- Return json with success (1 Success)
-	return get_output('1', actionId, id, '', '', '');
+    return return(SUCCESS, message, warning, actionId, id);
 
 	-- Finish
 	execute trace('End Persist(): ', 'Success');
@@ -1447,7 +1437,8 @@ exception
 	when others then 
 
 		-- Return json with error (0 Fail)
-		return get_output('0', actionId, id, (SQLERRM)::text, '', '');
+        message := (SQLERRM)::text;
+        return return(FAIL, message, warning, actionId, id);        
 
 		-- Finish
 		execute trace('End Persist() -> exception: ', SQLERRM);

@@ -1436,8 +1436,10 @@ begin
 exception 
 	when others then 
 
-		-- Return json with error (0 Fail)
+        -- Get expection 
         message := (SQLERRM)::text;
+
+		-- Return json with error
         return return(FAIL, message, warning, actionId, id);        
 
 		-- Finish

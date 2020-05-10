@@ -13,12 +13,12 @@ update tb_system set session = '{"id_system":1,"id_table":1,"id_user":1,"id_acti
 -- table tb_table
 -- -----------------------------------------------------
 delete from tb_table;
-select insert('tb_table', '{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":0,"id_system":1,"name":"System","caption":"System","table_name":"tb_system"}');
-select insert('tb_table', '{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":0,"id_system":1,"name":"Table","caption":"Table","table_name":"tb_table"}');
-select insert('tb_table', '{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":0,"id_system":1,"name":"Field","caption":"Field","table_name":"tb_field"}');
-select insert('tb_table', '{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":0,"id_system":1,"name":"Domain","caption":"Domain","table_name":"tb_domain"}');
-select insert('tb_table', '{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":0,"id_system":1,"name":"Event","caption":"Event", "table_name":"tb_event"}');
-select insert('tb_table', '{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":0,"id_system":1,"name":"Code","caption":"Code","table_name":"tb_code"}');
+select insert('tb_table', '{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":0,"id_system":1,"name":"System","id_type":1,"title":"System","table_name":"tb_system"}');
+select insert('tb_table', '{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":0,"id_system":1,"name":"Table","id_type":1,"title":"Table","table_name":"tb_table"}');
+select insert('tb_table', '{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":0,"id_system":1,"name":"Field","id_type":1,"title":"Field","table_name":"tb_field"}');
+select insert('tb_table', '{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":0,"id_system":1,"name":"Domain","id_type":1,"title":"Domain","table_name":"tb_domain"}');
+select insert('tb_table', '{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":0,"id_system":1,"name":"Event","id_type":1,"title":"Event", "table_name":"tb_event"}');
+select insert('tb_table', '{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":0,"id_system":1,"name":"Code","id_type":1,"title":"Code","table_name":"tb_code"}');
 
 -- -----------------------------------------------------
 -- table tb_field
@@ -32,7 +32,8 @@ select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":1,"label":"Pric
 -- tb_table
 select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":2,"label":"Id","name":"id","field_type":"integer","size":0,"mask":"","id_mandatory":"Y","id_unique":"Y","id_fk":0,"domain":""}');
 select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":2,"label":"System","name":"id_system","field_type":"integer","size":0,"mask":"","id_mandatory":"Y","id_unique":"N","id_fk":1,"domain":""}');
-select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":2,"label":"Title","name":"name","field_type":"string","size":50,"mask":"","id_mandatory":"Y","id_unique":"Y","id_fk":0,"domain":""}');
+select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":2,"label":"Type","name":"id_type","field_type":"integer","size":0,"mask":"","id_mandatory":"Y","id_unique":"N","id_fk":4,"domain":"tb_table_type"}');
+select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":2,"label":"Title","name":"title","field_type":"string","size":50,"mask":"","id_mandatory":"Y","id_unique":"Y","id_fk":0,"domain":""}');
 select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":2,"label":"Table Name","name":"table_name","field_type":"string","size":50,"mask":"","id_mandatory":"Y","id_unique":"Y","id_fk":0,"domain":""}');
 -- tb_field
 select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":3,"label":"Id","name":"id","field_type":"integer","size":0,"mask":"","id_mandatory":"Y","id_unique":"Y","id_fk":0,"domain":""}');
@@ -108,6 +109,9 @@ select insert('tb_domain', '{}','{"id":24,"id_system":1,"key":">","value":">","d
 select insert('tb_domain', '{}','{"id":25,"id_system":1,"key":">=","value":">=","domain":"tb_operator"}');
 select insert('tb_domain', '{}','{"id":26,"id_system":1,"key":"<","value":"<","domain":"tb_operator"}');
 select insert('tb_domain', '{}','{"id":27,"id_system":1,"key":"<=","value":"<=","domain":"tb_operator"}');
+-- tb_bool
+select insert('tb_domain', '{}','{"id":1,"id_system":1,"key":1,"value":"System","domain":"tb_table_type"}');
+select insert('tb_domain', '{}','{"id":2,"id_system":1,"key":2,"value":"User","domain":"tb_table_type"}');
 -- set the session
 update tb_domain set session = '{"id_system":1,"id_table":4,"id_user":1,"id_action":1}';
 

@@ -4,19 +4,20 @@
 */
 create or replace function fn_ai_table() returns trigger as $$
 declare
-    id int := 0;
+    id text := '';
+    sql text = '';
     tableEventId text;
     systemId jsonb;
-    tableName text := '';
     jsons jsonb;
     jsonf jsonb;
+
     TB_FIELD text := '3';
     TB_EVENT text = '5';
+
 begin
 
     -- Get jey values
     systemId := new.session->>'id_system';
-    tableName := new.field->>'table_name';
     
     -- Get current session
     jsons := new.session;
@@ -28,7 +29,7 @@ begin
         tableEventId := currval(pg_get_serial_sequence('tb_table', 'id'));
 
         -- Create physical table
-        execute concat('create table if not exists ', tableName, ' (id serial, session jsonb, field jsonb)');
+        execute concat('create table if not exists ', trim(new.field->>'table_name'), ' (id serial, session jsonb, field jsonb)');
 
         -- Delete existing events
         delete from tb_event
@@ -59,10 +60,38 @@ begin
 
         -- Finish
         return new;
+
+    elsif (tg_op = 'UPDATE') then
+
+        -- Rename physical table
+        if (trim(new.field->>'table_name') <> trim(old.field->>'table_name')) then
+            execute concat('alter table ', trim(old.field->>'table_name'), ' rename to ', trim(new.field->>'table_name'));
+        end if;
+
+        -- Finish
+        return new;        
+
+    elsif (tg_op = 'DELETE') then        
+
+        -- Cannot delete system table
+        if ((old.field->>'id_type')::int = 1) then
+            raise exception 'Cannot DELETE system tables';
+        end if;
+
+        -- Delete physical table
+        sql := '';
+        sql := concat(sql, 'drop table ', trim(old.field->>'table_name'));
+        execute trace('sql: ', sql);
+        execute sql;
+
+        -- Finish
+        return new;
+
     end if;
 
 end;
 $$ language plpgsql;
 
-create trigger tg_ai_table after insert on tb_table
+drop trigger if exists tg_ai_table on tb_table;
+create trigger tg_ai_table after insert or update or delete on tb_table
 for each row execute procedure fn_ai_table();

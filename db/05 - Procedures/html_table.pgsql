@@ -170,7 +170,7 @@ exception when others then
     ---
     --- Return data (fail)
     ---
-    data := 'Deu pau';
+    data := (SQLERRM)::text;
 
     ---
     --- Return data (fail)

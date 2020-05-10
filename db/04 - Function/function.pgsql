@@ -276,6 +276,7 @@ select sql_condition('tb1', 'amount', 'decimal', '>', '10.99');
 select sql_condition('tb1', 'name', 'string', '=', 'David');
 select sql_condition('tb1', 'expire_date', 'date', '=', '31/12/2014', 'dd/mm/yyyy');
 select sql_condition('tb1', 'id_mandatory', 'boolean', '=', '1');
+select sql_condition('tb_field', 'id_mandatory', 'boolean', '=', 'Y');
 */
 drop function if exists sql_condition;
 create or replace function sql_condition(tableName text, fieldName text, fieldType text, fieldOperator text, fieldValue text, fieldMask text default '')
@@ -309,6 +310,7 @@ begin
         output = concat(output, ')::date');
         fieldValue := concat('to_date(', qt(fieldValue), ', ', qt(fieldMask), ')');
     elsif (fieldType = 'boolean') then
+        fieldValue := qt(fieldValue);
         output = concat(output, ')::text');
     else
         raise exception 'Invalid data type %', fieldType;
@@ -1101,25 +1103,24 @@ declare
 begin
 
     -- Prepare statement
-    sql := concat(sql, 'insert into ', tableName, ' (session, field) values (', qt(jsonf::text), ',', qt(jsonf::text) ,')');
+    sql := concat(sql, 'insert into ', tableName, ' (session, field) values (', qt(jsons::text), ',', qt(jsonf::text) ,')');
+    execute trace('sql: ', sql);
     execute sql;
 
     -- Get inserted id and stamp in the json
     select currval(pg_get_serial_sequence(tableName, 'id')) into id;
 
-    -- jsonf := jsonb_set(jsonf, '{id}', dbqt(id::text)::jsonb, false);
+    -- Stamp the id
     jsonf := json_set(jsonf, 'id', id::text);
 
     -- Save new json
     sql := '';
     sql := concat(sql, ' update ', tableName, ' set');
-    sql := concat(sql, ' session = ', qt(jsons::text), ','); 
+    --sql := concat(sql, ' session = ', qt(jsons::text), ','); 
     sql := concat(sql, ' field = ', qt(jsonf::text)); 
     sql := concat(sql, ' where id = ', id);
+    execute trace('sql: ', sql);
     execute sql;
-
-    -- Trace new record
-    execute trace('sql: ', sql); 
 
     -- Return generated id
     return id;
@@ -1129,9 +1130,11 @@ $function$;
 
 
 /* 
-select persist('{"session":{"id_system":1,"id_table":6,"id_user":1,"id_action":1},"field":{"id":1,"__id__":"1","code":"function helloWorld() {alert(''''Hello World'''');}"}}'); 
+select persist('{"session":{"id_system":1,"id_table":7,"id_user":1,"id_action":1},"field":{"id":0,"__id__":"0","name":"Lancioni IT"}}'); 
 select persist('{"session":{"id_system":1,"id_table":6,"id_user":1,"id_action":2},"field":{"id":1,"__id__":"1","code":"function helloWorld() {alert(''''Hello World'''');}"}}'); 
 select persist('{"session":{"id_system":1,"id_table":6,"id_action":3,"id_user":1},"field":{"id":7}}'); 
+
+
 
 */
 drop function if exists persist;

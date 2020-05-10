@@ -10,8 +10,16 @@ declare
     tableName text := '';
     jsons jsonb;
     jsonf jsonb;
+    TB_FIELD text := '3';
     TB_EVENT text = '5';
 begin
+
+    -- Get jey values
+    systemId := new.session->>'id_system';
+    tableName := new.field->>'table_name';
+    
+    -- Get current session
+    jsons := new.session;
 
     -- Once a table is created, default events are create too
     if (tg_op = 'INSERT') then
@@ -19,24 +27,21 @@ begin
         -- ID create in tb_table for current record
         tableEventId := currval(pg_get_serial_sequence('tb_table', 'id'));
 
-        -- Get important values
-        systemId := new.session->>'id_system';
-        tableName := new.field->>'table_name';        
-
         -- Create physical table
-        if not exists (select from information_schema.tables where table_schema = 'system' and table_name = tableName) then
-            execute concat('create table ', tableName, ' (like tb_table)');
-        end if;
+        execute concat('create table if not exists ', tableName, ' (id serial, session jsonb, field jsonb)');
 
         -- Delete existing events
         delete from tb_event
         where (session->>'id_system')::int = systemId::int
         and (field->>'id_table')::int = tableEventId::int;
 
-        -- Define the Session
-        jsons := json_set(new.session, 'id_table', TB_EVENT);
+        -- Create mandatory field ID
+        jsons := json_set(jsons, 'id_table', TB_FIELD);
+        jsonf := json_set('{"id":0,"id_system":1,"id_table":1,"label":"Id","name":"id","field_type":"integer","size":0,"mask":"","id_mandatory":"Y","id_unique":"Y","id_fk":0,"domain":""}', 'id_table', tableEventId);
+        id := insert('tb_field', jsons, jsonf);
 
-        -- Create standard buttons for current form [New, Edit, Delete, Save, Filter, Filter, Back]        
+        -- Create standard buttons for current form [New, Edit, Delete, Save, Filter, Filter, Back]
+        jsons := json_set(jsons, 'id_table', TB_EVENT);
         jsonf := json_set('{"id":1,"name":"new","id_target":1,"id_table":0,"id_field":0,"id_event":1,"id_event_type":2,"display":"New","code":"go(getTarget(), getTable(), getId(), 1);"}', 'id_table', tableEventId);
         id := insert('tb_event', jsons, jsonf);
         jsonf := json_set('{"id":2,"name":"edit","id_target":1,"id_table":0,"id_field":0,"id_event":1,"id_event_type":2,"display":"Edit","code":"go(getTarget(), getTable(), getId(), 2);"}', 'id_table', tableEventId);

@@ -13,13 +13,12 @@ update tb_system set session = '{"id_system":1,"id_table":1,"id_user":1,"id_acti
 -- table tb_table
 -- -----------------------------------------------------
 delete from tb_table;
-select insert('tb_table', '{}','{"id":0,"id_system":1,"name":"System","caption":"System","table_name":"tb_system"}');
-select insert('tb_table', '{}','{"id":0,"id_system":1,"name":"Table","caption":"Table","table_name":"tb_table"}');
-select insert('tb_table', '{}','{"id":0,"id_system":1,"name":"Field","caption":"Field","table_name":"tb_field"}');
-select insert('tb_table', '{}','{"id":0,"id_system":1,"name":"Domain","caption":"Domain","table_name":"tb_domain"}');
-select insert('tb_table', '{}','{"id":0,"id_system":1,"name":"Event","caption":"Event", "table_name":"tb_event"}');
-select insert('tb_table', '{}','{"id":0,"id_system":1,"name":"Code","caption":"Code","table_name":"tb_code"}');
-update tb_table set session = '{"id_system":1,"id_table":1,"id_user":1,"id_action":1}';
+select insert('tb_table', '{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":0,"id_system":1,"name":"System","caption":"System","table_name":"tb_system"}');
+select insert('tb_table', '{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":0,"id_system":1,"name":"Table","caption":"Table","table_name":"tb_table"}');
+select insert('tb_table', '{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":0,"id_system":1,"name":"Field","caption":"Field","table_name":"tb_field"}');
+select insert('tb_table', '{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":0,"id_system":1,"name":"Domain","caption":"Domain","table_name":"tb_domain"}');
+select insert('tb_table', '{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":0,"id_system":1,"name":"Event","caption":"Event", "table_name":"tb_event"}');
+select insert('tb_table', '{"id_system":1,"id_table":2,"id_user":1,"id_action":1}','{"id":0,"id_system":1,"name":"Code","caption":"Code","table_name":"tb_code"}');
 
 -- -----------------------------------------------------
 -- table tb_field

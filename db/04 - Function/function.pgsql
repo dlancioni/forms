@@ -1085,13 +1085,13 @@ end;
 $function$;
 
 /*
-Insert json into table and stamp generate id
-select stamp('tb_code', '{"id":0}', '{"name":"0"}')
-select stamp('tb_code', '{"id_system":1,"id_table":2,"id_user":1,"id_action":1}', '{"id":0,"__id__":"1","id_system":"1","name":"Customer","caption":"system_999","table_name":"tb_customer"}')
+Insert json into table and insert generate id
+select insert('tb_code', '{"id":0}', '{"name":"0"}')
+select insert('tb_code', '{"id_system":1,"id_table":2,"id_user":1,"id_action":1}', '{"id":0,"__id__":"1","id_system":"1","name":"Customer","caption":"system_999","table_name":"tb_customer"}')
 */
 
-drop function if exists stamp;
-create or replace function stamp(tableName text, jsons jsonb, jsonf jsonb)
+drop function if exists insert;
+create or replace function insert(tableName text, jsons jsonb, jsonf jsonb)
 returns text
 language plpgsql
 as $function$
@@ -1253,7 +1253,7 @@ begin
 		end loop;
 
 		-- Prepare statement
-		id := stamp(tableName, jsons, jsonf);
+		id := insert(tableName, jsons, jsonf);
 
 	end if;
     

@@ -38,19 +38,19 @@ begin
 
         -- Create standard buttons for current form [New, Edit, Delete, Save, Filter, Filter, Back]        
         jsonf := json_set('{"id":1,"name":"new","id_target":1,"id_table":0,"id_field":0,"id_event":1,"id_event_type":2,"display":"New","code":"go(getTarget(), getTable(), getId(), 1);"}', 'id_table', tableEventId);
-        id := stamp('tb_event', jsons, jsonf);
+        id := insert('tb_event', jsons, jsonf);
         jsonf := json_set('{"id":2,"name":"edit","id_target":1,"id_table":0,"id_field":0,"id_event":1,"id_event_type":2,"display":"Edit","code":"go(getTarget(), getTable(), getId(), 2);"}', 'id_table', tableEventId);
-        id := stamp('tb_event', jsons, jsonf);
+        id := insert('tb_event', jsons, jsonf);
         jsonf := json_set('{"id":3,"name":"delete","id_target":1,"id_table":0,"id_field":0,"id_event":1,"id_event_type":2,"display":"Delete","code":"go(getTarget(), getTable(), getId(), 3);"}', 'id_table', tableEventId);
-        id := stamp('tb_event', jsons, jsonf);
+        id := insert('tb_event', jsons, jsonf);
         jsonf := json_set('{"id":4,"name":"save","id_target":2,"id_table":0,"id_field":0,"id_event":1,"id_event_type":2,"display":"Save","code":"execute();"}', 'id_table', tableEventId);
-        id := stamp('tb_event', jsons, jsonf);
+        id := insert('tb_event', jsons, jsonf);
         jsonf := json_set('{"id":5,"name":"filter1","id_target":1,"id_table":0,"id_field":0,"id_event":1,"id_event_type":2,"display":"Filter","code":"go(getTarget(), getTable(), getId(), 5);"}', 'id_table', tableEventId);
-        id := stamp('tb_event', jsons, jsonf);
+        id := insert('tb_event', jsons, jsonf);
         jsonf := json_set('{"id":6,"name":"filter2","id_target":2,"id_table":0,"id_field":0,"id_event":1,"id_event_type":2,"display":"Filter","code":"go(getTarget(), getTable(), getId(), 6);"}', 'id_table', tableEventId);
-        id := stamp('tb_event', jsons, jsonf);
+        id := insert('tb_event', jsons, jsonf);
         jsonf := json_set('{"id":7,"name":"back","id_target":2,"id_table":0,"id_field":0,"id_event":1,"id_event_type":2,"display":"Back","code":"go(getTarget(), getTable(), getId(), 7);"}', 'id_table', tableEventId);
-        id := stamp('tb_event', jsons, jsonf);
+        id := insert('tb_event', jsons, jsonf);
 
         -- Finish
         return new;

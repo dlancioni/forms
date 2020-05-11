@@ -31,6 +31,7 @@ select insert('tb_table', '{"id_system":1,"id_table":3,"id_user":1,"id_action":1
 select insert('tb_table', '{"id_system":1,"id_table":3,"id_user":1,"id_action":1}','{"id":0,"id_system":1,"name":"Domain","id_type":1,"title":"Domain","table_name":"tb_domain"}');
 select insert('tb_table', '{"id_system":1,"id_table":3,"id_user":1,"id_action":1}','{"id":0,"id_system":1,"name":"Event","id_type":1,"title":"Event", "table_name":"tb_event"}');
 select insert('tb_table', '{"id_system":1,"id_table":3,"id_user":1,"id_action":1}','{"id":0,"id_system":1,"name":"Code","id_type":1,"title":"Code","table_name":"tb_code"}');
+select insert('tb_table', '{"id_system":1,"id_table":3,"id_user":1,"id_action":1}','{"id":0,"id_system":1,"name":"Catalog","id_type":1,"title":"Catalog","table_name":"tb_catalog"}');
 
 -- -----------------------------------------------------
 -- table tb_field
@@ -82,6 +83,11 @@ select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":6,"label":"Code
 -- tb_code
 select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":7,"label":"Id","name":"id","field_type":"integer","size":0,"mask":"","id_mandatory":"Y","id_unique":"Y","id_fk":0,"domain":""}');
 select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":7,"label":"Code","name":"code","field_type":"text","size":500,"mask":"","id_mandatory":"Y","id_unique":"N","id_fk":0,"domain":""}');
+-- tb_catalog
+select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":8,"label":"Id","name":"id","field_type":"integer","size":0,"mask":"","id_mandatory":"Y","id_unique":"Y","id_fk":0,"domain":""}');
+select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":8,"label":"Key","name":"key","field_type":"string","size":50,"mask":"","id_mandatory":"Y","id_unique":"N","id_fk":0,"domain":""}');
+select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":8,"label":"English","name":"value1","field_type":"string","size":50,"mask":"","id_mandatory":"Y","id_unique":"N","id_fk":0,"domain":""}');
+select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":8,"label":"Portuguese","name":"value2","field_type":"string","size":50,"mask":"","id_mandatory":"Y","id_unique":"N","id_fk":0,"domain":""}');
 -- Fix session for all records
 update tb_field set session = '{"id_system":1,"id_table":4,"id_user":1,"id_action":1}';
 
@@ -126,9 +132,12 @@ select insert('tb_domain', '{}','{"id":24,"id_system":1,"key":">","value":">","d
 select insert('tb_domain', '{}','{"id":25,"id_system":1,"key":">=","value":">=","domain":"tb_operator"}');
 select insert('tb_domain', '{}','{"id":26,"id_system":1,"key":"<","value":"<","domain":"tb_operator"}');
 select insert('tb_domain', '{}','{"id":27,"id_system":1,"key":"<=","value":"<=","domain":"tb_operator"}');
--- tb_bool
+-- tb_table_type
 select insert('tb_domain', '{}','{"id":1,"id_system":1,"key":1,"value":"System","domain":"tb_table_type"}');
 select insert('tb_domain', '{}','{"id":2,"id_system":1,"key":2,"value":"User","domain":"tb_table_type"}');
+-- tb_language
+select insert('tb_domain', '{}','{"id":1,"id_system":1,"key":1,"value":"English","domain":"tb_language"}');
+select insert('tb_domain', '{}','{"id":2,"id_system":1,"key":2,"value":"Portuguese","domain":"tb_language"}');
 -- set the session
 update tb_domain set session = '{"id_system":1,"id_table":5,"id_user":1,"id_action":1}';
 

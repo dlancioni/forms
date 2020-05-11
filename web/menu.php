@@ -22,7 +22,7 @@
                         <a onClick="go(1,5,0)" class="w3-bar-item w3-button w3-mobile">Domain</a>
                         <a onClick="go(1,6,0)" class="w3-bar-item w3-button w3-mobile">Event</a>
                         <a onClick="go(1,7,0)" class="w3-bar-item w3-button w3-mobile">Code</a>
-
+                        <a onClick="go(1,8,0)" class="w3-bar-item w3-button w3-mobile">Catalog</a>
                         </li>
                     </ul>        
                 </li>

@@ -46,13 +46,7 @@ drop table if exists tb_code cascade;
 create table if not exists tb_code (id serial, session jsonb, field jsonb);
 
 -- -----------------------------------------------------
--- table tb_dictionary
+-- table tb_catalog
 -- -----------------------------------------------------
 drop table if exists tb_catalog cascade;
 create table if not exists tb_catalog (id serial, session jsonb, field jsonb);
-
--- -----------------------------------------------------
--- table tb_user
--- -----------------------------------------------------
-drop table if exists tb_user cascade;
-create table if not exists tb_user (id serial, session jsonb, field jsonb);

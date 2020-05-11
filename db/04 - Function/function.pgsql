@@ -417,6 +417,7 @@ declare
     sql text := '';
     tableAlias text := '';
     output text := '';
+    TB_DOMAIN int := 5;
 begin
     -- select row_to_json(tb_table)::text from tb_table
     sql := concat(sql, ' select');
@@ -432,7 +433,7 @@ begin
 
     for item in execute sql loop
         -- Domain
-        if (item.field_fk = 4) then
+        if (item.field_fk = TB_DOMAIN) then
             tableAlias = concat('tb_', replace(item.field_name, 'id_', 'fk_'));
             output := concat(output, sql_join(item.base_table, item.field_name, item.table_name, tableAlias, 'key', item.domain_name));
         else
@@ -567,13 +568,13 @@ declare
 begin
 
     sql := concat(sql, 'select ');
-    sql := concat(sql, sql_field('tb_table', 'caption'));
+    sql := concat(sql, sql_field('tb_table', 'title'));
     sql := concat(sql, sql_from('tb_table'));
     sql := concat(sql, sql_where('tb_table', systemId));
     sql := concat(sql, sql_and('tb_table', 'id', tableId));
 
     for item in execute sql loop
-        return item.caption;
+        return item.title;
     end loop;
     raise exception 'tabela nao encontrada para codigo de sistema (%) e tabela (%)', systemId, tableId;
 end;
@@ -632,6 +633,7 @@ declare
     fieldName text := '';    
     fieldType text := 'string';
     output text := '';
+    TB_DOMAIN int := 5;
 begin
     sql1 := get_struct(systemId, tableId);
 
@@ -644,7 +646,7 @@ begin
             -- Other tables, get first text field
             tableName := get_table(systemId, item1.field_fk::text);
             
-            if (item1.field_fk = 4) then
+            if (item1.field_fk = TB_DOMAIN) then
                 -- Domain
                 tableName = concat('tb_', replace(item1.field_name, 'id_', 'fk_'));
                 output := concat(output, sql_column(tableName, 'value', fieldType, item1.field_mask, item1.field_name), ',');
@@ -838,6 +840,7 @@ declare
     sql2 text := '';    
     item1 record;
     item2 record;
+    TB_DOMAIN int := 5;
 begin
 
     -- Empty item    
@@ -849,7 +852,7 @@ begin
     execute trace('fieldFk: ', fieldFk::text);
 
     -- Generate query selecting first Int and first String (ID, DS) from each table            
-    if (fieldFk = '4') then
+    if ((fieldFk)::int = TB_DOMAIN) then
         -- Domain table
         sql2 := 'select ';
         sql2 := concat(sql2, sql_field('tb_domain', 'key', 'id'), ',');
@@ -1013,7 +1016,7 @@ declare
     item1 record;
     item2 record;
     fieldList text := '';
-
+    QUERY text := '4';
 begin
 
 	-- Keep key parameters
@@ -1046,7 +1049,7 @@ begin
 	if (position(jsons->>'id_action'::text in '1234') = 0) then
 	    raise exception 'Action is invalid or missing: %', jsons->>'id_action';
     else
-        if (jsons->>'id_action'::text = '4') then
+        if (jsons->>'id_action'::text = QUERY) then
             if (jsons->>'page_limit' is null) then
                 raise exception 'Invalid session, % is missing', 'page_limit';
             end if;

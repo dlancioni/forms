@@ -11,8 +11,8 @@ declare
     jsons jsonb;
     jsonf jsonb;
 
-    TB_FIELD text := '3';
-    TB_EVENT text = '5';
+    TB_FIELD text := '4';
+    TB_EVENT text = '6';
 
 begin
 

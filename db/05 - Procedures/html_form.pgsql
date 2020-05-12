@@ -34,7 +34,7 @@ declare
     resultset jsonb;
     SUCCESS text := '1';
     FAIL text := '';
-    TB_DOMAIN text := '4';
+    TB_DOMAIN int := 5;
 begin
     ---
     --- Start processing
@@ -115,7 +115,7 @@ begin
         if (fieldFK = '0') then
             -- event:filter | type:int/dec/dat enable checkbox to pick operator
             if (eventId = '5' and (fieldType = 'integer' or fieldType = 'decimal' or fieldType = 'date')) then 
-                html := concat(html, html_dropdown(systemId, concat(fieldName, '_operator'), TB_DOMAIN, fieldValue, 'tb_operator'));
+                html := concat(html, html_dropdown(systemId, concat(fieldName, '_operator'), TB_DOMAIN::text, fieldValue, 'tb_operator'));
                 html := concat (html, '</p>');
                 html := concat (html, html_input('text', fieldName, fieldValue, disabled, checked, events));
             else

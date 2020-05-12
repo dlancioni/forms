@@ -72,7 +72,6 @@
         $json = str_replace("'", "''", $json);
 
         // Persist it
-        $log = $json;
         $sql = "select persist($1)";
         $db->set_return_type("json");
         $json = $db->Execute($sql, $json);
@@ -81,7 +80,6 @@
         echo "EXCEPTION : " . $e;
     }
 
-    error_log($log);
     //echo db->get_error();
     echo $json->message;
 

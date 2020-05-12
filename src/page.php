@@ -74,7 +74,7 @@
         }        
 
         // Debug point to check what is been sent to bd
-        // echo $json;
+        //echo $json;
 
         if ($target == "1") {
             $sql = "call html_table($1)";
@@ -83,7 +83,7 @@
         }
 
         $db->set_return_type("html");
-        $html = $db->Execute($sql, $json);  
+        $html = $db->Execute($sql, $json);
 
     } catch (exception $e) {
         echo "EXCEPTION : " . $e;

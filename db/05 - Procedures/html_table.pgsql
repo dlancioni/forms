@@ -3,7 +3,7 @@
 call html_table('{"session":{"id_system":1,"id_table":3,"id":0,"id_event":0,"page_offset":0}}')
 
 -- filtering
-call html_table('{"session":{"id_system":1,"id_table":2,"id":0,"id_event":6,"page_offset":0},"filter":[{"field_name":"id_system","operator":"","field_value":"1"}]}')
+call html_table('{"session":{"id_system":1,"id_table":4,"id":0,"id_event":6,"page_offset":0},"filter":[{"field_name":"size","operator":"=","field_value":"50"}]}')
 */
 
 drop procedure if exists html_table;

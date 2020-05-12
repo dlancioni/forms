@@ -85,6 +85,8 @@ select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":7,"label":"Id",
 select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":7,"label":"Code","name":"code","field_type":"text","size":500,"mask":"","id_mandatory":"Y","id_unique":"N","id_fk":0,"domain":""}');
 -- tb_catalog
 select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":8,"label":"Id","name":"id","field_type":"integer","size":0,"mask":"","id_mandatory":"Y","id_unique":"Y","id_fk":0,"domain":""}');
+select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":8,"label":"Language","name":"id_language","field_type":"integer","size":0,"mask":"","id_mandatory":"Y","id_unique":"N","id_fk":5,"domain":"tb_language"}');
+select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":8,"label":"Type","name":"id_type","field_type":"integer","size":0,"mask":"","id_mandatory":"Y","id_unique":"N","id_fk":5,"domain":"tb_catalog_type"}');
 select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":8,"label":"Key","name":"key","field_type":"string","size":50,"mask":"","id_mandatory":"Y","id_unique":"N","id_fk":0,"domain":""}');
 select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":8,"label":"English","name":"value1","field_type":"string","size":50,"mask":"","id_mandatory":"Y","id_unique":"N","id_fk":0,"domain":""}');
 select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":8,"label":"Portuguese","name":"value2","field_type":"string","size":50,"mask":"","id_mandatory":"Y","id_unique":"N","id_fk":0,"domain":""}');
@@ -96,48 +98,56 @@ update tb_field set session = '{"id_system":1,"id_table":4,"id_user":1,"id_actio
 -- -----------------------------------------------------
 delete from tb_domain;
 -- tb_bool
-select insert('tb_domain', '{}','{"id":1,"id_system":1,"key":"Y","value":"Yes","domain":"tb_bool"}');
-select insert('tb_domain', '{}','{"id":2,"id_system":1,"key":"N","value":"No","domain":"tb_bool"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"Y","value":"Yes","domain":"tb_bool"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"N","value":"No","domain":"tb_bool"}');
 -- tb_field_type
-select insert('tb_domain', '{}','{"id":3,"id_system":1,"key":"integer","value":"Integer","domain":"tb_field_type"}');
-select insert('tb_domain', '{}','{"id":4,"id_system":1,"key":"decimal","value":"Decimal","domain":"tb_field_type"}');
-select insert('tb_domain', '{}','{"id":5,"id_system":1,"key":"string","value":"String","domain":"tb_field_type"}');
-select insert('tb_domain', '{}','{"id":6,"id_system":1,"key":"date","value":"Date","domain":"tb_field_type"}');
-select insert('tb_domain', '{}','{"id":7,"id_system":1,"key":"boolean","value":"Boolean","domain":"tb_field_type"}');
-select insert('tb_domain', '{}','{"id":8,"id_system":1,"key":"text","value":"Text","domain":"tb_field_type"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"integer","value":"Integer","domain":"tb_field_type"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"decimal","value":"Decimal","domain":"tb_field_type"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"string","value":"String","domain":"tb_field_type"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"date","value":"Date","domain":"tb_field_type"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"boolean","value":"Boolean","domain":"tb_field_type"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"text","value":"Text","domain":"tb_field_type"}');
 -- tb_target
-select insert('tb_domain', '{}','{"id":9, "id_system":1,"key":1,"value":"Report","domain":"tb_target"}');
-select insert('tb_domain', '{}','{"id":10,"id_system":1,"key":2,"value":"Form","domain":"tb_target"}');
+select insert('tb_domain', '{}','{"id":0, "id_system":1,"key":1,"value":"Report","domain":"tb_target"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":2,"value":"Form","domain":"tb_target"}');
 -- tb_event
-select insert('tb_domain', '{}','{"id":11,"id_system":1,"key":1,"value":"OnClick","domain":"tb_event"}');
-select insert('tb_domain', '{}','{"id":12,"id_system":1,"key":2,"value":"OnFocus","domain":"tb_event"}');
-select insert('tb_domain', '{}','{"id":13,"id_system":1,"key":3,"value":"OnBlur","domain":"tb_event"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":1,"value":"OnClick","domain":"tb_event"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":2,"value":"OnFocus","domain":"tb_event"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":3,"value":"OnBlur","domain":"tb_event"}');
 -- tb_event_type
-select insert('tb_domain', '{}','{"id":11,"id_system":1,"key":1,"value":"None","domain":"tb_event_type"}');
-select insert('tb_domain', '{}','{"id":12,"id_system":1,"key":2,"value":"Caption","domain":"tb_event_type"}');
-select insert('tb_domain', '{}','{"id":13,"id_system":1,"key":3,"value":"Image","domain":"tb_event_type"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":1,"value":"None","domain":"tb_event_type"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":2,"value":"Caption","domain":"tb_event_type"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":3,"value":"Image","domain":"tb_event_type"}');
 -- tb_rel_event
-select insert('tb_domain', '{}','{"id":14,"id_system":1,"key":"new","value":"save","domain":"tb_rel_event"}');
-select insert('tb_domain', '{}','{"id":15,"id_system":1,"key":"new","value":"back","domain":"tb_rel_event"}');
-select insert('tb_domain', '{}','{"id":16,"id_system":1,"key":"edit","value":"save","domain":"tb_rel_event"}');
-select insert('tb_domain', '{}','{"id":17,"id_system":1,"key":"edit","value":"back","domain":"tb_rel_event"}');
-select insert('tb_domain', '{}','{"id":18,"id_system":1,"key":"delete","value":"save","domain":"tb_rel_event"}');
-select insert('tb_domain', '{}','{"id":19,"id_system":1,"key":"delete","value":"back","domain":"tb_rel_event"}');
-select insert('tb_domain', '{}','{"id":20,"id_system":1,"key":"filter1","value":"filter2","domain":"tb_rel_event"}');
-select insert('tb_domain', '{}','{"id":21,"id_system":1,"key":"filter1","value":"back","domain":"tb_rel_event"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"new","value":"save","domain":"tb_rel_event"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"new","value":"back","domain":"tb_rel_event"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"edit","value":"save","domain":"tb_rel_event"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"edit","value":"back","domain":"tb_rel_event"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"delete","value":"save","domain":"tb_rel_event"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"delete","value":"back","domain":"tb_rel_event"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"filter1","value":"filter2","domain":"tb_rel_event"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"filter1","value":"back","domain":"tb_rel_event"}');
 -- tb_operator
-select insert('tb_domain', '{}','{"id":22,"id_system":1,"key":"=","value":"=","domain":"tb_operator"}');
-select insert('tb_domain', '{}','{"id":23,"id_system":1,"key":"<>","value":"<>","domain":"tb_operator"}');
-select insert('tb_domain', '{}','{"id":24,"id_system":1,"key":">","value":">","domain":"tb_operator"}');
-select insert('tb_domain', '{}','{"id":25,"id_system":1,"key":">=","value":">=","domain":"tb_operator"}');
-select insert('tb_domain', '{}','{"id":26,"id_system":1,"key":"<","value":"<","domain":"tb_operator"}');
-select insert('tb_domain', '{}','{"id":27,"id_system":1,"key":"<=","value":"<=","domain":"tb_operator"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"=","value":"=","domain":"tb_operator"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"<>","value":"<>","domain":"tb_operator"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":">","value":">","domain":"tb_operator"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":">=","value":">=","domain":"tb_operator"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"<","value":"<","domain":"tb_operator"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"<=","value":"<=","domain":"tb_operator"}');
 -- tb_table_type
-select insert('tb_domain', '{}','{"id":1,"id_system":1,"key":1,"value":"System","domain":"tb_table_type"}');
-select insert('tb_domain', '{}','{"id":2,"id_system":1,"key":2,"value":"User","domain":"tb_table_type"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":1,"value":"System","domain":"tb_table_type"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":2,"value":"User","domain":"tb_table_type"}');
 -- tb_language
-select insert('tb_domain', '{}','{"id":1,"id_system":1,"key":1,"value":"English","domain":"tb_language"}');
-select insert('tb_domain', '{}','{"id":2,"id_system":1,"key":2,"value":"Portuguese","domain":"tb_language"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":1,"value":"English","domain":"tb_language"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":2,"value":"Portuguese","domain":"tb_language"}');
+-- tb_language
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"5","value":"Page Title","domain":"tb_catalog_type"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"1","value":"Field Name","domain":"tb_catalog_type"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"3","value":"Button Name","domain":"tb_catalog_type"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"2","value":"Message Code","domain":"tb_catalog_type"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"4","value":"Domain Value","domain":"tb_catalog_type"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"5","value":"Dropdown","domain":"tb_catalog_type"}');
+
 -- set the session
 update tb_domain set session = '{"id_system":1,"id_table":5,"id_user":1,"id_action":1}';
 

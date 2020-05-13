@@ -586,11 +586,11 @@ $function$;
 
 /*
 Get table name
-select get_title('1','1') -- success
-select get_title('1','9') -- fail
+select get_title('1','1','2') -- success
+select get_title('1','9','1') -- fail
 */
 drop function if exists get_title;
-create or replace function get_title(systemId text, tableId text)
+create or replace function get_title(systemId text, tableId text, languageId text)
 returns text
 language plpgsql
 as $function$
@@ -599,15 +599,27 @@ declare
     item record;
 begin
 
+    -- Get the page title
     sql := concat(sql, 'select ');
-    sql := concat(sql, sql_field('tb_table', 'title'));
+    sql := concat(sql, sql_field('tb_table', 'title'), ',');
+    sql := concat(sql, sql_field('tb_translation', 'value', 'translation'));    
     sql := concat(sql, sql_from('tb_table'));
+    -- Translation
+    sql := concat(sql, sql_join('tb_table', 'title', 'tb_catalog', 'tb_translation', 'key'));
+    sql := concat(sql, sql_and('tb_translation', 'id_language', languageId));
+    -- Base keys
     sql := concat(sql, sql_where('tb_table', systemId));
     sql := concat(sql, sql_and('tb_table', 'id', tableId));
+    execute trace('sql: ', sql);
 
     for item in execute sql loop
-        return item.title;
+        if (item.translation is null) then
+            return item.title;
+        else
+            return item.translation;
+        end if;        
     end loop;
+
     raise exception 'tabela nao encontrada para codigo de sistema (%) e tabela (%)', systemId, tableId;
 end;
 $function$;

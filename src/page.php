@@ -10,7 +10,7 @@
    
     // General Declaration
     $system = 1;
-    $language = 2;    
+    $language = 1;
     $target = 1; // 1-report 2-form
     $table = 1;
     $record = 1;

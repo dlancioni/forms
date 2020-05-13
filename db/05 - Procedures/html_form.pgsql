@@ -60,7 +60,7 @@ begin
     ---
     --- Page title
     ---
-    html := concat(html, '<h3>', get_title(systemId, tableId), '</h3>');
+    html := concat(html, '<h3>', get_title(systemId, tableId, languageId), '</h3>');
     html := concat(html, '<br>');    
 
     ---

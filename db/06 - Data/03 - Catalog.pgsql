@@ -7,22 +7,14 @@ ALTER ROLE qqbzxiqr IN DATABASE qqbzxiqr SET search_path TO system;
 -- table tb_catalog
 -- -----------------------------------------------------
 delete from tb_catalog;
--- Page title
-select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":1,"id_type":1,"key":"System","value":"System"}');
+-- Page title (Page title is not a code but final label in english, not necessary to translate to english)
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":1,"key":"System","value":"Sistema"}');
-select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":1,"id_type":1,"key":"Menu","value":"Menu"}');
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":1,"key":"Menu","value":"Menu"}');
-select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":1,"id_type":1,"key":"Table","value":"Table"}');
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":1,"key":"Table","value":"Tabela"}');
-select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":1,"id_type":1,"key":"Field","value":"Field"}');
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":1,"key":"Field","value":"Campos"}');
-select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":1,"id_type":1,"key":"Domain","value":"Domain"}');
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":1,"key":"Domain","value":"Domínio"}');
-select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":1,"id_type":1,"key":"Event","value":"Event"}');
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":1,"key":"Event","value":"Eventos"}');
-select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":1,"id_type":1,"key":"Code","value":"Code"}');
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":1,"key":"Code","value":"Código"}');
-select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":1,"id_type":1,"key":"Catalog","value":"Catalog"}');
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":1,"key":"Catalog","value":"Catalogo"}');
 -- Buttons
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":1,"id_type":3,"key":"new","value":"New"}');

@@ -9,7 +9,8 @@
     include "util.php";
    
     // General Declaration
-    $system = 1;    
+    $system = 1;
+    $language = 2;    
     $target = 1; // 1-report 2-form
     $table = 1;
     $record = 1;
@@ -18,12 +19,11 @@
     $user = 1;    
     $view = 0;
     $action = 0;
-    $pageOffset = 0;    
+    $pageOffset = 0;
     $json = "";
     $html = "";
     $filter = [];
     $item = "";
-
     $fieldName = "";
     $fieldOperator = "";
     $fieldValue = "";
@@ -52,6 +52,7 @@
         $json = $jsonUtil->setSession($json, "id", intval($record));
         $json = $jsonUtil->setSession($json, "id_event", intval($event));
         $json = $jsonUtil->setSession($json, "page_offset", intval($pageOffset));
+        $json = $jsonUtil->setSession($json, "id_language", intval($language));
 
         // Filter logic
         if ($event == 6) {
@@ -74,7 +75,7 @@
         }        
 
         // Debug point to check what is been sent to bd
-        //echo $json;
+        // echo $json;
 
         if ($target == "1") {
             $sql = "call html_table($1)";

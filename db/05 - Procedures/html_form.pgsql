@@ -1,6 +1,6 @@
 /*
 -- filtering
-call html_form({"session":{"id_system":1,"id_table":4,"id":0,"id_event":5,"page_offset":0}}')
+call html_form('{"session":{"id_system":1,"id_table":1,"id":0,"id_event":1,"page_offset":0,"id_language":2}}')
 */
 
 drop procedure if exists html_form;
@@ -10,6 +10,7 @@ as $procedure$
 declare
     id text := '';
     systemId text := '';
+    languageId text := '';
     tableId text := '';
     eventId text := '';
     fieldFK text := '';
@@ -46,6 +47,7 @@ begin
     ---
     id := data::jsonb->'session'->>'id'::text;
     systemId := data::jsonb->'session'->>'id_system'::text;
+    languageId := (data::jsonb->'session'->>'id_language')::text;
     tableId := data::jsonb->'session'->>'id_table'::text;
     eventId := data::jsonb->'session'->>'id_event'::text;
     tableName := get_table(systemId, tableId);
@@ -94,7 +96,7 @@ begin
         if (fieldName = 'id') then
             if (eventId = '1') then
                 -- NEW: set zero and disable
-                fieldValue := '0';
+                fieldValue := '';
                 disabled := ' disabled ';
             elsif (eventId = '5') then
                 -- FILTER: set empty and allow enter data
@@ -137,7 +139,7 @@ begin
     ---
     --- Actions (Buttons)
     ---
-    html := concat(html, get_event(systemId, tableId, target, eventId, recordCount::text));
+    html := concat(html, get_event(systemId, tableId, target, eventId, recordCount::text, languageId));
 
     ---
     --- Javascript

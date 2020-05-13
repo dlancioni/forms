@@ -14,6 +14,7 @@ declare
     systemId text := '';
     tableId text := '';
     eventId text := '';
+    languageId text := '';
     id text := '';
     targetId text := '1'; -- report
     pageOffset text := '';
@@ -46,7 +47,8 @@ begin
     ---
     id := (data::jsonb->'session'->>'id')::text;    
     systemId := (data::jsonb->'session'->>'id_system')::text;
-    tableId := (data::jsonb->'session'->>'id_table')::text;
+    languageId := (data::jsonb->'session'->>'id_language')::text;
+    tableId := (data::jsonb->'session'->>'id_table')::text;    
     pageOffset := data::jsonb->'session'->>'page_offset';
     tableName := get_table(systemId, tableId);
 
@@ -148,7 +150,7 @@ begin
     ---
     --- Actions (Buttons)
     ---
-    html :=concat(html, get_event(systemId, tableId, targetId, 'new', recordCount::text));
+    html :=concat(html, get_event(systemId, tableId, targetId, 'new', recordCount::text, languageId));
 
     ---
     --- Javascript

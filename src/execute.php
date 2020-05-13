@@ -14,6 +14,7 @@
     $user = 1;
     $event = 0;
     $action = 0;
+    $language = 1;
 
     $db = "";
     $sql = "";
@@ -47,7 +48,7 @@
         } 
 
         // Get representation of current action
-        $json = $jsonUtil->getJson($system, $table, $user, $action);
+        $json = $jsonUtil->getJson($system, $table, $user, $action, $language);
 
         // Form contents to standard json
         foreach($_REQUEST as $key => $val) {

@@ -1,4 +1,36 @@
 /*
+Return message from catalog
+select get_catalog('1', '1', '3', 'new'); -- true
+*/
+drop function if exists get_catalog;
+create or replace function get_catalog(systemId text, languageId text, type text, key text)
+returns text
+language plpgsql
+as $function$
+declare 
+    sql text := '';
+    output text := '';
+    item record;    
+begin
+    sql := concat(sql, 'select ');
+    sql := concat(sql, sql_field('tb_catalog', 'value', 'output'));
+    sql := concat(sql, sql_from('tb_catalog'));
+    sql := concat(sql, sql_where('tb_catalog', systemId));
+    sql := concat(sql, sql_and('tb_catalog', 'id_language', languageId));
+    sql := concat(sql, sql_and('tb_catalog', 'id_type', type));
+    sql := concat(sql, sql_and('tb_catalog', 'key', key));
+    execute trace('sql: ', sql);
+
+    for item in execute sql loop
+        output := trim(item.output);
+    end loop;
+
+    return output;
+
+end;
+$function$;
+
+/*
 Set value between single quote
 */
 drop function if exists return;
@@ -262,7 +294,7 @@ begin
     if (is_decimal(fieldValue)) then
         sql := concat(sql, ' and (', tableName, '.field->>', qt(fieldName), ')::int = ', fieldValue);            
     else    
-        sql := concat(sql, ' and (', tableName, '.field->>', qt(fieldName), ')::text = ', qt(fieldValue));
+        sql := concat(sql, ' and (upper(', tableName, '.field->>', qt(fieldName), '))::text = ', 'upper(', qt(fieldValue), ')');
     end if;    
 
     return sql;
@@ -394,7 +426,7 @@ begin
         sql := concat(sql, ' and ', joinTableAlias, '.field->>', qt('domain'), ' = ', qt(domainName));
     else
         sql := concat(sql, ' left join ', joinTable, ' ', joinTableAlias, ' on');
-        sql := concat(sql, ' (', baseTable, '.field->>', qt(baseField), ')::int = (', joinTableAlias, '.field->>', qt(joinField), ')::int');
+        sql := concat(sql, ' (', baseTable, '.field->>', qt(baseField), ')::text = (', joinTableAlias, '.field->>', qt(joinField), ')::text');
     end if;
 
     return sql;
@@ -674,20 +706,21 @@ $function$;
 /*
 Set value between double quote
 select get_event('1', '1', '1', 'not used', '1');
-select get_event('1', '1', '2', '1', '1');
-select get_event('1', '1', '2', '2', '1');
-select get_event('1', '1', '2', '3', '1');
-select get_event('1', '1', '2', '5', '1');
+select get_event('1', '1', '2', '1', '1', '1');
+select get_event('1', '1', '2', '2', '1', '1');
+select get_event('1', '1', '2', '3', '1', '1');
+select get_event('1', '1', '2', '5', '1', '1');
 */
 drop function if exists get_event;
-create or replace function get_event(systemId text, tableId text, targetId text, eventId text, recordCount text)
+create or replace function get_event(systemId text, tableId text, targetId text, eventId text, recordCount text, languageId text)
 returns text
 language plpgsql
 as $function$
 declare
     sql text := '';
     html text := '';  
-    eventName text := '';  
+    eventName text := '';
+    label text := '';
     item record;  
 begin
 
@@ -712,9 +745,14 @@ begin
     sql := concat(sql, sql_field('tb_event', 'display'), ',');
     sql := concat(sql, sql_field('tb_event', 'id_event'), ',');
     sql := concat(sql, sql_field('tb_event', 'code'), ',');
-    sql := concat(sql, sql_field('tb_domain_event', 'value', 'event_name'));
+    sql := concat(sql, sql_field('tb_domain_event', 'value', 'event_name'), ',');
+    sql := concat(sql, sql_field('tb_translation', 'value', 'translation'));
     sql := concat(sql, sql_from('tb_event'));
     sql := concat(sql, sql_join('tb_event', 'id_event', 'tb_domain', 'tb_domain_event', 'key', 'tb_event'));   
+
+    -- Handle translation
+    sql := concat(sql, sql_join('tb_event', 'name', 'tb_catalog', 'tb_translation', 'key'));
+    sql := concat(sql, sql_and('tb_translation', 'id_language', languageId));
 
     -- Handle related events (report/filter cannot present form/save)
     if (targetId = '2') then
@@ -738,11 +776,18 @@ begin
     ---
     html := concat(html, '<center>');
     for item in execute sql loop
+
+        -- Translate button
+        label := trim(item.translation);
+        if (label is null or label = '') then
+            label := trim(item.display);
+        end if;
+
         html := concat(html, '<input');
         html := concat(html, ' type=', dbqt('button'));
         html := concat(html, ' class=', dbqt('w3-button w3-blue'));
         html := concat(html, ' id=', dbqt(item.id));
-        html := concat(html, ' value=', dbqt(item.display));
+        html := concat(html, ' value=', dbqt(label));
         html := concat(html, ' ', item.event_name, ' = ', dbqt(item.code));
         html := concat(html, ' >');            
         html := concat(html, ' &nbsp;');  
@@ -1033,6 +1078,10 @@ begin
         raise exception 'Invalid session, % is missing', 'id_system';
     end if;
 
+    if (jsons->>'id_language' is null) then
+        raise exception 'Invalid language, % is missing', 'id_language';
+    end if;    
+
     if (jsons->>'id_table' is null) then
         raise exception 'Invalid session, % is missing', 'id_table';
     end if;
@@ -1223,9 +1272,11 @@ begin
 
 			-- Validate mandatory fields
 			if (fieldMandatory = 'Y') then
-				if (fieldValue = null or fieldValue = '') then
-					raise exception 'Campo [%] é obrigatorio', fieldName;
-				end if;
+                if (fieldName <> 'id') then
+                    if (fieldValue = null or trim(fieldValue) = '' or trim(fieldValue) = '0') then
+                        raise exception 'Campo [%] é obrigatorio', fieldName;
+                    end if;
+                end if;
 			end if;
 
 			-- Validate unique values

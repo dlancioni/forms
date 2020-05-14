@@ -54,9 +54,9 @@ select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":2,"value":"Portugue
 select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"1","value":"Page Title","domain":"tb_catalog_type"}');
 select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"2","value":"Field Name","domain":"tb_catalog_type"}');
 select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"3","value":"Button Name","domain":"tb_catalog_type"}');
-select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"4","value":"Message Code","domain":"tb_catalog_type"}');
 select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"5","value":"Domain Value","domain":"tb_catalog_type"}');
 select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"6","value":"Dropdown","domain":"tb_catalog_type"}');
+select insert('tb_domain', '{}','{"id":0,"id_system":1,"key":"4","value":"Message Code","domain":"tb_catalog_type"}');
 -- set the session
 update tb_domain set session = '{"id_system":1,"id_table":5,"id_user":1,"id_action":1}';
 

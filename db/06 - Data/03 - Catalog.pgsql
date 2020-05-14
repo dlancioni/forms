@@ -8,18 +8,17 @@ Notes
         Page Title: get_title()
         Fields: vw_table
         Buttons: get_events()
-
+        Domain:
+        Dropdown:
+        Messages:
 */
-
 -- -----------------------------------------------------
--- Set default schema
--- -----------------------------------------------------
-ALTER ROLE qqbzxiqr IN DATABASE qqbzxiqr SET search_path TO system;
-
--- -----------------------------------------------------
--- table tb_catalog
+-- TB_CATALOG
 -- -----------------------------------------------------
 delete from tb_catalog;
+-- -----------------------------------------------------
+-- Titles
+-- -----------------------------------------------------
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":1,"key":"System","value":"Sistema"}');
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":1,"key":"Menu","value":"Menu"}');
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":1,"key":"Table","value":"Tabela"}');
@@ -28,8 +27,9 @@ select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":1,"key":"Event","value":"Eventos"}');
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":1,"key":"Code","value":"Código"}');
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":1,"key":"Catalog","value":"Catalogo"}');
-
+-- -----------------------------------------------------
 -- Fields
+-- -----------------------------------------------------
 -- tb_system
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":2,"key":"name","value":"Nome"}');
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":2,"key":"expire_date","value":"Expira em"}');
@@ -63,8 +63,9 @@ select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":2,"key":"code","value":"Código"}');
 -- tb_catalog
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":2,"key":"id_language","value":"Idioma"}');
-
+-- -----------------------------------------------------
 -- Buttons
+-- -----------------------------------------------------
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":1,"id_type":3,"key":"new","value":"New"}');
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":3,"key":"new","value":"Novo"}');
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":1,"id_type":3,"key":"edit","value":"Edit"}');
@@ -79,5 +80,34 @@ select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":1,"id_type
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":3,"key":"filter2","value":"Filtrar"}');
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":1,"id_type":3,"key":"back","value":"Back"}');
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":3,"key":"back","value":"Voltar"}');
+-- -----------------------------------------------------
+-- Domain
+-- -----------------------------------------------------
+select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":4,"key":"Report","value":"Relatório"}');
+select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":4,"key":"Form","value":"Formulário"}');
+select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":4,"key":"None","value":"Não se aplica"}');
+select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":4,"key":"Caption","value":"Texto"}');
+select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":4,"key":"Image","value":"Imagem"}');
+select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":4,"key":"System","value":"Sistema"}');
+select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":4,"key":"User","value":"Usuário"}');
+select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":4,"key":"English","value":"Inglês"}');
+select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":4,"key":"Portuguese","value":"Português"}');
+select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":4,"key":"Page Title","value":"Titulo da Página"}');
+select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":4,"key":"Field Name","value":"Nome do Campo"}');
+select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":4,"key":"Field Name","value":"Texto do botão"}');
+select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":4,"key":"Message Code","value":"Código de Mensagem"}');
+select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":4,"key":"Domain Value","value":"Valor de Domínio"}');
+select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":4,"key":"Dropdown","value":"Lista de Opções"}');
+
+-- -----------------------------------------------------
+-- DropDown
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
+-- Message Codes
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
 -- Finish
+-- -----------------------------------------------------
 update tb_catalog set session = '{"id_system":1,"id_table":8,"id_user":1,"id_action":1}';

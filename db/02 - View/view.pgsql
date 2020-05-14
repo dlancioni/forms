@@ -9,7 +9,7 @@ tb_field.id id,
 (tb_field.field->>'id_table')::int id_table,
 trim(tb_table.field->>'table_name') table_name,
 trim(tb_field.field->>'name') field_name,
-trim(tb_field.field->>'label') field_label,
+case when tb_catalog.field->>'key' is null then tb_field.field->>'label' else tb_catalog.field->>'value' end as field_label,
 trim(tb_field_type.field->>'key') field_type,
 (tb_field.field->>'size')::int field_size,
 trim(tb_field.field->>'mask') field_mask,
@@ -35,6 +35,9 @@ and tb_mandatory.field->>'domain' = 'tb_bool'
 inner join tb_domain tb_unique on
 tb_field.field->>'id_unique' = tb_unique.field->>'key'
 and tb_unique.field->>'domain' = 'tb_bool'
+
+left join tb_catalog on 
+tb_field.field->>'name' = tb_catalog.field->>'key'
 
 order by 
 tb_table.id,

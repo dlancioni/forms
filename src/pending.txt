@@ -1,0 +1,14 @@
+Gerar menu multinivel
+
+arrumar paginacao << >>
+Nova empresa duplicador tudo com id novo
+
+Criar solucao dicionario e traducao
+Colocar mensagens no dicionario
+
+Dropdown em cascata
+
+Criar campo Code em events
+
+Arrumar filtro na paginacao
+Arrumar variaveis sessao

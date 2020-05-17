@@ -9,9 +9,9 @@
     $language = 2; // Portuguese
     $user = 1;
     $table = 1;
-    $action = 0;
+    $event = 0;
     $jsonUtil = new JsonUtil();
-    $json = $jsonUtil->getJson($system, $language, $user, $table, $action);
+    $json = $jsonUtil->getJson($system, $language, $user, $table, $event);
     $_SESSION['SESSION'] = $json;
 ?>
 

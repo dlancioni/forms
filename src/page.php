@@ -9,6 +9,9 @@
    
     // Session control
     $json = "";
+    $session = "";
+    $field = "";    
+
     // Filter related
     $filter = [];
     $item = "";
@@ -28,8 +31,8 @@
         // Update the session
         $json = $_SESSION['SESSION'];
         if (isset($_REQUEST['id']))
-            $json = $jsonUtil->setSession($json, "id", $_REQUEST['id']);        
-        if (isset($_REQUEST['id_page']))        
+            $json = $jsonUtil->setField($json, "id", $_REQUEST['id']);
+        if (isset($_REQUEST['id_page']))
             $json = $jsonUtil->setSession($json, "id_page", $_REQUEST['id_page']);
         if (isset($_REQUEST['id_table']))
             $json = $jsonUtil->setSession($json, "id_table", $_REQUEST['id_table']);
@@ -39,10 +42,11 @@
             $json = $jsonUtil->setSession($json, "page_offset", $_REQUEST['page_offset']);
         $_SESSION['SESSION'] = $json;
         echo $json;
-        
+
         // Make data available    
         $json = json_decode($json, true);
         $session = $json['session'];
+        $field = $json['field'];
 
         // Debug point to check what is been sent to bd
         if ($session['id_page'] == "1") {

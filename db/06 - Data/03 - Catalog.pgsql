@@ -54,8 +54,7 @@ select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":2,"key":"key","value":"Chave"}');
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":2,"key":"value","value":"Valor"}');
 -- tb_event
-select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":2,"key":"id_page","value":"Tabela ou Formulário"}');
-select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":2,"key":"id_page","value":"Tabela ou Formulário"}');
+select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":2,"key":"id_page","value":"Página"}');
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":2,"key":"id_field","value":"Campo"}');
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":2,"key":"id_event","value":"Evento"}');
 select insert('tb_catalog', '{}','{"id":0,"id_system":1,"id_language":2,"id_type":2,"key":"id_event_type","value":"Tipo de Evento"}');

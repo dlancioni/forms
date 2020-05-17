@@ -45,7 +45,7 @@ begin
     ---
     --- Session related information
     ---
-    id := data::jsonb->'session'->>'id'::text;
+    id := data::jsonb->'field'->>'id'::text;
     systemId := data::jsonb->'session'->>'id_system'::text;
     languageId := (data::jsonb->'session'->>'id_language')::text;
     tableId := data::jsonb->'session'->>'id_table'::text;

@@ -7,12 +7,6 @@
     // Navigate to page
     function go(page, table, event, id) {
 
-
-        alert(page);
-        alert(table);
-        alert(event);
-        alert(id);
-
         // Set selection
         setValue('id_page', page);
         setValue('id_table', table);
@@ -20,7 +14,7 @@
         setValue('id', id);
 
         // New asks to copy record    
-        if (event == "1") {
+        if (event == 1) {
             if (getId() > 0) {
                 if (confirm("Would you like to use selected record as template?") == false) {
                     setValue('id', 0);
@@ -29,14 +23,14 @@
         }
 
         // Filter requires empty form
-        if (event == "5") {
+        if (event == 5) {
             id = 0;
         }
 
         // Submit data
         document.form.method = 'post';
         document.form.action = 'index.php';
-        //document.form.submit();
+        document.form.submit();
     }
 
     // Navigate to page

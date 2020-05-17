@@ -26,15 +26,17 @@
         $jsonUtil = new JsonUtil();
 
         // Update the session
-        $json = $_SESSION['SESSION'];        
+        $json = $_SESSION['SESSION'];
+        if (isset($_REQUEST['id']))
+            $json = $jsonUtil->setSession($json, "id", $_REQUEST['id']);        
         if (isset($_REQUEST['id_page']))        
             $json = $jsonUtil->setSession($json, "id_page", $_REQUEST['id_page']);
         if (isset($_REQUEST['id_table']))
             $json = $jsonUtil->setSession($json, "id_table", $_REQUEST['id_table']);
         if (isset($_REQUEST['id_event']))
             $json = $jsonUtil->setSession($json, "id_event", $_REQUEST['id_event']);
-        if (isset($_REQUEST['id']))
-            $json = $jsonUtil->setSession($json, "id_event", $_REQUEST['id']);
+        if (isset($_REQUEST['page_offset']))
+            $json = $jsonUtil->setSession($json, "page_offset", $_REQUEST['page_offset']);
         $_SESSION['SESSION'] = $json;
         echo $json;
         

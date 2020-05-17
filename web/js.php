@@ -2,16 +2,28 @@
 <script language="JavaScript">
 
     // Mandatory on form load on report
-//    setValue('__id__', document.getElementById("selection").value);
+    //setValue('id', document.getElementById("selection").value);
     
     // Navigate to page
     function go(page, table, event, id) {
+
+
+        alert(page);
+        alert(table);
+        alert(event);
+        alert(id);
+
+        // Set selection
+        setValue('id_page', page);
+        setValue('id_table', table);
+        setValue('id_event', event);
+        setValue('id', id);
 
         // New asks to copy record    
         if (event == "1") {
             if (getId() > 0) {
                 if (confirm("Would you like to use selected record as template?") == false) {
-                    id = 0;
+                    setValue('id', 0);
                 }
             }
         }
@@ -23,17 +35,17 @@
 
         // Submit data
         document.form.method = 'post';
-        document.form.action = 'index.php?id_page=' + page + '&id_table=' + table + '&id_event=' + event + '&id=' + id;
-        document.form.submit();
+        document.form.action = 'index.php';
+        //document.form.submit();
     }
 
     // Navigate to page
     function page(pageOffset) {
 
         // Set values
-        //setValue('__offset__', pageOffset);
-        //setValue('__event__', "filter"); // filter results
-        //setValue('__target__', 1); // report
+        setValue('id_page', 1);
+        setValue('id_event', 5);
+        setValue('page_offset', pageOffset);
 
         // Submit data
         document.form.method = 'post';
@@ -42,9 +54,31 @@
     }
 
     // Used to set information above
+    function getValue(field) {
+        return document.getElementById(field).value;
+    }
     function setValue(field, value) {
         document.getElementById(field).value = value;
+    }
+
+    // Navigation related functions
+    function getPage() {
+        if (getValue('id_page') == 1) {
+            return 2;
+        } else {
+            return 1;
+        }
+    }
+    function getTable() {
+        return getValue('id_table');
+    }
+    function getEvent() {
+        return getValue('id_event');
+    }
+    function getId() {
+        return getValue('id');
     }    
+
 
     // Execute URL and return data
     async function execute() {

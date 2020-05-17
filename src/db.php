@@ -26,6 +26,7 @@
         }
 
         public function getConnection() {
+            $connection = "";
             try {
                 $connection = pg_connect("postgres://qqbzxiqr:EmiJvVhFJGxDEKJoV6yK9A6o2G5pkmR9@tuffi.db.elephantsql.com:5432/qqbzxiqr");
                 $error = pg_last_error($connection);
@@ -41,6 +42,7 @@
         public function Execute($sql, $json) {
 
             $data = "";
+            $connection = "";
 
             try {
                 // db expects '' to represent single quote (mandatory check)

@@ -73,7 +73,7 @@ select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":5,"label":"Doma
 -- tb_event
 select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":6,"label":"Id","name":"id","field_type":"integer","size":0,"mask":"","id_mandatory":"Y","id_unique":"Y","id_fk":0,"domain":""}');
 select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":6,"label":"Name","name":"name","field_type":"string","size":50,"mask":"","id_mandatory":"Y","id_unique":"N","id_fk":0,"domain":""}');
-select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":6,"label":"Target","name":"id_target","field_type":"integer","size":0,"mask":"","id_mandatory":"Y","id_unique":"N","id_fk":5,"domain":"tb_target"}');
+select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":6,"label":"Target","name":"id_page","field_type":"integer","size":0,"mask":"","id_mandatory":"Y","id_unique":"N","id_fk":5,"domain":"tb_target"}');
 select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":6,"label":"Table","name":"id_table","field_type":"integer","size":0,"mask":"","id_mandatory":"Y","id_unique":"N","id_fk":3,"domain":""}');
 select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":6,"label":"Field","name":"id_field","field_type":"integer","size":0,"mask":"","id_mandatory":"N","id_unique":"N","id_fk":4,"domain":""}');
 select insert('tb_field', '{}','{"id":0,"id_system":1,"id_table":6,"label":"Event","name":"id_event","field_type":"integer","size":0,"mask":"","id_mandatory":"Y","id_unique":"N","id_fk":5,"domain":"tb_event"}');

@@ -10,14 +10,14 @@
 
 <!-- FORM -->
 <form id='form1' name='form'>
-    <!-- CURRENT SESSION -->
-    <?php include "session.php";?>
+
     <!-- PAGE CONTENTS-->
     <div class="w3-row">
         <div class="w3-col l2">&nbsp;</div>
         <div class="w3-col l8">
         <?php
-        switch ($target) {
+
+        switch ($session['id_page']) {
             case "1": // report
                 include "report.php";
                 break;
@@ -27,6 +27,7 @@
             default:
                 echo "Invalid target";
         }
+
         ?>
         </div>
         <div class="w3-col l2">&nbsp;</div>

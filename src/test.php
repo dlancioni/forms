@@ -4,11 +4,11 @@ $db = new Db();
 $json = '{"session":{"id_system":1,"id_table":2,"id_action":1}}';
 
 
-
-
-
-$json = "";
 $json = json_decode($json, true);
+$elements = $json['session'];
+echo $elements['id_table'];
+
+
 $json['field_name'] = "id";
 $json['operator'] = "=";
 $json['field_value'] = "123";
@@ -32,8 +32,6 @@ array_push($arr, $item2);
 
 
 echo json_encode($arr);
-
-
 
 
 ?>

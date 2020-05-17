@@ -161,12 +161,12 @@ exception when others then
     ---
     --- Return data (fail)
     ---
-    data := 'Deu pau';
+    data := SQLERRM::text;
 
     ---
     --- Finish no success
     ---
-    execute trace('End Query() -> exception: ', SQLERRM);    
+    execute trace('End Query() -> exception: ', SQLERRM);
 end;
 
 $procedure$

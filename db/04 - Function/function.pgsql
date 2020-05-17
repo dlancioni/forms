@@ -753,7 +753,7 @@ begin
     sql := concat(sql, ' select ');
     sql := concat(sql, sql_field('tb_event', 'id'), ',');
     sql := concat(sql, sql_field('tb_event', 'id_table'), ',');
-    sql := concat(sql, sql_field('tb_event', 'id_target'), ',');
+    sql := concat(sql, sql_field('tb_event', 'id_page'), ',');
     sql := concat(sql, sql_field('tb_event', 'display'), ',');
     sql := concat(sql, sql_field('tb_event', 'id_event'), ',');
     sql := concat(sql, sql_field('tb_event', 'code'), ',');
@@ -775,7 +775,7 @@ begin
     -- Get events for specific screen (form or report)
     sql := concat(sql, sql_where('tb_event', systemId));    
     sql := concat(sql, sql_and('tb_event', 'id_table', tableId));
-    sql := concat(sql, sql_and('tb_event', 'id_target', targetId));
+    sql := concat(sql, sql_and('tb_event', 'id_page', targetId));
 
     -- On report when no data, only [New] is presented
     if (targetId = 'report' and (recordCount)::int = 0) then

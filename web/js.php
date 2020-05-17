@@ -2,34 +2,28 @@
 <script language="JavaScript">
 
     // Mandatory on form load on report
-    setValue('__id__', document.getElementById("selection").value);
-
+//    setValue('__id__', document.getElementById("selection").value);
+    
     // Navigate to page
-    function go(target, table, record, event) {
-
-        // Set values
-        setValue('__target__', target);
-        setValue('__table__', table);
-        setValue('__id__', record);
-        setValue('__event__', event);
+    function go(page, table, event, id) {
 
         // New asks to copy record    
         if (event == "1") {
             if (getId() > 0) {
                 if (confirm("Would you like to use selected record as template?") == false) {
-                    setValue('__id__', '0');
+                    id = 0;
                 }
             }
         }
 
         // Filter requires empty form
         if (event == "5") {
-            setValue('__id__', '0');
+            id = 0;
         }
 
         // Submit data
         document.form.method = 'post';
-        document.form.action = 'index.php';
+        document.form.action = 'index.php?id_page=' + page + '&id_table=' + table + '&id_event=' + event + '&id=' + id;
         document.form.submit();
     }
 
@@ -37,33 +31,15 @@
     function page(pageOffset) {
 
         // Set values
-        setValue('__offset__', pageOffset);
-        setValue('__event__', "filter"); // filter results
-        setValue('__target__', 1); // report
+        //setValue('__offset__', pageOffset);
+        //setValue('__event__', "filter"); // filter results
+        //setValue('__target__', 1); // report
 
         // Submit data
         document.form.method = 'post';
         document.form.action = 'index.php';
         document.form.submit();
     }
-
-    // IDs to navigate
-    // Target -> report or form
-    // Table -> current transaction
-    // Id -> the record we are changing or delte
-    // Event -> New, Edit, Delete, Copy. Used to display buttons like Save, Delete or Filter
-    function getTarget() {
-        return document.getElementById('__target__').value;
-    }
-    function getTable() {
-        return document.getElementById('__table__').value;
-    }
-    function getId() {
-        return document.getElementById('__id__').value;
-    }
-    function getEvent() {
-        return document.getElementById('__event__').value;
-    }    
 
     // Used to set information above
     function setValue(field, value) {

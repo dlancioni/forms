@@ -1,16 +1,25 @@
+<?php
+    // Start session
+    session_start();
+
+    // Include dependencies    
+    include "src/util.php";
+
+    $system = 1;
+    $language = 2; // Portuguese
+    $user = 1;
+    $table = 1;
+    $action = 0;
+    $jsonUtil = new JsonUtil();
+    $json = $jsonUtil->getJson($system, $language, $user, $table, $action);
+    $_SESSION['SESSION'] = $json;
+?>
+
 <!DOCTYPE html>
 <html>
 <body>
-<?php
-echo var_dump($_REQUEST);
-?>
 
 <form id='form1' name='form1'>
-    <input name="__table__" type="text" value="0">
-    <input name="__target__" type="text" value="1">
-    <input name="__id__" type="text" value="1">
-    <input name="__event__" type="text" value="0">
-    <input name="__offset__" type="text" value="0">
     <input id="login" type="button" value="Login" onClick="go();">
 </form>
 

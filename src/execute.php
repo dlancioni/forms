@@ -1,6 +1,5 @@
 <?php
     // Include dependencies
-    include "constants.php";
     include "exception.php";
     include "db.php";
     include "util.php";
@@ -48,7 +47,7 @@
         } 
 
         // Get representation of current action
-        $json = $jsonUtil->getJson($system, $table, $user, $action, $language);
+        $json = $jsonUtil->getJson($system, $language, $user, $table, $action);
 
         // Form contents to standard json
         foreach($_REQUEST as $key => $val) {

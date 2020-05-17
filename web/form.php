@@ -4,7 +4,7 @@
     <form class="w3-container" id="frm">
         <div class='w3-row-padding'>
             <?php
-            if ($table > 0) {
+            if ($session['id_table'] > 0) {
                 echo $html;
             }
             ?>

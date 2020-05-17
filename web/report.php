@@ -1,5 +1,5 @@
 <?php
-    if ($table > 0) {
+    if ($session['id_table'] > 0) {
         if ($db->get_error() == "") {
             echo $html;
         } else {

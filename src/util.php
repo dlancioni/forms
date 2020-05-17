@@ -5,14 +5,17 @@ class JsonUtil {
     function __construct() {
     }
 
-    function getJson($system, $table, $user, $action, $language) {
+    function getJson($system, $language, $user, $table, $action) {
         $json = "";
         $json = $this->setSession($json, "id_system", intval($system));
         $json = $this->setSession($json, "id_table", intval($table));
         $json = $this->setSession($json, "id_user", intval($user));
         $json = $this->setSession($json, "id_action", intval($action));
         $json = $this->setSession($json, "id_language", intval($language));
+        $json = $this->setSession($json, "id_page", intval(1));
+        $json = $this->setSession($json, "page_offset", intval("0"));
         $json = $this->setField($json, "id", intval("0"));
+        
         return $json;
     }
 

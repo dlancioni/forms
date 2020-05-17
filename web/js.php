@@ -13,6 +13,14 @@
         setValue('id_event', event);
         setValue('id', id);
 
+        // Must select line to insert, update or delete
+        if (getId() == 0) {
+            if ("_123".search(event) > 0) {
+                alert('Please select a record');
+                return false;
+            }
+        }
+
         // New asks to copy record    
         if (event == 1) {
             if (getId() > 0) {

@@ -41,12 +41,34 @@
         if (isset($_REQUEST['page_offset']))
             $json = $jsonUtil->setSession($json, "page_offset", $_REQUEST['page_offset']);
         $_SESSION['SESSION'] = $json;
-        echo $json;
 
         // Make data available    
         $json = json_decode($json, true);
         $session = $json['session'];
         $field = $json['field'];
+
+        // Filter logic	
+        if ($session['id_event'] == 6) {
+            foreach($_REQUEST as $key => $val) {
+                $fieldName = trim($key);
+                $fieldValue = trim($val);
+                if (isValid($fieldName) == "true") {
+                    if (strpos($fieldName, "_operator") > 0) {
+                        $fieldOperator = $fieldValue;
+                    } else {
+                        if (trim($fieldValue) != "" && trim($fieldValue) != "0") {
+                            if ($fieldOperator == "0") {$fieldOperator = "=";}
+                            $item = ["field_name" => $fieldName, "operator" => $fieldOperator, "field_value" => $fieldValue];
+                            array_push($filter, $item);
+                        }
+                    }
+                }
+            }
+            $json = $jsonUtil->setFilter($json, $filter);	
+        }
+        
+        // Log string
+        // echo $json;
 
         // Debug point to check what is been sent to bd
         if ($session['id_page'] == "1") {
@@ -65,11 +87,10 @@
     function isValid($item) {
 
         switch ($item) {
-            case "__target__":
-            case "__table__":
-            case "__id__":
-            case "__event__":
-            case "__offset__":
+            case "id_page":
+            case "id_table":
+            case "id_event":
+            case "page_offset":
                 return "false";
             default:
                 return "true";    

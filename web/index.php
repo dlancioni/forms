@@ -14,11 +14,11 @@
 <form id='form1' name='form'>
 
     <!-- Control flow on js side -->
-    <input type="text" id="id_page" name="id_page" value="<?php echo $session['id_page']; ?>">
-    <input type="text" id="id_table" name="id_table" value="<?php echo $session['id_table']; ?>">
-    <input type="text" id="id_event" name="id_event" value="<?php echo $session['id_event']; ?>">
-    <input type="text" id="id" name="id" value="<?php echo $field['id']; ?>">
-    <input type="text" id="page_offset" name="page_offset" value="<?php echo $session['page_offset']; ?>">
+    <input type="hidden" id="id_page" name="id_page" value="<?php echo $session['id_page']; ?>">
+    <input type="hidden" id="id_table" name="id_table" value="<?php echo $session['id_table']; ?>">
+    <input type="hidden" id="id_event" name="id_event" value="<?php echo $session['id_event']; ?>">
+    <input type="hidden" id="id" name="id" value="<?php echo $field['id']; ?>">
+    <input type="hidden" id="page_offset" name="page_offset" value="<?php echo $session['page_offset']; ?>">
 
     <!-- PAGE CONTENTS-->
     <div class="w3-row">

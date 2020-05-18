@@ -6,6 +6,7 @@
     include "exception.php";
     include "db.php";
     include "util.php";
+    include "filter.php";    
    
     // Session control
     $json = "";
@@ -27,6 +28,7 @@
         // Instantiate objects
         $db = new Db();
         $jsonUtil = new JsonUtil();
+        $filter = new Filter();
 
         // Update the session
         $json = $_SESSION['SESSION'];
@@ -42,10 +44,11 @@
             $json = $jsonUtil->setSession($json, "page_offset", $_REQUEST['page_offset']);
         $_SESSION['SESSION'] = $json;
 
-
+        // Filter logic	
+        $json = $filter->getFilter($json);
         
-        // Log string
-        // echo $json;
+        // Log in screen
+        echo $json;
 
         // Make data available    
         $json = json_decode($json, true);
@@ -64,19 +67,6 @@
 
     } catch (exception $e) {
         echo "EXCEPTION : " . $e;
-    }
-
-    function isValid($item) {
-
-        switch ($item) {
-            case "id_page":
-            case "id_table":
-            case "id_event":
-            case "page_offset":
-                return "false";
-            default:
-                return "true";    
-        }
     }
 
 ?>

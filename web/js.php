@@ -32,7 +32,7 @@
 
         // Filter requires empty form
         if (event == 5) {
-            id = 0;
+            setValue('id', 0);
         }
 
         // Submit data

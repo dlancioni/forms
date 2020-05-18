@@ -5,35 +5,55 @@ class Filter {
     function __construct() {
     }
 
-    function filter() {
+    function getFilter($json) {
 
-    }
+        // General declaration
+        $filter = [];
+        $item = "";
+        $fieldName = "";
+        $fieldOperator = "";
+        $fieldValue = "";
+        $jsonUtil = new JsonUtil();        
 
-
-    function getFilter($_REQUEST) {
         // Filter logic	
         if (isset($_REQUEST['id_event'])) {
             if ($_REQUEST['id_event'] == 6) {
                 foreach($_REQUEST as $key => $val) {
                     $fieldName = trim($key);
                     $fieldValue = trim($val);
-                    if (isValid($fieldName) == "true") {
-                        if (strpos($fieldName, "_operator") > 0) {
-                            $fieldOperator = $fieldValue;
-                            echo $fieldOperator;
-                        } else {
-                            if (trim($fieldValue) != "" && trim($fieldValue) != "0") {
-                                if ($fieldOperator == "0") {$fieldOperator = "=";}
-                                $item = ["field_name" => $fieldName, "operator" => $fieldOperator, "field_value" => $fieldValue];
-                                array_push($filter, $item);
-                            }
+                    if ($this->isValid($fieldName) == "true") {
+                        if (isset($_REQUEST[$fieldName . "_operator"])) {
+                            $fieldOperator = $_REQUEST[$fieldName . "_operator"];
+                        }
+                        if (trim($fieldValue) != "" && trim($fieldValue) != "0") {
+                            $item = ["field_name" => $fieldName, "operator" => $fieldOperator, "field_value" => $fieldValue];
+                            array_push($filter, $item);
                         }
                     }
-                }                
+                }
+                $json = $jsonUtil->setFilter($json, $filter);
             }
         }
+        return $json;
+    }
 
-        return $filter;
+    // Session related fields are in $_REQUEST too
+    // We dont want these fields to be used as filter
+    function isValid($item) {
+
+        if (strpos($item, "_operator")) {
+            return "false";
+        }
+
+        switch ($item) {
+            case "id_page":
+            case "id_table":
+            case "id_event":
+            case "page_offset":
+                return "false";
+            default:
+                return "true";    
+        }
     }
 
 }

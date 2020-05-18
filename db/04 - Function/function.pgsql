@@ -326,7 +326,7 @@ begin
 
     -- Note: apply single quote on data and string
     if (fieldType = 'date') then
-        output = concat(output , ' (to_date(', tableName, '.field', '->>', qt(fieldName), ', ', fieldMask, ')');
+        output = concat(output , ' (to_date(', tableName, '.field', '->>', qt(fieldName), ', ', qt(fieldMask), ')');
     else
         output = concat(output , ' (', tableName, '.field', '->>', qt(fieldName));
     end if;

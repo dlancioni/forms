@@ -48,7 +48,7 @@
         $json = $filter->getFilter($json);
         
         // Log in screen
-        echo $json;
+        // echo $json;
 
         // Make data available    
         $json = json_decode($json, true);

@@ -1102,13 +1102,13 @@ begin
         raise exception 'Invalid session, % is missing', 'id_user';
     end if;
 
-    if (jsons->>'id_action' is null) then
-        raise exception 'Invalid session, % is missing', 'id_action';
+    if (jsons->>'id_event' is null) then
+        raise exception 'Invalid event, % is missing', 'id_event';
     end if;
 
     -- Validate actions
-	if (position(jsons->>'id_action'::text in '1234') = 0) then
-	    raise exception 'Action is invalid or missing: %', jsons->>'id_action';
+	if (position(jsons->>'id_event'::text in '1234') = 0) then
+	    raise exception 'Event is invalid or missing: %', jsons->>'id_event';
     else
         if (jsons->>'id_action'::text = QUERY) then
             if (jsons->>'page_limit' is null) then
@@ -1231,9 +1231,9 @@ declare
 	jsons jsonb; -- session part
 	jsonf jsonb; -- field part
 
-    ACTION_INSERT text := '1';
-    ACTION_UPDATE text := '2';
-    ACTION_DELETE text := '3';
+    ACTION_INSERT text := '1'; -- event NEW
+    ACTION_UPDATE text := '2'; -- event EDIT
+    ACTION_DELETE text := '3'; -- event DELETE
 
     SUCCESS text := '1';
     FAIL text := '1';
@@ -1253,7 +1253,7 @@ begin
 	id = jsonf->>'id';
 	systemId := jsons->>'id_system';
 	tableId := jsons->>'id_table';
-	actionId = jsons->>'id_action';
+	actionId = jsons->>'id_event'; 
 
 	-- Must figure out table name
 	sql := get_struct(systemId, tableId);

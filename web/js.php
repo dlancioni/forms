@@ -12,6 +12,7 @@
         setValue('id_table', table);
         setValue('id_event', event);
         setValue('id', id);
+        setValue('page_offset', 0);
 
         // Must select line to insert, update or delete
         if (getId() == 0) {
@@ -33,6 +34,7 @@
         // Filter requires empty form
         if (event == 5) {
             setValue('id', 0);
+            setValue('page_offset', 0);
         }
 
         // Submit data

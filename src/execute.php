@@ -6,14 +6,6 @@
 
     // Start session
     session_start();
-   
-    // General Declaration    
-    $system = 1;
-    $table = 0;
-    $user = 1;
-    $event = 0;
-    $action = 0;
-    $language = 1;
 
     $db = "";
     $sql = "";
@@ -21,6 +13,7 @@
     $fieldValue = "";    
     $jsonUtil = "";
     $json = "";
+    $session = "";
     $log = "";
 
     try {
@@ -29,39 +22,24 @@
         $db = new Db();
         $jsonUtil = new JsonUtil();
 
-        // Request key fields
-        $event = intval($_REQUEST["__event__"]);
-        $table = intval($_REQUEST["__table__"]);
+        // Get current session   
+        $json = $_SESSION['SESSION'];
+        $session = $_SESSION['SESSION'];
 
-        // Transform the event in action
-        switch ($event) {
-            case 1:                 // new->insert    
-                $action = 1;
-                break;
-            case 2:                 // edit->update
-                $action = 2;
-                break;                
-            case 3:                 // Delete button
-                $action = 3;
-                break;                
-        } 
-
-        // Get representation of current action
-        $json = $jsonUtil->getJson($system, $language, $user, $table, $action);
+        // Let session available for read
+        $session = json_decode($json, true);
+        $session = $session['session'];
 
         // Form contents to standard json
         foreach($_REQUEST as $key => $val) {
-
-            // Keep the values
             $fieldName = trim($key);
             $fieldValue = trim($val);
             if (isValid($fieldName) == "true") {            
-                // Must set 0 if ID is not informed    
-                if (trim($fieldName) == "__id__") {
-                    if ($action != 1) { // new
+                if (trim($fieldName) == "id") {
+                    if ($session['id_event'] != 1) { // new
                         $json = $jsonUtil->setField($json, "id", intval($fieldValue));
                     } else {
-                        $json = $jsonUtil->setField($json, "id", 0);                    
+                        $json = $jsonUtil->setField($json, "id", 0);
                     }
                 }
                 $json = $jsonUtil->setField($json, $fieldName, $fieldValue);
